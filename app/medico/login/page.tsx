@@ -32,7 +32,6 @@ export default function LoginMedico() {
         return;
       }
       router.push("/medico");
-      router.refresh();
     } finally {
       setCarregando(false);
     }

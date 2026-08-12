@@ -5,12 +5,14 @@ import { FundoSuave } from "@/components/brand/FundoSuave";
 import { CatalogoProcedimentos } from "@/components/medico/CatalogoProcedimentos";
 import { CadastrarCirurgia } from "@/components/medico/CadastrarCirurgia";
 import { BotaoSair } from "@/components/medico/BotaoSair";
+import { GuardaMedico } from "@/components/medico/GuardaMedico";
 
 export default function AreaMedico() {
   return (
     <>
       <FundoSuave />
       <div className="hc-gold-rule" />
+      <GuardaMedico>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-6">
         <Link href="/"><Logo height={70} /></Link>
         <BotaoSair />
@@ -56,6 +58,7 @@ export default function AreaMedico() {
           <CatalogoProcedimentos />
         </section>
       </main>
+      </GuardaMedico>
 
       <Rodape />
     </>
