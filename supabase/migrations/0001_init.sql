@@ -244,6 +244,7 @@ alter table public.modelos_termo  enable row level security;
 alter table public.documentos_gerados enable row level security;
 alter table public.assinaturas    enable row level security;
 alter table public.oks_documento  enable row level security;
+alter table public.otp_codigos    enable row level security; -- sem policies: só o servidor (service role) acessa
 alter table public.auditoria      enable row level security;
 alter table public.downloads_documento enable row level security;
 
