@@ -1,0 +1,101 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
+import { Rodape } from "@/components/brand/Rodape";
+import { FundoSuave } from "@/components/brand/FundoSuave";
+import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+
+export default function LoginMedico() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  async function entrar(e: React.FormEvent) {
+    e.preventDefault();
+    setErro("");
+    if (!SUPABASE_CONFIGURADO) {
+      setErro("Login em preparação — o banco de dados ainda está sendo configurado.");
+      return;
+    }
+    setCarregando(true);
+    try {
+      const { criarClienteBrowser } = await import("@/lib/supabase/client");
+      const supabase = criarClienteBrowser();
+      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      if (error) {
+        setErro("E-mail ou senha inválidos.");
+        return;
+      }
+      router.push("/medico");
+      router.refresh();
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  return (
+    <>
+      <FundoSuave />
+      <div className="hc-gold-rule" />
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
+        <Link href="/"><Logo height={70} /></Link>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
+        <div className="hc-card hc-gold-frame hc-fade-up p-8">
+          <span className="hc-badge">Área do Médico · acesso restrito</span>
+          <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">
+            Entrar
+          </h1>
+          <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+            Acesso exclusivo do corpo clínico. Use seu e-mail e senha cadastrados.
+          </p>
+
+          {!SUPABASE_CONFIGURADO && (
+            <div className="mt-5 rounded-xl border border-dashed border-[var(--hc-gold)] bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
+              Ambiente de demonstração — o login real é ativado quando o banco de dados
+              (Supabase) for conectado.
+            </div>
+          )}
+
+          <form onSubmit={entrar} className="mt-6 space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="medico@portalhc.com.br"
+                className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</label>
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+              />
+            </div>
+            {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
+            <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
+              {carregando ? "Entrando…" : "Entrar"}
+            </button>
+          </form>
+        </div>
+        <p className="mt-5 text-center text-xs text-[var(--hc-ink-soft)]">
+          🔒 Autenticação com dois fatores (MFA) será habilitada para colaboradores.
+        </p>
+      </main>
+
+      <Rodape />
+    </>
+  );
+}

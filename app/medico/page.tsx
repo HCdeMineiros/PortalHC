@@ -4,17 +4,16 @@ import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
 import { CatalogoProcedimentos } from "@/components/medico/CatalogoProcedimentos";
 import { CadastrarCirurgia } from "@/components/medico/CadastrarCirurgia";
+import { BotaoSair } from "@/components/medico/BotaoSair";
 
 export default function AreaMedico() {
   return (
     <>
       <FundoSuave />
       <div className="hc-gold-rule" />
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={52} /></Link>
-        <Link href="/paciente/acesso" className="text-sm text-[var(--hc-ink-soft)] hover:text-[var(--hc-red-600)]">
-          Sou paciente →
-        </Link>
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-6">
+        <Link href="/"><Logo height={70} /></Link>
+        <BotaoSair />
       </header>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">

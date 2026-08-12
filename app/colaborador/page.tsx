@@ -9,7 +9,7 @@ export default function Colaborador() {
       <FundoSuave />
       <div className="hc-gold-rule" />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={52} /></Link>
+        <Link href="/"><Logo height={70} /></Link>
       </header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-10 text-center">
         <div className="hc-card hc-gold-frame p-8">

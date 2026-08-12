@@ -16,7 +16,7 @@ export default function Home() {
 
         {/* Cabeçalho sobreposto */}
         <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-7">
-          <Logo height={64} variant="light" />
+          <Logo height={92} variant="light" />
           <BotaoMedico variant="glass" />
         </header>
 
