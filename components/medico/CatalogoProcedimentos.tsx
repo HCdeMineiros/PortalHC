@@ -6,7 +6,12 @@ import { PROCEDIMENTOS, TABELA_VERSAO, type Procedimento } from "@/lib/data/proc
 const brl = (centavos: number) =>
   (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-export function CatalogoProcedimentos() {
+export function CatalogoProcedimentos({
+  onUsar,
+}: {
+  /** ao escolher uma cirurgia já ativa, preenche o formulário de cadastro acima */
+  onUsar?: (p: Procedimento) => void;
+}) {
   const [busca, setBusca] = useState("");
   const [aberto, setAberto] = useState<string | null>(null);
 
@@ -27,7 +32,7 @@ export function CatalogoProcedimentos() {
             {PROCEDIMENTOS.length} cirurgias · valores particulares · tabela {TABELA_VERSAO}
           </p>
         </div>
-        <span className="hc-badge">Somente leitura (demonstração)</span>
+        <span className="hc-badge">Escolha uma para gerar o acesso</span>
       </div>
 
       <div className="relative mt-5">
@@ -51,6 +56,7 @@ export function CatalogoProcedimentos() {
             p={p}
             aberto={aberto === p.codigo}
             onToggle={() => setAberto(aberto === p.codigo ? null : p.codigo)}
+            onUsar={onUsar}
           />
         ))}
       </ul>
@@ -62,10 +68,12 @@ function LinhaProcedimento({
   p,
   aberto,
   onToggle,
+  onUsar,
 }: {
   p: Procedimento;
   aberto: boolean;
   onToggle: () => void;
+  onUsar?: (p: Procedimento) => void;
 }) {
   const c = p.componentesCentavos;
   const componentes: [string, number][] = [
@@ -93,15 +101,25 @@ function LinhaProcedimento({
         </span>
       </button>
       {aberto && (
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 pb-3 pl-12 pr-2 text-sm sm:grid-cols-3">
-          {componentes
-            .filter(([, v]) => v > 0)
-            .map(([label, v]) => (
-              <div key={label} className="flex justify-between border-b border-dashed border-[var(--hc-line)] py-1">
-                <span className="text-[var(--hc-ink-soft)]">{label}</span>
-                <span className="text-[var(--hc-ink)]">{brl(v)}</span>
-              </div>
-            ))}
+        <div className="pb-4 pl-12 pr-2">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
+            {componentes
+              .filter(([, v]) => v > 0)
+              .map(([label, v]) => (
+                <div key={label} className="flex justify-between border-b border-dashed border-[var(--hc-line)] py-1">
+                  <span className="text-[var(--hc-ink-soft)]">{label}</span>
+                  <span className="text-[var(--hc-ink)]">{brl(v)}</span>
+                </div>
+              ))}
+          </div>
+          {onUsar && (
+            <button
+              onClick={() => onUsar(p)}
+              className="hc-btn hc-btn-primary mt-4 w-full sm:w-auto"
+            >
+              Usar esta cirurgia e gerar acesso do paciente ↑
+            </button>
+          )}
         </div>
       )}
     </li>

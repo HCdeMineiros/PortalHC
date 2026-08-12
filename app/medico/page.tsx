@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
-import { CatalogoProcedimentos } from "@/components/medico/CatalogoProcedimentos";
-import { CadastrarCirurgia } from "@/components/medico/CadastrarCirurgia";
+import { PainelCirurgias } from "@/components/medico/PainelCirurgias";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaMedico } from "@/components/medico/GuardaMedico";
 
@@ -48,15 +47,10 @@ export default function AreaMedico() {
           ))}
         </section>
 
-        {/* Cadastro de nova cirurgia (cirurgião + anestesista → auxiliar/hospital automáticos) */}
-        <section className="mt-8">
-          <CadastrarCirurgia />
-        </section>
-
-        {/* Banco de procedimentos (catálogo real da planilha) */}
-        <section className="mt-8">
-          <CatalogoProcedimentos />
-        </section>
+        {/* Cadastro de cirurgia (nova) + banco de procedimentos (escolher existente) */}
+        <div className="mt-8">
+          <PainelCirurgias />
+        </div>
       </main>
       </GuardaMedico>
 

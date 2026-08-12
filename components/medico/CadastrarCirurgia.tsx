@@ -1,6 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+/** Preenchimento vindo do catálogo (escolher uma cirurgia já ativa). */
+export interface PreCirurgia {
+  nome: string;
+  cirurgiaoStr: string;
+  anestesistaStr: string;
+  /** muda a cada seleção para disparar o preenchimento */
+  token: number;
+}
 
 /**
  * Cadastro de nova cirurgia pelo médico.
@@ -35,7 +44,7 @@ interface CirurgiaCadastrada {
   total: number;
 }
 
-export function CadastrarCirurgia() {
+export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
   const [anestesistaStr, setAnestesistaStr] = useState("");
@@ -43,6 +52,15 @@ export function CadastrarCirurgia() {
   const [pacienteWhats, setPacienteWhats] = useState("");
   const [erro, setErro] = useState("");
   const [cadastradas, setCadastradas] = useState<CirurgiaCadastrada[]>([]);
+
+  // preenche a partir de uma cirurgia escolhida no catálogo
+  useEffect(() => {
+    if (!pre || !pre.token) return;
+    setNome(pre.nome);
+    setCirurgiaoStr(pre.cirurgiaoStr);
+    setAnestesistaStr(pre.anestesistaStr);
+    setErro("");
+  }, [pre]);
 
   const cirurgiao = paraCentavos(cirurgiaoStr);
   const anestesista = paraCentavos(anestesistaStr);
