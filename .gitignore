@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Artefatos brutos de extração (regeneráveis; podem conter PII de exemplo dos prints)
+/docs/termos-extraidos/
+/docs/informativos-extraidos/

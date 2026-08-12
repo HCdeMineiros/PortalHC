@@ -1,26 +1,184 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Portal HC — Sistema de design (vermelho + dourado, luxuoso)
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Marca — vermelho HC */
+  --hc-red:        #E11D2A;   /* vermelho da marca (H do logo) */
+  --hc-red-600:    #C8102E;   /* vermelho rico */
+  --hc-red-700:    #A00C22;   /* vermelho profundo */
+  --hc-red-050:    #FCEBEC;
+
+  /* Acento — dourado/champanhe (luxo) */
+  --hc-gold:       #C9A227;
+  --hc-gold-soft:  #E4CE7B;
+  --hc-gold-deep:  #9A7B12;
+
+  /* Neutros */
+  --hc-ink:        #1A1616;   /* texto grafite quente */
+  --hc-ink-soft:   #4B4444;
+  --hc-silver:     #ECECEC;   /* prata do oval */
+  --hc-cream:      #FAF7F3;   /* fundo off-white quente */
+  --hc-cream-2:    #F3EEE7;
+  --hc-line:       #E7DFD5;   /* linhas/hairlines */
+  --hc-white:      #FFFFFF;
+
+  --background: var(--hc-cream);
+  --foreground: var(--hc-ink);
+
+  --radius: 16px;
+  --shadow-luxe: 0 1px 2px rgba(26,22,22,.04), 0 12px 30px -12px rgba(26,22,22,.18);
+  --shadow-card: 0 1px 2px rgba(26,22,22,.05), 0 20px 40px -24px rgba(160,12,34,.22);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-hc-red: var(--hc-red);
+  --color-hc-red-600: var(--hc-red-600);
+  --color-hc-red-700: var(--hc-red-700);
+  --color-hc-red-050: var(--hc-red-050);
+  --color-hc-gold: var(--hc-gold);
+  --color-hc-gold-soft: var(--hc-gold-soft);
+  --color-hc-ink: var(--hc-ink);
+  --color-hc-ink-soft: var(--hc-ink-soft);
+  --color-hc-cream: var(--hc-cream);
+  --color-hc-line: var(--hc-line);
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { border-color: var(--hc-line); }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(201,162,39,.08), transparent 60%),
+    radial-gradient(1000px 520px at -10% 110%, rgba(225,29,42,.06), transparent 55%),
+    var(--hc-cream);
+  color: var(--hc-ink);
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
 }
+
+.font-serif { font-family: var(--font-serif), Georgia, "Times New Roman", serif; }
+
+/* Fio dourado decorativo */
+.hc-gold-rule {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--hc-gold-soft), var(--hc-gold), var(--hc-gold-soft), transparent);
+  border: 0;
+}
+
+/* Cartão luxuoso */
+.hc-card {
+  background: color-mix(in srgb, var(--hc-white) 92%, var(--hc-cream));
+  border: 1px solid var(--hc-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.hc-card-elevated {
+  background: var(--hc-white);
+  border: 1px solid var(--hc-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-luxe);
+}
+
+/* Botão primário (vermelho) */
+.hc-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  font-weight: 600; letter-spacing: .01em;
+  padding: .8rem 1.4rem; border-radius: 999px;
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+  cursor: pointer; border: 1px solid transparent;
+}
+.hc-btn:active { transform: translateY(1px); }
+.hc-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.hc-btn-primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--hc-red) 0%, var(--hc-red-600) 60%, var(--hc-red-700) 100%);
+  box-shadow: 0 10px 24px -10px rgba(160,12,34,.6), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.hc-btn-primary:hover:not(:disabled) { filter: brightness(1.05); box-shadow: 0 14px 30px -10px rgba(160,12,34,.7); }
+
+.hc-btn-ghost {
+  color: var(--hc-ink);
+  background: var(--hc-white);
+  border-color: var(--hc-line);
+}
+.hc-btn-ghost:hover { border-color: var(--hc-gold); }
+
+/* Borda dourada sutil (moldura de luxo) */
+.hc-gold-frame {
+  position: relative;
+}
+.hc-gold-frame::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: linear-gradient(135deg, var(--hc-gold-soft), transparent 40%, transparent 60%, var(--hc-gold));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Selo/etiqueta */
+.hc-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: .3rem .7rem; border-radius: 999px;
+  color: var(--hc-gold-deep); background: color-mix(in srgb, var(--hc-gold) 12%, white);
+  border: 1px solid color-mix(in srgb, var(--hc-gold) 40%, white);
+}
+
+/* Hero com a fachada do hospital ao fundo */
+.hc-hero {
+  position: relative;
+  background-color: #17130f;
+}
+/* Camada da foto (isolada p/ poder dessaturar e suavizar) */
+.hc-hero-photo {
+  background-image: url("/brand/fachada-hc.jpg");
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
+  filter: saturate(0.72) brightness(0.94) contrast(0.98);
+}
+/* Véu grafite uniforme, sem vermelho — foto discreta e texto legível */
+.hc-hero-overlay {
+  background:
+    radial-gradient(140% 120% at 50% 38%, transparent 42%, rgba(18,15,12,.34) 100%),
+    linear-gradient(180deg,
+      rgba(18,15,12,.58) 0%,
+      rgba(18,15,12,.48) 32%,
+      rgba(18,15,12,.52) 66%,
+      rgba(18,15,12,.72) 100%);
+}
+
+/* Área de leitura de termos */
+.hc-prose { line-height: 1.75; color: var(--hc-ink-soft); }
+.hc-prose h1, .hc-prose h2, .hc-prose h3 { color: var(--hc-ink); font-family: var(--font-serif), serif; }
+.hc-prose p { margin: .75rem 0; }
+
+/* Checkbox custom */
+.hc-check {
+  appearance: none; width: 1.35rem; height: 1.35rem; border-radius: 6px;
+  border: 2px solid var(--hc-line); background: #fff; cursor: pointer; position: relative; flex: none;
+  transition: border-color .15s, background .15s;
+}
+.hc-check:checked { background: var(--hc-red-600); border-color: var(--hc-red-700); }
+.hc-check:checked::after {
+  content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+
+/* Scrollbar discreta */
+.hc-scroll::-webkit-scrollbar { width: 10px; }
+.hc-scroll::-webkit-scrollbar-thumb { background: var(--hc-line); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+
+@keyframes hc-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.hc-fade-up { animation: hc-fade-up .5s ease both; }

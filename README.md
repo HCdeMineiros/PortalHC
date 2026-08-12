@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portal HC
 
-## Getting Started
+Sistema web (PWA) do **Hospital das Clínicas de Mineiros/GO** para internação e cirurgia de
+pacientes particulares, com **assinatura eletrônica** de termos de consentimento e conformidade
+com a LGPD. Domínio: **www.portalhc.com.br**.
 
-First, run the development server:
+## Rodar em desenvolvimento
 
 ```bash
+npm install
+cp .env.example .env.local   # preencha quando tiver as credenciais
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse http://localhost:3000. Fluxo de demonstração do paciente:
+`/paciente/acesso` → (duplo fator, código na tela em modo demo) → `/paciente/painel`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentação
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ver a pasta [`docs/`](docs/):
+- [Plano da Fase 1](docs/00_PLANO_FASE1.md)
+- [Modelo de dados + RLS](docs/01_MODELO_DADOS.md)
+- [Máquina de estados](docs/02_MAQUINA_ESTADOS.md)
+- [Assinatura eletrônica](docs/03_ASSINATURA_ELETRONICA.md)
+- [Segredos e ambiente](docs/04_SEGREDOS_E_AMBIENTE.md)
+- [Perguntas em aberto](docs/05_PERGUNTAS_ABERTAS.md)
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+Next.js (App Router) + TypeScript · Supabase (Auth/Postgres+RLS/Storage) · Tailwind CSS · PWA ·
+PDF no servidor · WhatsApp via n8n (Meta plugável).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> ⚠️ Desenvolvimento sempre com **dados fictícios**. Nada de dados reais no repositório.

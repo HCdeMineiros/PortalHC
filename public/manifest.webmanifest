@@ -1,0 +1,13 @@
+{
+  "name": "Portal HC — Hospital das Clínicas de Mineiros",
+  "short_name": "Portal HC",
+  "description": "Internação, cirurgia e assinatura eletrônica de termos de consentimento.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F3",
+  "theme_color": "#C8102E",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/brand/logo-hc.png", "sizes": "any", "type": "image/png", "purpose": "any" }
+  ]
+}
