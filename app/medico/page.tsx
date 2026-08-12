@@ -3,6 +3,7 @@ import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
 import { CatalogoProcedimentos } from "@/components/medico/CatalogoProcedimentos";
+import { CadastrarCirurgia } from "@/components/medico/CadastrarCirurgia";
 
 export default function AreaMedico() {
   return (
@@ -46,18 +47,9 @@ export default function AreaMedico() {
           ))}
         </section>
 
-        <section className="hc-card-elevated mt-8 flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:justify-between sm:text-left">
-          <div>
-            <h2 className="font-serif text-2xl font-semibold text-[var(--hc-ink)]">
-              Nova solicitação de cirurgia
-            </h2>
-            <p className="mt-1 text-[var(--hc-ink-soft)]">
-              Login com autenticação de dois fatores (MFA) — módulo em construção na fatia 1.
-            </p>
-          </div>
-          <button className="hc-btn hc-btn-primary flex-none px-7 py-3.5 text-base" disabled>
-            + Cadastrar cirurgia
-          </button>
+        {/* Cadastro de nova cirurgia (cirurgião + anestesista → auxiliar/hospital automáticos) */}
+        <section className="mt-8">
+          <CadastrarCirurgia />
         </section>
 
         {/* Banco de procedimentos (catálogo real da planilha) */}
