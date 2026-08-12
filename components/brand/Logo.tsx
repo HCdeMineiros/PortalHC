@@ -1,44 +1,28 @@
 import Image from "next/image";
-import { HOSPITAL } from "@/lib/brand";
+
+/** Proporção da arte composta "PORTAL HC" (1355 × 477). */
+const RATIO = 1355 / 477;
 
 export function Logo({
-  size = 60,
-  withWordmark = true,
+  height = 50,
   variant = "dark",
 }: {
-  size?: number;
-  withWordmark?: boolean;
+  /** altura em px; a largura é calculada pela proporção da arte */
+  height?: number;
+  /** "dark" = texto escuro (fundo claro) · "light" = texto creme (fundo escuro) */
   variant?: "dark" | "light";
 }) {
-  const nome = Math.round(size * 0.42);
-  const sub = Math.round(size * 0.2);
-  const light = variant === "light";
+  const src =
+    variant === "light" ? "/brand/logo-portal-hc-light.png" : "/brand/logo-portal-hc.png";
   return (
-    <div className="flex items-center gap-3.5">
-      <Image
-        src={HOSPITAL.logo}
-        alt={`Logo ${HOSPITAL.nome}`}
-        width={size}
-        height={Math.round(size * 0.73)}
-        priority
-        className={`select-none ${light ? "drop-shadow-[0_2px_8px_rgba(0,0,0,.35)]" : ""}`}
-      />
-      {withWordmark && (
-        <div className="leading-none">
-          <span
-            className={`block font-serif font-semibold ${light ? "text-white drop-shadow-[0_1px_6px_rgba(0,0,0,.4)]" : "text-[var(--hc-ink)]"}`}
-            style={{ fontSize: nome }}
-          >
-            Portal <span className={light ? "text-[var(--hc-gold-soft)]" : "text-[var(--hc-red-600)]"}>HC</span>
-          </span>
-          <span
-            className={`mt-1 block tracking-wide ${light ? "text-white/85 drop-shadow-[0_1px_4px_rgba(0,0,0,.5)]" : "text-[var(--hc-ink-soft)]"}`}
-            style={{ fontSize: sub }}
-          >
-            Hospital das Clínicas de Mineiros
-          </span>
-        </div>
-      )}
-    </div>
+    <Image
+      src={src}
+      alt="Portal HC — Hospital das Clínicas de Mineiros"
+      width={Math.round(height * RATIO)}
+      height={height}
+      priority
+      className={`select-none ${variant === "light" ? "drop-shadow-[0_2px_10px_rgba(0,0,0,.35)]" : ""}`}
+      style={{ height, width: "auto" }}
+    />
   );
 }

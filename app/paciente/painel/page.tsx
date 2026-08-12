@@ -35,7 +35,7 @@ export default function PainelPaciente() {
       <FundoSuave />
       <div className="hc-gold-rule" />
       <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo size={70} /></Link>
+        <Link href="/"><Logo height={48} /></Link>
         <span className="text-sm text-[var(--hc-ink-soft)]">Solicitação <strong className="text-[var(--hc-ink)]">{s.numero}</strong></span>
       </header>
 

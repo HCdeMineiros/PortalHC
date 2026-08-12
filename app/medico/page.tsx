@@ -11,7 +11,7 @@ export default function AreaMedico() {
       <FundoSuave />
       <div className="hc-gold-rule" />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo size={74} /></Link>
+        <Link href="/"><Logo height={52} /></Link>
         <Link href="/paciente/acesso" className="text-sm text-[var(--hc-ink-soft)] hover:text-[var(--hc-red-600)]">
           Sou paciente →
         </Link>
