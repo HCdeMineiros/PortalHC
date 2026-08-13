@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-/** Proporção da arte composta "PORTAL HC" (1355 × 477). */
-const RATIO = 1355 / 477;
+/** Proporção da arte composta "Portal HC" (1592 × 458). */
+const RATIO = 1592 / 458;
 
 export function Logo({
   height = 50,

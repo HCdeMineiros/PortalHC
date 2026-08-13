@@ -29,8 +29,8 @@ export async function POST(req: Request) {
   const { data: auth } = await comoUsuario.auth.getUser(token);
   if (!auth.user) return NextResponse.json({ erro: "Sessão inválida." }, { status: 401 });
   const { data: perfil } = await comoUsuario.from("usuarios").select("nome, papel").eq("id", auth.user.id).single();
-  if (!perfil || !["medico", "admin_dpo"].includes(perfil.papel)) {
-    return NextResponse.json({ erro: "Apenas médicos podem cadastrar internações." }, { status: 403 });
+  if (!perfil || !["medico", "admin_dpo", "internacao", "faturamento"].includes(perfil.papel)) {
+    return NextResponse.json({ erro: "Sem permissão para cadastrar internações." }, { status: 403 });
   }
 
   const b = await req.json().catch(() => null);
@@ -56,18 +56,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "service_role não configurada no servidor." }, { status: 500 });
   }
 
-  // médico
-  let medicoId: string;
+  // médico (opcional): se quem cadastra é médico, vincula; senão fica sem médico
+  let medicoId: string | null = null;
   const { data: med } = await admin.from("medicos").select("id").eq("usuario_id", auth.user.id).maybeSingle();
   if (med?.id) medicoId = med.id;
-  else {
+  else if (perfil.papel === "medico") {
     const { data: novoMed } = await admin
       .from("medicos")
       .insert({ usuario_id: auth.user.id, nome: perfil.nome, ativo: true })
       .select("id")
       .single();
-    if (!novoMed) return NextResponse.json({ erro: "Falha ao vincular médico." }, { status: 400 });
-    medicoId = novoMed.id;
+    medicoId = novoMed?.id ?? null;
   }
 
   // paciente por CPF

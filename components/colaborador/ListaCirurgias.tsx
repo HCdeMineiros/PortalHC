@@ -29,11 +29,29 @@ interface Cirurgia {
   acomodacao_dias: number | null;
   acomodacao_total_centavos: number | null;
   finalizada_em: string | null;
+  docs_total: number;
+  docs_ok: number;
   pacientes: { nome: string; cpf: string; ref_externa_promedico: string | null; telefone_whatsapp: string | null } | null;
   medicos: { nome: string } | null;
 }
 
 const nomeAcom = (chave: string | null) => ACOMODACOES.find((a) => a.chave === chave)?.nome ?? "—";
+
+/** Selo do progresso de assinatura dos documentos pelo paciente. */
+function StatusDocumentos({ ok, total }: { ok: number; total: number }) {
+  if (total === 0) return null;
+  const completo = ok >= total;
+  const cls = completo
+    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+    : ok > 0
+      ? "border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_12%,white)] text-[var(--hc-gold-deep)]"
+      : "border-[var(--hc-red-600)]/40 bg-[var(--hc-red-050)] text-[var(--hc-red-600)]";
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold ${cls}`}>
+      {completo ? "✓ Documentos assinados" : "Documentos pendentes"} ({ok}/{total})
+    </span>
+  );
+}
 
 export function ListaCirurgias() {
   const [cirurgias, setCirurgias] = useState<Cirurgia[]>([]);
@@ -185,6 +203,7 @@ function CardCirurgia({
               {c.procedimento_nome || "Cirurgia"}
             </h3>
             <span className="hc-badge">{STATUS_ROTULO[c.status] ?? c.status}</span>
+            <StatusDocumentos ok={c.docs_ok} total={c.docs_total} />
           </div>
           <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
             {c.pacientes?.nome} · Ficha {c.pacientes?.ref_externa_promedico || "—"} · Sol. {c.numero}

@@ -12,8 +12,8 @@ const { width: W, height: H, channels: C } = info;
 
 // creme claro
 const CR = 245, CG = 241, CB = 234;
-// a divisória fica ~42% da largura; recolorimos texto a partir de 44%
-const xInicioTexto = Math.floor(W * 0.44);
+// o símbolo (oval) ocupa a esquerda; recolorimos o texto a partir de 35%
+const xInicioTexto = Math.floor(W * 0.35);
 
 let recol = 0;
 for (let y = 0; y < H; y++) {

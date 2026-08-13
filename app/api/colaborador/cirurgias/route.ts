@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS } from "@/lib/data/acomodacoes";
+import { selecionarDocumentos } from "@/lib/data/documentos-solicitacao";
 
 const PAPEIS_EQUIPE = ["internacao", "faturamento", "admin_dpo"];
 
@@ -40,7 +41,22 @@ export async function GET(req: Request) {
     )
     .order("criado_em", { ascending: false });
   if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
-  return NextResponse.json({ ok: true, cirurgias: data ?? [] });
+
+  const cirurgias = data ?? [];
+  // conta os documentos que o paciente já assinou/deu OK, por solicitação
+  const ids = cirurgias.map((c) => c.id);
+  const aceitesPorSol: Record<string, number> = {};
+  if (ids.length) {
+    const { data: ac } = await admin.from("aceites_paciente").select("solicitacao_id").in("solicitacao_id", ids);
+    for (const a of ac ?? []) aceitesPorSol[a.solicitacao_id] = (aceitesPorSol[a.solicitacao_id] ?? 0) + 1;
+  }
+  const comStatus = cirurgias.map((c) => ({
+    ...c,
+    docs_total: selecionarDocumentos(c).length,
+    docs_ok: aceitesPorSol[c.id] ?? 0,
+  }));
+
+  return NextResponse.json({ ok: true, cirurgias: comStatus });
 }
 
 /** Finaliza o atendimento OU lança a acomodação. */

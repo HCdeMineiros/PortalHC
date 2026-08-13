@@ -5,6 +5,7 @@ import { FundoSuave } from "@/components/brand/FundoSuave";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaColaborador } from "@/components/colaborador/GuardaColaborador";
 import { ListaCirurgias } from "@/components/colaborador/ListaCirurgias";
+import { SecaoInternacao } from "@/components/colaborador/SecaoInternacao";
 
 export default function AreaColaborador() {
   return (
@@ -27,6 +28,10 @@ export default function AreaColaborador() {
               Acompanhe todas as cirurgias cadastradas, lance a acomodação e finalize o
               atendimento após o procedimento.
             </p>
+          </section>
+
+          <section className="mt-8">
+            <SecaoInternacao />
           </section>
 
           <section className="mt-8">
