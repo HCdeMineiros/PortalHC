@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
 import { BotaoMedico } from "@/components/brand/BotaoMedico";
+import { BotaoEquipe } from "@/components/brand/BotaoEquipe";
 
 export default function Home() {
   return (
@@ -17,7 +18,10 @@ export default function Home() {
         {/* Cabeçalho sobreposto */}
         <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-7">
           <Logo height={92} variant="light" />
-          <BotaoMedico variant="glass" />
+          <div className="flex flex-wrap items-center gap-3">
+            <BotaoEquipe variant="glass" />
+            <BotaoMedico variant="glass" />
+          </div>
         </header>
 
         {/* Conteúdo do hero */}
@@ -35,15 +39,9 @@ export default function Home() {
             segurança e validade jurídica. Transparência do início ao fim, em conformidade
             com a LGPD.
           </p>
-          <div className="hc-fade-up mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
-            <Link href="/paciente/acesso" className="hc-btn hc-btn-primary w-full px-8 py-4 text-base sm:w-auto">
+          <div className="hc-fade-up mt-10 flex w-full justify-center">
+            <Link href="/paciente/acesso" className="hc-btn hc-btn-primary w-full px-10 py-5 text-lg sm:w-auto sm:text-xl">
               Sou paciente — acessar meus documentos
-            </Link>
-            <Link
-              href="/medico/login"
-              className="hc-btn w-full border border-white/40 bg-white/10 px-7 py-4 text-base text-white backdrop-blur-md hover:bg-white/20 sm:w-auto"
-            >
-              Acesso da equipe
             </Link>
           </div>
         </div>
