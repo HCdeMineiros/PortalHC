@@ -12,7 +12,7 @@ const PAPEIS: { valor: string; rotulo: string }[] = [
   { valor: "medico", rotulo: "Médico" },
   { valor: "internacao", rotulo: "Internação" },
   { valor: "faturamento", rotulo: "Faturamento" },
-  { valor: "admin_dpo", rotulo: "Administrador / DPO" },
+  { valor: "admin_dpo", rotulo: "Administrador" },
 ];
 
 export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {

@@ -12,13 +12,19 @@ interface Usuario {
 }
 
 const ROTULO_PAPEL: Record<string, string> = {
-  admin_dpo: "Administrador / DPO",
+  admin_dpo: "Administrador",
   medico: "Médico",
   internacao: "Internação",
   faturamento: "Faturamento",
   enfermagem: "Enfermagem",
   paciente: "Paciente",
 };
+
+/** DPO (protegido) mostra "Administrador / DPO"; outros admins só "Administrador". */
+function rotuloPapel(u: { papel: string; protegido: boolean }) {
+  if (u.papel === "admin_dpo" && u.protegido) return "Administrador / DPO";
+  return ROTULO_PAPEL[u.papel] ?? u.papel;
+}
 
 export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -76,7 +82,7 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
     return (
       u.nome.toLowerCase().includes(q) ||
       (u.email ?? "").toLowerCase().includes(q) ||
-      (ROTULO_PAPEL[u.papel] ?? u.papel).toLowerCase().includes(q)
+      rotuloPapel(u).toLowerCase().includes(q)
     );
   });
 
@@ -119,7 +125,7 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
                 <p className="text-sm text-[var(--hc-ink-soft)]">{u.email}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="hc-badge">{ROTULO_PAPEL[u.papel] ?? u.papel}</span>
+                <span className="hc-badge">{rotuloPapel(u)}</span>
                 {u.protegido ? (
                   <span className="inline-flex items-center gap-1 rounded-full border border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] px-3 py-1.5 text-sm text-[var(--hc-gold-deep)]">
                     🔒 DPO protegido
