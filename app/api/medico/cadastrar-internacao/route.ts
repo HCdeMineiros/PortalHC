@@ -3,6 +3,8 @@ import { createHash, randomInt } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { numeroSolicitacao } from "@/lib/util/numero";
+import { enviarCodigoWhatsapp } from "@/lib/notifications/whatsapp";
 
 const soDigitos = (s: string) => String(s ?? "").replace(/\D/g, "");
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -89,11 +91,11 @@ export async function POST(req: Request) {
   }
 
   const codigo = String(randomInt(100000, 1000000));
-  const ano = new Date().getFullYear();
+  const base = numeroSolicitacao(ficha);
   let numero = "";
   let solicitacao = null;
-  for (let i = 0; i < 5 && !solicitacao; i++) {
-    numero = `HC-${ano}-${randomInt(10000, 100000)}`;
+  for (let i = 0; i < 6 && !solicitacao; i++) {
+    numero = i === 0 ? base : `${base}-${i + 1}`;
     const { data, error } = await admin
       .from("solicitacoes")
       .insert({
@@ -117,5 +119,13 @@ export async function POST(req: Request) {
   }
   if (!solicitacao) return NextResponse.json({ erro: "Não foi possível gerar o número." }, { status: 500 });
 
-  return NextResponse.json({ ok: true, numero, codigo });
+  const zap = await enviarCodigoWhatsapp({
+    whatsapp,
+    pacienteNome,
+    codigo,
+    numero,
+    procedimento: "Internação clínica",
+  });
+
+  return NextResponse.json({ ok: true, numero, codigo, whatsapp_enviado: zap.enviado });
 }

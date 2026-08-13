@@ -41,6 +41,7 @@ interface CirurgiaCadastrada {
   pacienteNome: string;
   codigoAcesso: string;
   total: number;
+  whatsappEnviado: boolean;
 }
 
 export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
@@ -119,6 +120,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
           pacienteNome: pacienteNome.trim(),
           codigoAcesso: json.codigo,
           total: json.total_centavos ?? calc.total,
+          whatsappEnviado: !!json.whatsapp_enviado,
         },
         ...prev,
       ]);
@@ -226,12 +228,17 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
                   <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Código de acesso do paciente</p>
                   <p className="font-mono text-2xl font-bold tracking-[0.3em] text-[var(--hc-gold-deep)]">{c.codigoAcesso}</p>
                   <p className="text-sm font-semibold text-[var(--hc-red-600)]">{brl(c.total)}</p>
+                  {c.whatsappEnviado ? (
+                    <p className="text-xs font-medium text-emerald-600">✓ Enviado ao WhatsApp</p>
+                  ) : (
+                    <p className="text-xs text-[var(--hc-ink-soft)]">Anote e repasse</p>
+                  )}
                 </div>
               </li>
             ))}
           </ul>
           <p className="mt-3 text-xs text-[var(--hc-ink-soft)]">
-            🔒 Anote o código e repasse ao paciente (por enquanto manualmente; depois, automático por WhatsApp). Ele não é exibido novamente.
+            🔒 O código é enviado ao WhatsApp do paciente (quando o n8n estiver configurado). Ele não é exibido novamente aqui.
           </p>
         </div>
       )}

@@ -3,6 +3,8 @@ import { createHash, randomInt } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { numeroSolicitacao } from "@/lib/util/numero";
+import { enviarCodigoWhatsapp } from "@/lib/notifications/whatsapp";
 
 const AUXILIAR_PCT = 0.3;
 const HOSPITAL_PCT = 0.6;
@@ -114,11 +116,11 @@ export async function POST(req: Request) {
 
   // código de acesso do paciente (6 dígitos) + solicitação
   const codigo = String(randomInt(100000, 1000000));
-  const ano = new Date().getFullYear();
+  const base = numeroSolicitacao(ficha);
   let numero = "";
   let solicitacao = null;
-  for (let tentativa = 0; tentativa < 5 && !solicitacao; tentativa++) {
-    numero = `HC-${ano}-${randomInt(10000, 100000)}`;
+  for (let tentativa = 0; tentativa < 6 && !solicitacao; tentativa++) {
+    numero = tentativa === 0 ? base : `${base}-${tentativa + 1}`;
     const { data, error } = await admin
       .from("solicitacoes")
       .insert({
@@ -144,10 +146,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "Não foi possível gerar o número da solicitação." }, { status: 500 });
   }
 
+  const zap = await enviarCodigoWhatsapp({
+    whatsapp,
+    pacienteNome,
+    codigo,
+    numero,
+    procedimento: nome,
+  });
+
   return NextResponse.json({
     ok: true,
     numero,
     codigo, // mostrado uma vez ao médico para repassar ao paciente
     total_centavos: total,
+    whatsapp_enviado: zap.enviado,
   });
 }

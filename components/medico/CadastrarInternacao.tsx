@@ -21,6 +21,7 @@ interface Cadastrada {
   numero: string;
   pacienteNome: string;
   codigoAcesso: string;
+  whatsappEnviado: boolean;
 }
 
 export function CadastrarInternacao() {
@@ -69,7 +70,7 @@ export function CadastrarInternacao() {
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
-      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo }, ...prev]);
+      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo, whatsappEnviado: !!json.whatsapp_enviado }, ...prev]);
       setPacienteNome(""); setPacienteCpf(""); setPacienteNascimento(""); setPacienteFicha(""); setPacienteWhats("");
       setHonEnf(""); setHonApt(""); setHonSui("");
     } catch {
@@ -138,6 +139,11 @@ export function CadastrarInternacao() {
                 <div className="text-right">
                   <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Código de acesso do paciente</p>
                   <p className="font-mono text-2xl font-bold tracking-[0.3em] text-[var(--hc-gold-deep)]">{c.codigoAcesso}</p>
+                  {c.whatsappEnviado ? (
+                    <p className="text-xs font-medium text-emerald-600">✓ Enviado ao WhatsApp</p>
+                  ) : (
+                    <p className="text-xs text-[var(--hc-ink-soft)]">Anote e repasse</p>
+                  )}
                 </div>
               </li>
             ))}
