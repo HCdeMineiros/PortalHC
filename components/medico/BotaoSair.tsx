@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
@@ -14,6 +14,7 @@ const LINK = "rounded-full border border-[color-mix(in_srgb,var(--hc-gold)_55%,w
 
 export function BotaoSair() {
   const router = useRouter();
+  const pathname = usePathname();
   const [email, setEmail] = useState<string | null>(null);
   const [papel, setPapel] = useState<string>("");
 
@@ -51,8 +52,8 @@ export function BotaoSair() {
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      {ehAdmin && <Link href="/admin" className={LINK}>⚙ Administração</Link>}
-      {ehEquipe && <Link href="/colaborador" className={LINK}>🏥 Equipe</Link>}
+      {ehAdmin && pathname !== "/admin" && <Link href="/admin" className={LINK}>⚙ Administração</Link>}
+      {ehEquipe && pathname !== "/colaborador" && <Link href="/colaborador" className={LINK}>🏥 Equipe</Link>}
       <span className="hidden text-[var(--hc-ink-soft)] sm:inline">{email}</span>
       <button onClick={sair} className="hc-btn hc-btn-ghost px-4 py-2">
         Sair

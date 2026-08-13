@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
-type Estado = "checando" | "ok" | "negado";
+type Fase = "checando" | "senha" | "ok" | "negado";
 
-/** Protege /admin: exige sessão em memória E papel admin_dpo. */
+/**
+ * Protege /admin: exige sessão + papel admin_dpo E confirmação da senha
+ * (dupla conferência para a área sensível de administração).
+ */
 export function GuardaAdmin({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [estado, setEstado] = useState<Estado>(SUPABASE_CONFIGURADO ? "checando" : "ok");
+  const [fase, setFase] = useState<Fase>(SUPABASE_CONFIGURADO ? "checando" : "ok");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+  const [verificando, setVerificando] = useState(false);
 
   useEffect(() => {
     if (!SUPABASE_CONFIGURADO) return;
@@ -30,16 +37,38 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
         .eq("id", s.session.user.id)
         .single();
       if (!ativo) return;
-      setEstado(perfil?.papel === "admin_dpo" ? "ok" : "negado");
+      if (perfil?.papel === "admin_dpo") {
+        setEmail(s.session.user.email ?? "");
+        setFase("senha");
+      } else {
+        setFase("negado");
+      }
     })();
     return () => {
       ativo = false;
     };
   }, [router]);
 
-  if (estado === "ok") return <>{children}</>;
+  async function confirmar(e: React.FormEvent) {
+    e.preventDefault();
+    setErro("");
+    setVerificando(true);
+    try {
+      const { criarClienteBrowser } = await import("@/lib/supabase/client");
+      const supabase = criarClienteBrowser();
+      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      if (error) setErro("Senha incorreta.");
+      else setFase("ok");
+    } catch {
+      setErro("Erro ao confirmar. Tente novamente.");
+    } finally {
+      setVerificando(false);
+    }
+  }
 
-  if (estado === "negado") {
+  if (fase === "ok") return <>{children}</>;
+
+  if (fase === "negado") {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--hc-red-050)] text-2xl">🔒</div>
@@ -47,7 +76,39 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
         <p className="text-sm text-[var(--hc-ink-soft)]">
           Esta área é exclusiva da Administração/DPO. Sua conta não tem essa permissão.
         </p>
-        <Link href="/medico" className="hc-btn hc-btn-ghost">← Voltar</Link>
+        <Link href="/colaborador" className="hc-btn hc-btn-ghost">← Voltar</Link>
+      </div>
+    );
+  }
+
+  if (fase === "senha") {
+    return (
+      <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col justify-center px-6">
+        <div className="hc-card hc-gold-frame hc-fade-up p-8">
+          <span className="hc-badge">Administração · dupla conferência</span>
+          <h1 className="mt-4 font-serif text-2xl font-semibold text-[var(--hc-ink)]">Confirme sua senha</h1>
+          <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+            Área sensível. Digite sua senha novamente para acessar a Administração.
+          </p>
+          <form onSubmit={confirmar} className="mt-6 space-y-4">
+            <input value={email} readOnly className="w-full rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] px-4 py-3 text-[var(--hc-ink-soft)]" />
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="Sua senha"
+              autoFocus
+              className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+            />
+            {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
+            <button type="submit" disabled={verificando} className="hc-btn hc-btn-primary w-full">
+              {verificando ? "Confirmando…" : "Acessar Administração"}
+            </button>
+            <Link href="/colaborador" className="block text-center text-sm text-[var(--hc-ink-soft)] hover:text-[var(--hc-red-600)]">
+              ← Voltar
+            </Link>
+          </form>
+        </div>
       </div>
     );
   }
