@@ -206,11 +206,7 @@ function CardCirurgia({
           <div className="flex flex-wrap items-end gap-4">
             <div>
               <span className="block text-xs text-[var(--hc-ink-soft)]">Definida pelo médico</span>
-              <span className="font-medium text-[var(--hc-ink)]">{nomeAcom(c.acomodacao)}</span>
-            </div>
-            <div>
-              <span className="block text-xs text-[var(--hc-ink-soft)]">Honorário médico</span>
-              <span className="font-medium text-[var(--hc-ink)]">{brl(c.honorario_medico_diaria_centavos)}/dia</span>
+              <span className="font-medium text-[var(--hc-ink)]">{nomeAcom(c.acomodacao)} · {brl(ACOMODACOES.find((a) => a.chave === c.acomodacao)?.totalDiaCentavos ?? 0)}/dia</span>
             </div>
             <label className="block">
               <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Diárias</span>
@@ -222,7 +218,7 @@ function CardCirurgia({
             </button>
             {(c.acomodacao_dias ?? 0) > 0 && (
               <span className="text-sm text-[var(--hc-ink-soft)]">
-                {c.acomodacao_dias}× (diária + honorário) = <strong className="text-[var(--hc-ink)]">{brl(acomTotal)}</strong>
+                {c.acomodacao_dias}× diária = <strong className="text-[var(--hc-ink)]">{brl(acomTotal)}</strong>
               </span>
             )}
           </div>

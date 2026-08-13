@@ -31,7 +31,6 @@ export function CadastrarInternacao() {
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
   const [acomodacao, setAcomodacao] = useState("");
-  const [honorarioDiaria, setHonorarioDiaria] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<Cadastrada[]>([]);
@@ -45,7 +44,6 @@ export function CadastrarInternacao() {
     if (!pacienteNascimento) return setErro("Informe a data de nascimento do paciente.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha do paciente.");
     if (!acomodacao) return setErro("Selecione a acomodação (Enfermaria, Apartamento ou Suíte).");
-    if (paraCentavos(honorarioDiaria) <= 0) return setErro("Informe o honorário médico por diária.");
 
     setEnviando(true);
     try {
@@ -63,14 +61,13 @@ export function CadastrarInternacao() {
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
           acomodacao,
-          honorarioDiaria: paraCentavos(honorarioDiaria),
         }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
       setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo, whatsappEnviado: !!json.whatsapp_enviado }, ...prev]);
       setPacienteNome(""); setPacienteCpf(""); setPacienteNascimento(""); setPacienteFicha(""); setPacienteWhats("");
-      setAcomodacao(""); setHonorarioDiaria("");
+      setAcomodacao("");
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {
@@ -85,8 +82,8 @@ export function CadastrarInternacao() {
         Cadastrar internação clínica
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-        Internação sem cirurgia. Defina seu <strong>honorário por diária</strong> conforme a
-        acomodação — a equipe lança a acomodação e as diárias depois.
+        Internação sem cirurgia. Selecione a <strong>acomodação</strong> — a equipe lança as
+        diárias depois para gerar o valor.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 space-y-5">
@@ -128,10 +125,6 @@ export function CadastrarInternacao() {
               </button>
             ))}
           </div>
-          <label className="mt-4 block max-w-xs">
-            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Honorário médico (R$/dia)</span>
-            <input inputMode="decimal" value={honorarioDiaria} onChange={(e) => setHonorarioDiaria(e.target.value)} placeholder="0,00" className={inputCls} />
-          </label>
         </div>
 
         {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}

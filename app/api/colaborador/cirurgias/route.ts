@@ -70,17 +70,12 @@ export async function POST(req: Request) {
     const acom = ACOMODACOES.find((a) => a.chave === chave);
     if (!acom) return NextResponse.json({ erro: "Acomodação inválida." }, { status: 400 });
 
-    const { data: sol } = await admin
-      .from("solicitacoes")
-      .select("tipo, honorario_medico_diaria_centavos")
-      .eq("id", id)
-      .single();
+    const { data: sol } = await admin.from("solicitacoes").select("tipo").eq("id", id).single();
 
     let total: number;
     if (sol?.tipo === "internacao_clinica") {
-      // internação clínica: (diária da acomodação + honorário médico/diária) × dias
-      const hon = Number(sol.honorario_medico_diaria_centavos ?? 0);
-      total = (acom.totalDiaCentavos + hon) * dias;
+      // internação clínica: diária da acomodação (já inclui honorário) × dias
+      total = acom.totalDiaCentavos * dias;
     } else {
       // cirurgia: taxa fixa + diária × dias
       total = TAXA_FIXA_CIRURGICA_CENTAVOS + acom.totalDiaCentavos * dias;
