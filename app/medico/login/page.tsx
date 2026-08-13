@@ -32,13 +32,18 @@ export default function LoginMedico() {
         return;
       }
       // direciona conforme o papel
+      // se veio de uma área protegida, volta para lá; senão, roteia por papel
+      const redir = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redir") : null;
       let destino = "/medico";
-      const uid = entrada.user?.id;
-      if (uid) {
-        const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
-        const p = perfil?.papel;
-        // admin e colaboradores vão para a área da equipe; a Administração fica pelo link ⚙
-        if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
+      if (redir && redir.startsWith("/") && !redir.startsWith("//")) {
+        destino = redir;
+      } else {
+        const uid = entrada.user?.id;
+        if (uid) {
+          const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
+          const p = perfil?.papel;
+          if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
+        }
       }
       router.push(destino);
     } finally {

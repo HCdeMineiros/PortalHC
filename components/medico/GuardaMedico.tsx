@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
 /**
@@ -11,6 +11,7 @@ import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
  */
 export function GuardaMedico({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [ok, setOk] = useState(!SUPABASE_CONFIGURADO);
 
   useEffect(() => {
@@ -21,12 +22,12 @@ export function GuardaMedico({ children }: { children: React.ReactNode }) {
       const { data } = await criarClienteBrowser().auth.getSession();
       if (!ativo) return;
       if (data.session) setOk(true);
-      else router.replace("/medico/login");
+      else router.replace(`/medico/login?redir=${encodeURIComponent(pathname)}`);
     })();
     return () => {
       ativo = false;
     };
-  }, [router]);
+  }, [router, pathname]);
 
   if (ok) return <>{children}</>;
 

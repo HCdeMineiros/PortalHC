@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
@@ -13,6 +13,7 @@ type Fase = "checando" | "senha" | "ok" | "negado";
  */
 export function GuardaAdmin({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [fase, setFase] = useState<Fase>(SUPABASE_CONFIGURADO ? "checando" : "ok");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -28,7 +29,7 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
       const { data: s } = await supabase.auth.getSession();
       if (!ativo) return;
       if (!s.session) {
-        router.replace("/medico/login");
+        router.replace(`/medico/login?redir=${encodeURIComponent(pathname)}`);
         return;
       }
       const { data: perfil } = await supabase
@@ -47,7 +48,7 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
     return () => {
       ativo = false;
     };
-  }, [router]);
+  }, [router, pathname]);
 
   async function confirmar(e: React.FormEvent) {
     e.preventDefault();

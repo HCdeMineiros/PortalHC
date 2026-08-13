@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
@@ -11,6 +11,7 @@ const PAPEIS_EQUIPE = ["internacao", "faturamento", "admin_dpo"];
 /** Protege /colaborador: exige sessão + papel de equipe (internação/faturamento/admin). */
 export function GuardaColaborador({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [estado, setEstado] = useState<Estado>(SUPABASE_CONFIGURADO ? "checando" : "ok");
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export function GuardaColaborador({ children }: { children: React.ReactNode }) {
       const { data: s } = await supabase.auth.getSession();
       if (!ativo) return;
       if (!s.session) {
-        router.replace("/medico/login");
+        router.replace(`/medico/login?redir=${encodeURIComponent(pathname)}`);
         return;
       }
       const { data: perfil } = await supabase
@@ -36,7 +37,7 @@ export function GuardaColaborador({ children }: { children: React.ReactNode }) {
     return () => {
       ativo = false;
     };
-  }, [router]);
+  }, [router, pathname]);
 
   if (estado === "ok") return <>{children}</>;
 
