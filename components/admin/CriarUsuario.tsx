@@ -15,7 +15,7 @@ const PAPEIS: { valor: string; rotulo: string }[] = [
   { valor: "admin_dpo", rotulo: "Administrador / DPO" },
 ];
 
-export function CriarUsuario() {
+export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [papel, setPapel] = useState("medico");
@@ -62,6 +62,7 @@ export function CriarUsuario() {
       setEmail("");
       setSenha("");
       setPapel("medico");
+      onCriado?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {

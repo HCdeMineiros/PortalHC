@@ -4,7 +4,7 @@ import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaAdmin } from "@/components/admin/GuardaAdmin";
-import { CriarUsuario } from "@/components/admin/CriarUsuario";
+import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
 
 export default function AreaAdmin() {
   return (
@@ -33,9 +33,9 @@ export default function AreaAdmin() {
             <Link href="/colaborador" className="hc-btn hc-btn-ghost">Área do Colaborador →</Link>
           </nav>
 
-          <section className="mt-8">
-            <CriarUsuario />
-          </section>
+          <div className="mt-8">
+            <PainelUsuarios />
+          </div>
         </main>
       </GuardaAdmin>
 
