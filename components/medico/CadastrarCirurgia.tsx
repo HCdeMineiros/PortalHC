@@ -170,7 +170,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
               <Campo label="CPF">
                 <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
               </Campo>
-              <Campo label="Nº da ficha (sistema do hospital)">
+              <Campo label="Nº da ficha (PROMÉDICO)">
                 <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />
               </Campo>
               <Campo label="WhatsApp">

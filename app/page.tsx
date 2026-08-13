@@ -40,7 +40,7 @@ export default function Home() {
               Sou paciente — acessar meus documentos
             </Link>
             <Link
-              href="/colaborador"
+              href="/medico/login"
               className="hc-btn w-full border border-white/40 bg-white/10 px-7 py-4 text-base text-white backdrop-blur-md hover:bg-white/20 sm:w-auto"
             >
               Acesso da equipe

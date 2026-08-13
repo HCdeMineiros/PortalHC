@@ -26,12 +26,21 @@ export default function LoginMedico() {
     try {
       const { criarClienteBrowser } = await import("@/lib/supabase/client");
       const supabase = criarClienteBrowser();
-      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      const { data: entrada, error } = await supabase.auth.signInWithPassword({ email, password: senha });
       if (error) {
         setErro("E-mail ou senha inválidos.");
         return;
       }
-      router.push("/medico");
+      // direciona conforme o papel
+      let destino = "/medico";
+      const uid = entrada.user?.id;
+      if (uid) {
+        const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
+        const p = perfil?.papel;
+        if (p === "admin_dpo") destino = "/admin";
+        else if (p === "internacao" || p === "faturamento") destino = "/colaborador";
+      }
+      router.push(destino);
     } finally {
       setCarregando(false);
     }
@@ -47,12 +56,12 @@ export default function LoginMedico() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
         <div className="hc-card hc-gold-frame hc-fade-up p-8">
-          <span className="hc-badge">Área do Médico · acesso restrito</span>
+          <span className="hc-badge">Acesso da equipe · restrito</span>
           <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">
             Entrar
           </h1>
           <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
-            Acesso exclusivo do corpo clínico. Use seu e-mail e senha cadastrados.
+            Médicos e colaboradores. Use seu e-mail e senha; você vai direto para a sua área.
           </p>
 
           {!SUPABASE_CONFIGURADO && (
