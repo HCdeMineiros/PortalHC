@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
@@ -14,6 +14,12 @@ export default function LoginMedico() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [ehMedico, setEhMedico] = useState(false);
+
+  useEffect(() => {
+    const redir = new URLSearchParams(window.location.search).get("redir") || "";
+    setEhMedico(redir.startsWith("/medico"));
+  }, []);
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +67,7 @@ export default function LoginMedico() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
         <div className="hc-card hc-gold-frame hc-fade-up p-8">
-          <span className="hc-badge">Acesso da equipe · restrito</span>
+          <span className="hc-badge">{ehMedico ? "Acesso do Médico · restrito" : "Acesso da Equipe · restrito"}</span>
           <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">
             Entrar
           </h1>
@@ -83,7 +89,7 @@ export default function LoginMedico() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="medico@portalhc.com.br"
+                placeholder={ehMedico ? "medico@portalhc.com.br" : "equipe@portalhc.com.br"}
                 className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
               />
             </div>
