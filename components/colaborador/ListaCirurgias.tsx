@@ -20,9 +20,11 @@ const STATUS_ROTULO: Record<string, string> = {
 interface Cirurgia {
   id: string;
   numero: string;
+  tipo: string;
   status: string;
   procedimento_nome: string | null;
   valor_total_centavos: number | null;
+  honorario_medico_diaria_centavos: number | null;
   data_prevista: string | null;
   acomodacao: string | null;
   acomodacao_dias: number | null;
@@ -31,6 +33,8 @@ interface Cirurgia {
   pacientes: { nome: string; cpf: string; ref_externa_promedico: string | null; telefone_whatsapp: string | null } | null;
   medicos: { nome: string } | null;
 }
+
+const nomeAcom = (chave: string | null) => ACOMODACOES.find((a) => a.chave === chave)?.nome ?? "—";
 
 export function ListaCirurgias() {
   const [cirurgias, setCirurgias] = useState<Cirurgia[]>([]);
@@ -141,6 +145,7 @@ function CardCirurgia({
   const [ocupado, setOcupado] = useState(false);
 
   const encerrada = c.status === "encerrada";
+  const ehInternacao = c.tipo === "internacao_clinica";
   const acomTotal = c.acomodacao_total_centavos ?? 0;
   const totalGeral = (c.valor_total_centavos ?? 0) + acomTotal;
 
@@ -196,48 +201,65 @@ function CardCirurgia({
       {/* Acomodação */}
       <div className="mt-4 rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Acomodação</p>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="block">
-            <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Tipo</span>
-            <select
-              value={acom}
-              onChange={(e) => setAcom(e.target.value)}
-              disabled={encerrada}
-              className="rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]"
-            >
-              <option value="">Selecionar…</option>
-              {ACOMODACOES.map((a) => (
-                <option key={a.chave} value={a.chave}>{a.nome} ({brl(a.totalDiaCentavos)}/dia)</option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Diárias</span>
-            <input
-              type="number"
-              min={1}
-              value={dias}
-              onChange={(e) => setDias(e.target.value)}
-              disabled={encerrada}
-              className="w-20 rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]"
-            />
-          </label>
-          <button onClick={lancarAcomodacao} disabled={ocupado || encerrada} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">
-            {c.acomodacao ? "Atualizar" : "Lançar"}
-          </button>
-          {c.acomodacao && (
-            <span className="text-sm text-[var(--hc-ink-soft)]">
-              Taxa fixa {brl(TAXA_FIXA_CIRURGICA_CENTAVOS)} + {c.acomodacao_dias}× diária ={" "}
-              <strong className="text-[var(--hc-ink)]">{brl(acomTotal)}</strong>
-            </span>
-          )}
-        </div>
+
+        {ehInternacao ? (
+          <div className="flex flex-wrap items-end gap-4">
+            <div>
+              <span className="block text-xs text-[var(--hc-ink-soft)]">Definida pelo médico</span>
+              <span className="font-medium text-[var(--hc-ink)]">{nomeAcom(c.acomodacao)}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-[var(--hc-ink-soft)]">Honorário médico</span>
+              <span className="font-medium text-[var(--hc-ink)]">{brl(c.honorario_medico_diaria_centavos)}/dia</span>
+            </div>
+            <label className="block">
+              <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Diárias</span>
+              <input type="number" min={1} value={dias} onChange={(e) => setDias(e.target.value)} disabled={encerrada}
+                className="w-20 rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]" />
+            </label>
+            <button onClick={lancarAcomodacao} disabled={ocupado || encerrada} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">
+              {c.acomodacao_dias ? "Atualizar diárias" : "Lançar diárias"}
+            </button>
+            {(c.acomodacao_dias ?? 0) > 0 && (
+              <span className="text-sm text-[var(--hc-ink-soft)]">
+                {c.acomodacao_dias}× (diária + honorário) = <strong className="text-[var(--hc-ink)]">{brl(acomTotal)}</strong>
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="block">
+              <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Tipo</span>
+              <select value={acom} onChange={(e) => setAcom(e.target.value)} disabled={encerrada}
+                className="rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]">
+                <option value="">Selecionar…</option>
+                {ACOMODACOES.map((a) => (
+                  <option key={a.chave} value={a.chave}>{a.nome} ({brl(a.totalDiaCentavos)}/dia)</option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Diárias</span>
+              <input type="number" min={1} value={dias} onChange={(e) => setDias(e.target.value)} disabled={encerrada}
+                className="w-20 rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]" />
+            </label>
+            <button onClick={lancarAcomodacao} disabled={ocupado || encerrada} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">
+              {c.acomodacao ? "Atualizar" : "Lançar"}
+            </button>
+            {c.acomodacao && (
+              <span className="text-sm text-[var(--hc-ink-soft)]">
+                Taxa fixa {brl(TAXA_FIXA_CIRURGICA_CENTAVOS)} + {c.acomodacao_dias}× diária ={" "}
+                <strong className="text-[var(--hc-ink)]">{brl(acomTotal)}</strong>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Total geral + finalizar */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <span className="text-sm text-[var(--hc-ink-soft)]">Total geral (cirurgia + acomodação): </span>
+          <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
           <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</span>
         </div>
         {encerrada ? (

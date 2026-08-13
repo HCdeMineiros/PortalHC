@@ -39,18 +39,18 @@ export async function POST(req: Request) {
   const ficha = String(b?.pacienteFicha ?? "").trim();
   const nascimento = String(b?.pacienteNascimento ?? "").trim();
   const whatsapp = String(b?.pacienteWhatsapp ?? "").trim();
-  const honorarios = {
-    enfermaria: cent(b?.honorarioEnfermaria),
-    apartamento: cent(b?.honorarioApartamento),
-    suite: cent(b?.honorarioSuite),
-  };
+  const acomodacao = String(b?.acomodacao ?? "");
+  const honorarioDiaria = cent(b?.honorarioDiaria);
 
   if (!pacienteNome) return NextResponse.json({ erro: "Informe o nome do paciente." }, { status: 400 });
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) return NextResponse.json({ erro: "Data de nascimento do paciente inválida." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
-  if (honorarios.enfermaria + honorarios.apartamento + honorarios.suite <= 0) {
-    return NextResponse.json({ erro: "Informe ao menos um honorário por acomodação." }, { status: 400 });
+  if (!["enfermaria", "apartamento", "suite"].includes(acomodacao)) {
+    return NextResponse.json({ erro: "Selecione a acomodação (enfermaria, apartamento ou suíte)." }, { status: 400 });
+  }
+  if (honorarioDiaria <= 0) {
+    return NextResponse.json({ erro: "Informe o honorário médico por diária." }, { status: 400 });
   }
 
   let admin;
@@ -105,7 +105,8 @@ export async function POST(req: Request) {
         medico_id: medicoId,
         status: "aguardando_paciente",
         procedimento_nome: "Internação clínica",
-        honorarios_acomodacao_centavos: honorarios,
+        acomodacao,
+        honorario_medico_diaria_centavos: honorarioDiaria,
         valor_total_centavos: 0,
         codigo_acesso_hash: hash(codigo),
         criado_por: auth.user.id,

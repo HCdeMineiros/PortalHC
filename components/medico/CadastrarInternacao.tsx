@@ -30,9 +30,8 @@ export function CadastrarInternacao() {
   const [pacienteNascimento, setPacienteNascimento] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
-  const [honEnf, setHonEnf] = useState("");
-  const [honApt, setHonApt] = useState("");
-  const [honSui, setHonSui] = useState("");
+  const [acomodacao, setAcomodacao] = useState("");
+  const [honorarioDiaria, setHonorarioDiaria] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<Cadastrada[]>([]);
@@ -45,8 +44,8 @@ export function CadastrarInternacao() {
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
     if (!pacienteNascimento) return setErro("Informe a data de nascimento do paciente.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha do paciente.");
-    if (paraCentavos(honEnf) + paraCentavos(honApt) + paraCentavos(honSui) <= 0)
-      return setErro("Informe ao menos um honorário por acomodação.");
+    if (!acomodacao) return setErro("Selecione a acomodação (Enfermaria, Apartamento ou Suíte).");
+    if (paraCentavos(honorarioDiaria) <= 0) return setErro("Informe o honorário médico por diária.");
 
     setEnviando(true);
     try {
@@ -63,16 +62,15 @@ export function CadastrarInternacao() {
           pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
-          honorarioEnfermaria: paraCentavos(honEnf),
-          honorarioApartamento: paraCentavos(honApt),
-          honorarioSuite: paraCentavos(honSui),
+          acomodacao,
+          honorarioDiaria: paraCentavos(honorarioDiaria),
         }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
       setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo, whatsappEnviado: !!json.whatsapp_enviado }, ...prev]);
       setPacienteNome(""); setPacienteCpf(""); setPacienteNascimento(""); setPacienteFicha(""); setPacienteWhats("");
-      setHonEnf(""); setHonApt(""); setHonSui("");
+      setAcomodacao(""); setHonorarioDiaria("");
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {
@@ -109,15 +107,31 @@ export function CadastrarInternacao() {
         </div>
 
         <div className="border-t border-[var(--hc-line)] pt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Honorário médico por diária</p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Enfermaria (R$/dia)</span>
-              <input inputMode="decimal" value={honEnf} onChange={(e) => setHonEnf(e.target.value)} placeholder="0,00" className={inputCls} /></label>
-            <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Apartamento (R$/dia)</span>
-              <input inputMode="decimal" value={honApt} onChange={(e) => setHonApt(e.target.value)} placeholder="0,00" className={inputCls} /></label>
-            <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Suíte (R$/dia)</span>
-              <input inputMode="decimal" value={honSui} onChange={(e) => setHonSui(e.target.value)} placeholder="0,00" className={inputCls} /></label>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Acomodação</p>
+          <div className="flex flex-wrap gap-3">
+            {[
+              { chave: "enfermaria", nome: "Enfermaria" },
+              { chave: "apartamento", nome: "Apartamento" },
+              { chave: "suite", nome: "Suíte" },
+            ].map((a) => (
+              <button
+                key={a.chave}
+                type="button"
+                onClick={() => setAcomodacao(a.chave)}
+                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+                  acomodacao === a.chave
+                    ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                    : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                }`}
+              >
+                {a.nome}
+              </button>
+            ))}
           </div>
+          <label className="mt-4 block max-w-xs">
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Honorário médico (R$/dia)</span>
+            <input inputMode="decimal" value={honorarioDiaria} onChange={(e) => setHonorarioDiaria(e.target.value)} placeholder="0,00" className={inputCls} />
+          </label>
         </div>
 
         {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}

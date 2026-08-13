@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   const { data, error } = await admin
     .from("solicitacoes")
     .select(
-      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
+      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, honorario_medico_diaria_centavos, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
     )
     .order("criado_em", { ascending: false });
   if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
@@ -72,14 +72,14 @@ export async function POST(req: Request) {
 
     const { data: sol } = await admin
       .from("solicitacoes")
-      .select("tipo, honorarios_acomodacao_centavos")
+      .select("tipo, honorario_medico_diaria_centavos")
       .eq("id", id)
       .single();
 
     let total: number;
     if (sol?.tipo === "internacao_clinica") {
-      // internação clínica: (diária da acomodação + honorário médico daquela acomodação) × dias
-      const hon = Number((sol.honorarios_acomodacao_centavos as Record<string, number> | null)?.[chave] ?? 0);
+      // internação clínica: (diária da acomodação + honorário médico/diária) × dias
+      const hon = Number(sol.honorario_medico_diaria_centavos ?? 0);
       total = (acom.totalDiaCentavos + hon) * dias;
     } else {
       // cirurgia: taxa fixa + diária × dias
