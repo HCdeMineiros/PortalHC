@@ -24,7 +24,6 @@ interface Cirurgia {
   status: string;
   procedimento_nome: string | null;
   valor_total_centavos: number | null;
-  honorario_medico_diaria_centavos: number | null;
   data_prevista: string | null;
   acomodacao: string | null;
   acomodacao_dias: number | null;
