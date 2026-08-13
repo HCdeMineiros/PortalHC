@@ -40,6 +40,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "Você não pode excluir a própria conta." }, { status: 400 });
   }
 
+  // o administrador DPO (protegido) não pode ser excluído
+  const { data: alvo } = await comoUsuario.from("usuarios").select("protegido").eq("id", id).single();
+  if (alvo?.protegido) {
+    return NextResponse.json({ erro: "O administrador DPO não pode ser excluído." }, { status: 403 });
+  }
+
   let admin;
   try {
     admin = criarClienteAdmin();

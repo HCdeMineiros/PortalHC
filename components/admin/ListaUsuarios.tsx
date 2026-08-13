@@ -8,6 +8,7 @@ interface Usuario {
   email: string | null;
   papel: string;
   ativo: boolean;
+  protegido: boolean;
 }
 
 const ROTULO_PAPEL: Record<string, string> = {
@@ -33,7 +34,7 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
       const { criarClienteBrowser } = await import("@/lib/supabase/client");
       const { data, error } = await criarClienteBrowser()
         .from("usuarios")
-        .select("id, nome, email, papel, ativo")
+        .select("id, nome, email, papel, ativo, protegido")
         .order("nome");
       if (error) setErro(error.message);
       else setUsuarios(data ?? []);
@@ -119,13 +120,19 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
               </div>
               <div className="flex items-center gap-3">
                 <span className="hc-badge">{ROTULO_PAPEL[u.papel] ?? u.papel}</span>
-                <button
-                  onClick={() => excluir(u)}
-                  disabled={excluindo === u.id}
-                  className="rounded-full border border-[var(--hc-line)] px-3 py-1.5 text-sm text-[var(--hc-red-600)] transition-colors hover:border-[var(--hc-red-600)] hover:bg-[var(--hc-red-050)] disabled:opacity-50"
-                >
-                  {excluindo === u.id ? "Excluindo…" : "Excluir"}
-                </button>
+                {u.protegido ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] px-3 py-1.5 text-sm text-[var(--hc-gold-deep)]">
+                    🔒 DPO protegido
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => excluir(u)}
+                    disabled={excluindo === u.id}
+                    className="rounded-full border border-[var(--hc-line)] px-3 py-1.5 text-sm text-[var(--hc-red-600)] transition-colors hover:border-[var(--hc-red-600)] hover:bg-[var(--hc-red-050)] disabled:opacity-50"
+                  >
+                    {excluindo === u.id ? "Excluindo…" : "Excluir"}
+                  </button>
+                )}
               </div>
             </li>
           ))}

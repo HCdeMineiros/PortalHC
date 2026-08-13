@@ -37,8 +37,8 @@ export default function LoginMedico() {
       if (uid) {
         const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
         const p = perfil?.papel;
-        if (p === "admin_dpo") destino = "/admin";
-        else if (p === "internacao" || p === "faturamento") destino = "/colaborador";
+        // admin e colaboradores vão para a área da equipe; a Administração fica pelo link ⚙
+        if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
       }
       router.push(destino);
     } finally {
