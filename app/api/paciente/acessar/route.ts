@@ -71,21 +71,21 @@ export async function POST(req: Request) {
 
   const b = await req.json().catch(() => null);
   const cpf = soDigitos(b?.cpf);
-  const ficha = String(b?.ficha ?? "").trim();
+  const nascimento = String(b?.nascimento ?? "").trim();
   const codigo = String(b?.codigo ?? "").trim();
-  if (cpf.length !== 11 || !ficha || !codigo) {
-    return NextResponse.json({ erro: "Preencha CPF, ficha e código." }, { status: 400 });
+  if (cpf.length !== 11 || !nascimento || !codigo) {
+    return NextResponse.json({ erro: "Preencha CPF, data de nascimento e código." }, { status: 400 });
   }
 
   const admin = criarClienteAdmin();
-  const generico = NextResponse.json({ erro: "Dados não conferem. Verifique CPF, ficha e código." }, { status: 401 });
+  const generico = NextResponse.json({ erro: "Dados não conferem. Verifique CPF, data de nascimento e código." }, { status: 401 });
 
   const { data: pac } = await admin
     .from("pacientes")
-    .select("id, nome, ref_externa_promedico")
+    .select("id, nome, data_nascimento")
     .eq("cpf", cpf)
     .maybeSingle();
-  if (!pac || (pac.ref_externa_promedico ?? "").trim() !== ficha) return generico;
+  if (!pac || String(pac.data_nascimento ?? "") !== nascimento) return generico;
 
   const { data: sol } = await admin
     .from("solicitacoes")

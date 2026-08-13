@@ -49,6 +49,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
   const [anestesistaStr, setAnestesistaStr] = useState("");
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
+  const [pacienteNascimento, setPacienteNascimento] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
   const [erro, setErro] = useState("");
@@ -80,6 +81,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
     if (cirurgiao <= 0) return setErro("Informe o valor do cirurgião.");
     if (!pacienteNome.trim()) return setErro("Informe o nome do paciente.");
     if (cpfDigitos.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
+    if (!pacienteNascimento) return setErro("Informe a data de nascimento do paciente.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha do paciente.");
 
     setEnviando(true);
@@ -100,6 +102,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
           anestesistaCentavos: anestesista,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpfDigitos,
+          pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
         }),
@@ -124,6 +127,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
       setAnestesistaStr("");
       setPacienteNome("");
       setPacienteCpf("");
+      setPacienteNascimento("");
       setPacienteFicha("");
       setPacienteWhats("");
     } catch {
@@ -169,6 +173,9 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
               </Campo>
               <Campo label="CPF">
                 <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
+              </Campo>
+              <Campo label="Data de nascimento">
+                <input type="date" value={pacienteNascimento} onChange={(e) => setPacienteNascimento(e.target.value)} className={inputCls} />
               </Campo>
               <Campo label="Nº da ficha (PROMÉDICO)">
                 <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />

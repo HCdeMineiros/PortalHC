@@ -18,14 +18,14 @@ export async function POST(req: Request) {
 
   const b = await req.json().catch(() => null);
   const cpf = soDigitos(b?.cpf);
-  const ficha = String(b?.ficha ?? "").trim();
+  const nascimento = String(b?.nascimento ?? "").trim();
   const codigo = String(b?.codigo ?? "").trim();
   const chave = String(b?.chave ?? "").trim();
   const tipo = b?.tipo === "assinatura" ? "assinatura" : "ok";
   const nome = String(b?.nome ?? "").trim() || null;
   const assinatura = typeof b?.assinaturaDataUrl === "string" ? b.assinaturaDataUrl.slice(0, 200000) : null;
 
-  if (cpf.length !== 11 || !ficha || !codigo || !chave) {
+  if (cpf.length !== 11 || !nascimento || !codigo || !chave) {
     return NextResponse.json({ erro: "Dados incompletos." }, { status: 400 });
   }
 
@@ -34,10 +34,10 @@ export async function POST(req: Request) {
 
   const { data: pac } = await admin
     .from("pacientes")
-    .select("id, ref_externa_promedico")
+    .select("id, data_nascimento")
     .eq("cpf", cpf)
     .maybeSingle();
-  if (!pac || (pac.ref_externa_promedico ?? "").trim() !== ficha) return generico;
+  if (!pac || String(pac.data_nascimento ?? "") !== nascimento) return generico;
 
   const { data: sol } = await admin
     .from("solicitacoes")

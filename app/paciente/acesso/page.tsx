@@ -38,7 +38,7 @@ interface Solicitacao {
 export default function AcessoPaciente() {
   const [fase, setFase] = useState<"identificacao" | "painel">("identificacao");
   const [cpf, setCpf] = useState("");
-  const [ficha, setFicha] = useState("");
+  const [nascimento, setNascimento] = useState("");
   const [codigo, setCodigo] = useState("");
   const [erro, setErro] = useState("");
   const [entrando, setEntrando] = useState(false);
@@ -53,14 +53,14 @@ export default function AcessoPaciente() {
     e.preventDefault();
     setErro("");
     const cpfD = cpf.replace(/\D/g, "");
-    if (cpfD.length !== 11 || !ficha.trim() || !codigo.trim())
-      return setErro("Preencha CPF, ficha e código.");
+    if (cpfD.length !== 11 || !nascimento || !codigo.trim())
+      return setErro("Preencha CPF, data de nascimento e código.");
     setEntrando(true);
     try {
       const resp = await fetch("/api/paciente/acessar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpfD, ficha: ficha.trim(), codigo: codigo.trim() }),
+        body: JSON.stringify({ cpf: cpfD, nascimento, codigo: codigo.trim() }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao acessar.");
@@ -82,7 +82,7 @@ export default function AcessoPaciente() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         cpf: cpf.replace(/\D/g, ""),
-        ficha: ficha.trim(),
+        nascimento,
         codigo: codigo.trim(),
         chave: doc.chave,
         tipo: doc.exigeAssinatura ? "assinatura" : "ok",
@@ -118,7 +118,7 @@ export default function AcessoPaciente() {
             <span className="hc-badge">Acesso do paciente</span>
             <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Meus documentos</h1>
             <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
-              Informe seu CPF, o nº da ficha e o código que você recebeu.
+              Informe seu CPF, sua data de nascimento e o código que você recebeu.
             </p>
             <form onSubmit={acessar} className="mt-6 space-y-4">
               <div>
@@ -126,8 +126,8 @@ export default function AcessoPaciente() {
                 <input inputMode="numeric" value={cpf} onChange={(e) => setCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Nº da ficha (PROMÉDICO)</label>
-                <input value={ficha} onChange={(e) => setFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />
+                <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Data de nascimento</label>
+                <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)} className={inputCls} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Código de acesso</label>

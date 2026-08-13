@@ -26,6 +26,7 @@ interface Cadastrada {
 export function CadastrarInternacao() {
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
+  const [pacienteNascimento, setPacienteNascimento] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
   const [honEnf, setHonEnf] = useState("");
@@ -41,6 +42,7 @@ export function CadastrarInternacao() {
     const cpf = pacienteCpf.replace(/\D/g, "");
     if (!pacienteNome.trim()) return setErro("Informe o nome do paciente.");
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
+    if (!pacienteNascimento) return setErro("Informe a data de nascimento do paciente.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha do paciente.");
     if (paraCentavos(honEnf) + paraCentavos(honApt) + paraCentavos(honSui) <= 0)
       return setErro("Informe ao menos um honorário por acomodação.");
@@ -57,6 +59,7 @@ export function CadastrarInternacao() {
         body: JSON.stringify({
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpf,
+          pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
           honorarioEnfermaria: paraCentavos(honEnf),
@@ -67,7 +70,7 @@ export function CadastrarInternacao() {
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
       setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo }, ...prev]);
-      setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPacienteWhats("");
+      setPacienteNome(""); setPacienteCpf(""); setPacienteNascimento(""); setPacienteFicha(""); setPacienteWhats("");
       setHonEnf(""); setHonApt(""); setHonSui("");
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -95,6 +98,8 @@ export function CadastrarInternacao() {
               <input value={pacienteNome} onChange={(e) => setPacienteNome(e.target.value)} placeholder="Nome completo" className={inputCls} /></label>
             <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">CPF</span>
               <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} /></label>
+            <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Data de nascimento</span>
+              <input type="date" value={pacienteNascimento} onChange={(e) => setPacienteNascimento(e.target.value)} className={inputCls} /></label>
             <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Nº da ficha (PROMÉDICO)</span>
               <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} /></label>
             <label className="block"><span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">WhatsApp</span>
