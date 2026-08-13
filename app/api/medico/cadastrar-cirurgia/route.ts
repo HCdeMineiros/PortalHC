@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   const anestesista = Math.max(0, Math.round(Number(b?.anestesistaCentavos) || 0));
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
-  const nascimento = String(b?.pacienteNascimento ?? "").trim();
+  const ficha = String(b?.pacienteFicha ?? "").trim();
   const whatsapp = String(b?.pacienteWhatsapp ?? "").trim();
   const dataPrevista = String(b?.dataPrevista ?? "").trim() || null;
 
@@ -52,9 +52,7 @@ export async function POST(req: Request) {
   if (cirurgiao <= 0) return NextResponse.json({ erro: "Informe o valor do cirurgião." }, { status: 400 });
   if (!pacienteNome) return NextResponse.json({ erro: "Informe o nome do paciente." }, { status: 400 });
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) {
-    return NextResponse.json({ erro: "Data de nascimento do paciente inválida." }, { status: 400 });
-  }
+  if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
 
   const auxiliar = Math.round(cirurgiao * AUXILIAR_PCT);
   const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
@@ -91,7 +89,7 @@ export async function POST(req: Request) {
     pacienteId = pac.id;
     await admin
       .from("pacientes")
-      .update({ nome: pacienteNome, data_nascimento: nascimento, telefone_whatsapp: whatsapp })
+      .update({ nome: pacienteNome, ref_externa_promedico: ficha, telefone_whatsapp: whatsapp })
       .eq("id", pacienteId);
   } else {
     const { data: novoPac, error: pacErr } = await admin
@@ -99,7 +97,7 @@ export async function POST(req: Request) {
       .insert({
         nome: pacienteNome,
         cpf,
-        data_nascimento: nascimento,
+        ref_externa_promedico: ficha,
         telefone_whatsapp: whatsapp,
         criado_por: auth.user.id,
       })
