@@ -44,6 +44,7 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   const nome = String(b?.nome ?? "").trim();
   const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
+  const auxiliarPct = Number(b?.auxiliarPct) === 0.1 ? 0.1 : AUXILIAR_PCT; // 10% instrumentador · 30% auxiliar médico
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
   const ficha = String(b?.pacienteFicha ?? "").trim();
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
 
   const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
-  const auxiliar = Math.round(cirurgiao * AUXILIAR_PCT);
+  const auxiliar = Math.round(cirurgiao * auxiliarPct);
   const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
   const total = cirurgiao + anestesista + auxiliar + hospital;
 

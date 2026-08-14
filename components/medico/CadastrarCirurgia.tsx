@@ -48,6 +48,7 @@ interface CirurgiaCadastrada {
 export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
+  const [auxiliarPct, setAuxiliarPct] = useState(0.3); // 0.3 = auxiliar médico · 0.1 = instrumentador
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
   const [pacienteNascimento, setPacienteNascimento] = useState("");
@@ -68,10 +69,10 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
 
   const calc = useMemo(() => {
     const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
-    const auxiliar = Math.round(cirurgiao * AUXILIAR_PCT);
+    const auxiliar = Math.round(cirurgiao * auxiliarPct);
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
     return { anestesista, auxiliar, hospital, total: cirurgiao + anestesista + auxiliar + hospital };
-  }, [cirurgiao]);
+  }, [cirurgiao, auxiliarPct]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -99,6 +100,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
         body: JSON.stringify({
           nome: nome.trim(),
           cirurgiaoCentavos: cirurgiao,
+          auxiliarPct,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpfDigitos,
           pacienteNascimento,
@@ -143,8 +145,8 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
         Cadastrar cirurgia
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-        Informe apenas o <strong>valor do cirurgião</strong>. Anestesista (50%), auxiliar (30%)
-        e taxa de sala do hospital (60%) são calculados automaticamente.
+        Informe o <strong>valor do cirurgião</strong> e escolha o auxiliar. Anestesista (50%) e
+        taxa de sala do hospital (60%) são calculados automaticamente.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -156,6 +158,29 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
           <Campo label="Valor do cirurgião (R$)">
             <input inputMode="decimal" value={cirurgiaoStr} onChange={(e) => setCirurgiaoStr(e.target.value)} placeholder="0,00" className={inputCls} />
           </Campo>
+
+          <div>
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Auxiliar</span>
+            <div className="flex flex-wrap gap-3">
+              {[
+                { pct: 0.3, rotulo: "Auxiliar médico (30%)" },
+                { pct: 0.1, rotulo: "Instrumentador (10%)" },
+              ].map((o) => (
+                <button
+                  key={o.pct}
+                  type="button"
+                  onClick={() => setAuxiliarPct(o.pct)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                    auxiliarPct === o.pct
+                      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                  }`}
+                >
+                  {o.rotulo}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="border-t border-[var(--hc-line)] pt-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">
@@ -185,7 +210,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
           <p className="mb-3 text-sm font-semibold text-[var(--hc-ink)]">Composição do valor</p>
           <Linha rotulo="Cirurgião" valor={brl(cirurgiao)} destaque />
           <Linha rotulo="Anestesista (50% do cirurgião)" valor={brl(calc.anestesista)} auto />
-          <Linha rotulo="Auxiliar (30% do cirurgião)" valor={brl(calc.auxiliar)} auto />
+          <Linha rotulo={`Auxiliar (${Math.round(auxiliarPct * 100)}% do cirurgião)`} valor={brl(calc.auxiliar)} auto />
           <Linha rotulo="Taxa de sala · hospital (60% do cirurgião)" valor={brl(calc.hospital)} auto />
           <div className="mt-3 flex items-center justify-between border-t border-[var(--hc-line)] pt-3">
             <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total</span>
