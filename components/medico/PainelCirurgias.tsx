@@ -19,7 +19,6 @@ export function PainelCirurgias() {
     setPre({
       nome: p.nome,
       cirurgiaoStr: reais(p.componentesCentavos.cirurgiao),
-      anestesistaStr: reais(p.componentesCentavos.anestesista),
       token: Date.now(),
     });
     topoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

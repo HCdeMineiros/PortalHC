@@ -24,6 +24,7 @@ interface Cirurgia {
   status: string;
   procedimento_nome: string | null;
   valor_total_centavos: number | null;
+  codigo_acesso: string | null;
   data_prevista: string | null;
   acomodacao: string | null;
   acomodacao_dias: number | null;
@@ -209,6 +210,13 @@ function CardCirurgia({
             {c.pacientes?.nome} · Ficha {c.pacientes?.ref_externa_promedico || "—"} · Sol. {c.numero}
             {c.medicos?.nome ? ` · ${c.medicos.nome}` : ""}
           </p>
+          {c.codigo_acesso && (
+            <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
+              Código de acesso do paciente:{" "}
+              <strong className="font-mono tracking-[0.2em] text-[var(--hc-gold-deep)]">{c.codigo_acesso}</strong>
+              <span className="ml-1 text-xs">(repasse se ele não recebeu por WhatsApp)</span>
+            </p>
+          )}
         </div>
         <div className="text-right">
           <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Cirurgia</p>

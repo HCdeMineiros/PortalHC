@@ -6,14 +6,15 @@ import { useEffect, useMemo, useState } from "react";
 export interface PreCirurgia {
   nome: string;
   cirurgiaoStr: string;
-  anestesistaStr: string;
   token: number;
 }
 
 /**
  * Cadastro de cirurgia pelo médico — salva no banco e gera o código de acesso.
- * Auxiliar = 30% do cirurgião · Hospital = 60% do cirurgião (recalculado no servidor).
+ * A partir do valor do cirurgião: Anestesista 50% · Auxiliar 30% · Hospital 60%
+ * (recalculado no servidor).
  */
+const ANESTESISTA_PCT = 0.5;
 const AUXILIAR_PCT = 0.3;
 const HOSPITAL_PCT = 0.6;
 
@@ -47,7 +48,6 @@ interface CirurgiaCadastrada {
 export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
-  const [anestesistaStr, setAnestesistaStr] = useState("");
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
   const [pacienteNascimento, setPacienteNascimento] = useState("");
@@ -61,18 +61,17 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
     if (!pre || !pre.token) return;
     setNome(pre.nome);
     setCirurgiaoStr(pre.cirurgiaoStr);
-    setAnestesistaStr(pre.anestesistaStr);
     setErro("");
   }, [pre]);
 
   const cirurgiao = paraCentavos(cirurgiaoStr);
-  const anestesista = paraCentavos(anestesistaStr);
 
   const calc = useMemo(() => {
+    const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
     const auxiliar = Math.round(cirurgiao * AUXILIAR_PCT);
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
-    return { auxiliar, hospital, total: cirurgiao + anestesista + auxiliar + hospital };
-  }, [cirurgiao, anestesista]);
+    return { anestesista, auxiliar, hospital, total: cirurgiao + anestesista + auxiliar + hospital };
+  }, [cirurgiao]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -100,7 +99,6 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
         body: JSON.stringify({
           nome: nome.trim(),
           cirurgiaoCentavos: cirurgiao,
-          anestesistaCentavos: anestesista,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpfDigitos,
           pacienteNascimento,
@@ -126,7 +124,6 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
       ]);
       setNome("");
       setCirurgiaoStr("");
-      setAnestesistaStr("");
       setPacienteNome("");
       setPacienteCpf("");
       setPacienteNascimento("");
@@ -146,8 +143,8 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
         Cadastrar cirurgia
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-        Informe o valor do cirurgião e do anestesista. O <strong>auxiliar (30%)</strong> e o{" "}
-        <strong>hospital (60%)</strong> são calculados automaticamente.
+        Informe apenas o <strong>valor do cirurgião</strong>. Anestesista (50%), auxiliar (30%)
+        e taxa de sala do hospital (60%) são calculados automaticamente.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -156,14 +153,9 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
             <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Colecistectomia videolaparoscópica" className={inputCls} />
           </Campo>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Campo label="Valor do cirurgião (R$)">
-              <input inputMode="decimal" value={cirurgiaoStr} onChange={(e) => setCirurgiaoStr(e.target.value)} placeholder="0,00" className={inputCls} />
-            </Campo>
-            <Campo label="Valor do anestesista (R$)">
-              <input inputMode="decimal" value={anestesistaStr} onChange={(e) => setAnestesistaStr(e.target.value)} placeholder="0,00" className={inputCls} />
-            </Campo>
-          </div>
+          <Campo label="Valor do cirurgião (R$)">
+            <input inputMode="decimal" value={cirurgiaoStr} onChange={(e) => setCirurgiaoStr(e.target.value)} placeholder="0,00" className={inputCls} />
+          </Campo>
 
           <div className="border-t border-[var(--hc-line)] pt-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">
@@ -192,9 +184,9 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
         <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-5">
           <p className="mb-3 text-sm font-semibold text-[var(--hc-ink)]">Composição do valor</p>
           <Linha rotulo="Cirurgião" valor={brl(cirurgiao)} destaque />
-          <Linha rotulo="Anestesista" valor={brl(anestesista)} destaque />
+          <Linha rotulo="Anestesista (50% do cirurgião)" valor={brl(calc.anestesista)} auto />
           <Linha rotulo="Auxiliar (30% do cirurgião)" valor={brl(calc.auxiliar)} auto />
-          <Linha rotulo="Hospital · taxa/sala (60% do cirurgião)" valor={brl(calc.hospital)} auto />
+          <Linha rotulo="Taxa de sala · hospital (60% do cirurgião)" valor={brl(calc.hospital)} auto />
           <div className="mt-3 flex items-center justify-between border-t border-[var(--hc-line)] pt-3">
             <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total</span>
             <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(calc.total)}</span>

@@ -37,7 +37,7 @@ export async function GET(req: Request) {
   const { data, error } = await admin
     .from("solicitacoes")
     .select(
-      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
+      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, codigo_acesso, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
     )
     .order("criado_em", { ascending: false });
   if (error) return NextResponse.json({ erro: error.message }, { status: 400 });

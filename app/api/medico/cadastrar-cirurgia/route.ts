@@ -6,6 +6,7 @@ import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { numeroSolicitacao } from "@/lib/util/numero";
 import { enviarCodigoWhatsapp } from "@/lib/notifications/whatsapp";
 
+const ANESTESISTA_PCT = 0.5;
 const AUXILIAR_PCT = 0.3;
 const HOSPITAL_PCT = 0.6;
 
@@ -43,7 +44,6 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   const nome = String(b?.nome ?? "").trim();
   const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
-  const anestesista = Math.max(0, Math.round(Number(b?.anestesistaCentavos) || 0));
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
   const ficha = String(b?.pacienteFicha ?? "").trim();
@@ -58,6 +58,7 @@ export async function POST(req: Request) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) return NextResponse.json({ erro: "Data de nascimento do paciente inválida." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
 
+  const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
   const auxiliar = Math.round(cirurgiao * AUXILIAR_PCT);
   const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
   const total = cirurgiao + anestesista + auxiliar + hospital;
@@ -133,6 +134,7 @@ export async function POST(req: Request) {
         componentes_centavos: { cirurgiao, anestesista, auxiliar, hospital },
         valor_total_centavos: total,
         codigo_acesso_hash: hash(codigo),
+        codigo_acesso: codigo,
         criado_por: auth.user.id,
       })
       .select("id, numero")

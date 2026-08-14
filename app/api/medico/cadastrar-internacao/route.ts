@@ -103,6 +103,7 @@ export async function POST(req: Request) {
         acomodacao,
         valor_total_centavos: 0,
         codigo_acesso_hash: hash(codigo),
+        codigo_acesso: codigo,
         criado_por: auth.user.id,
       })
       .select("id")
