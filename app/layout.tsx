@@ -25,7 +25,6 @@ export const metadata: Metadata = {
     "Portal de internação e cirurgia do Hospital das Clínicas de Mineiros. Leitura e assinatura eletrônica de termos de consentimento com segurança e conformidade LGPD.",
   applicationName: HOSPITAL.nomeCurto,
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/brand/logo-hc.png", apple: "/brand/logo-hc.png" },
 };
 
 export const viewport: Viewport = {
