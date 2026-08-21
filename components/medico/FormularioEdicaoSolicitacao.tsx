@@ -14,12 +14,21 @@ function mascararCpf(v: string) {
 
 export const MINUTOS_EDICAO = 30;
 
-/** Regra de edição: admin edita sempre; demais só nos primeiros 30 min do cadastro. */
-export function podeEditar(criadoEm: string | null | undefined, papel: string): boolean {
+/**
+ * Regra de edição:
+ * - Administrador (admin_dpo) edita sempre, qualquer tipo.
+ * - Médico edita nos primeiros 30 min (cirurgia e internação que cadastrou).
+ * - Equipe (internação/faturamento) edita nos primeiros 30 min, SOMENTE internação.
+ */
+export function podeEditar(criadoEm: string | null | undefined, papel: string, tipo: string): boolean {
   if (papel === "admin_dpo") return true;
   if (!criadoEm) return false;
   const ms = Date.now() - new Date(criadoEm).getTime();
-  return ms >= 0 && ms <= MINUTOS_EDICAO * 60 * 1000;
+  const dentro30 = ms >= 0 && ms <= MINUTOS_EDICAO * 60 * 1000;
+  if (!dentro30) return false;
+  const ehEquipe = ["internacao", "faturamento"].includes(papel);
+  if (ehEquipe) return tipo === "internacao_clinica";
+  return true; // médico
 }
 
 export interface EdicaoDados {

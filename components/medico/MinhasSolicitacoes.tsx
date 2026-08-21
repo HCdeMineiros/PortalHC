@@ -127,7 +127,7 @@ export function MinhasSolicitacoes({ versao = 0 }: { versao?: number }) {
             const ehInternacao = c.tipo === "internacao_clinica";
             const encerrada = c.status === "encerrada";
             const emEdicao = editando === c.id;
-            const editavel = !encerrada && podeEditar(c.criado_em, papel);
+            const editavel = !encerrada && podeEditar(c.criado_em, papel, c.tipo);
             return (
               <li key={c.id} className={`hc-card hc-gold-frame p-4 ${encerrada ? "opacity-70" : ""}`}>
                 <div className="flex flex-wrap items-start justify-between gap-3">

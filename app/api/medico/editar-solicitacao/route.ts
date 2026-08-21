@@ -47,22 +47,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "Atendimento finalizado não pode ser editado." }, { status: 400 });
   }
 
-  // Regra de edição: admin edita sempre; médico (criador) e equipe só nos
-  // primeiros 30 minutos do cadastro (janela para corrigir erro de digitação).
+  // Regra de edição: admin edita sempre; nos primeiros 30 min o médico (criador)
+  // edita cirurgia/internação e a equipe edita SOMENTE internação clínica.
   const ehAdmin = perfil.papel === "admin_dpo";
   const ehEquipe = ["internacao", "faturamento"].includes(perfil.papel);
   const ehCriador = sol.criado_por === auth.user.id;
+  const ehInternacao = sol.tipo === "internacao_clinica";
   const dentro30 = Date.now() - new Date(sol.criado_em).getTime() <= 30 * 60 * 1000;
-  const permitido = ehAdmin || (dentro30 && (ehCriador || ehEquipe));
+  const equipePode = ehEquipe && ehInternacao; // equipe só edita internação
+  const permitido = ehAdmin || (dentro30 && (ehCriador || equipePode));
   if (!permitido) {
-    return NextResponse.json(
-      {
-        erro: dentro30
-          ? "Você não pode editar este cadastro."
-          : "O prazo de 30 minutos para edição expirou. Somente o administrador pode editar.",
-      },
-      { status: 403 },
-    );
+    let erro = "Você não pode editar este cadastro.";
+    if (ehEquipe && !ehInternacao) erro = "A cirurgia só pode ser editada pelo médico.";
+    else if (!dentro30) erro = "O prazo de 30 minutos para edição expirou. Somente o administrador pode editar.";
+    return NextResponse.json({ erro }, { status: 403 });
   }
 
   // Dados do paciente (comuns aos dois tipos)

@@ -171,7 +171,7 @@ function CardCirurgia({
   const [msg, setMsg] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [editando, setEditando] = useState(false);
-  const editavel = c.status !== "encerrada" && podeEditar(c.criado_em, papel);
+  const editavel = c.status !== "encerrada" && podeEditar(c.criado_em, papel, c.tipo);
 
   const encerrada = c.status === "encerrada";
   const ehInternacao = c.tipo === "internacao_clinica";
@@ -315,7 +315,9 @@ function CardCirurgia({
       </div>
       {!editavel && !encerrada && (
         <p className="mt-2 text-right text-xs text-[var(--hc-ink-soft)]">
-          Prazo de edição ({MINUTOS_EDICAO} min) encerrado — somente a administração edita.
+          {ehInternacao
+            ? `Prazo de edição (${MINUTOS_EDICAO} min) encerrado — somente a administração edita.`
+            : "A cirurgia é editada pelo médico (nos primeiros 30 min) ou pela administração."}
         </p>
       )}
       {editando && editavel && (
