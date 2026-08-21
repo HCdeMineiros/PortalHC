@@ -13,6 +13,7 @@ import {
   ScrollText,
   AlertTriangle,
   XCircle,
+  BadgeCheck,
   PhoneCall,
 } from "lucide-react";
 
@@ -166,10 +167,19 @@ function SlideSeguranca() {
 
 /* ---------- Slide 3: Alerta contra golpes ---------- */
 
-const ALERTAS = [
-  "O hospital não solicita senhas, dados bancários ou chaves Pix por mensagem.",
-  "Não fazemos cobranças financeiras por WhatsApp ou redes sociais.",
-  "Desconfie de links, boletos e pagamentos fora dos canais oficiais.",
+const ALERTAS: { tipo: "x" | "ok"; texto: React.ReactNode }[] = [
+  { tipo: "x", texto: "O hospital não solicita senhas, dados bancários ou chaves Pix por mensagem." },
+  {
+    tipo: "ok",
+    texto: (
+      <>
+        Qualquer pagamento deve ser feito em nome do{" "}
+        <strong className="font-semibold">Hospital das Clínicas de Mineiros</strong> — Pix (CNPJ){" "}
+        <strong className="font-semibold">37.412.400/0001-14</strong>.
+      </>
+    ),
+  },
+  { tipo: "x", texto: "Desconfie de links, boletos e pagamentos fora dos canais oficiais." },
 ];
 
 function SlideGolpes() {
@@ -186,11 +196,20 @@ function SlideGolpes() {
           </h2>
         </div>
 
-        <ul className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
-          {ALERTAS.map((t) => (
-            <li key={t} className="flex items-start gap-3 rounded-2xl border border-white/15 bg-white/5 p-4 text-sm">
-              <XCircle className="mt-0.5 h-5 w-5 flex-none text-[var(--hc-gold-soft,#e7cf7a)]" aria-hidden />
-              <span className="text-[color-mix(in_srgb,var(--hc-cream)_92%,transparent)]">{t}</span>
+        <ul className="mx-auto mt-8 grid max-w-3xl items-stretch gap-3 sm:grid-cols-3">
+          {ALERTAS.map((a, n) => (
+            <li
+              key={n}
+              className={`flex items-start gap-3 rounded-2xl border p-4 text-sm ${
+                a.tipo === "ok" ? "border-[var(--hc-gold)]/50 bg-white/10" : "border-white/15 bg-white/5"
+              }`}
+            >
+              {a.tipo === "ok" ? (
+                <BadgeCheck className="mt-0.5 h-5 w-5 flex-none text-emerald-300" aria-hidden />
+              ) : (
+                <XCircle className="mt-0.5 h-5 w-5 flex-none text-[var(--hc-gold-soft,#e7cf7a)]" aria-hidden />
+              )}
+              <span className="text-[color-mix(in_srgb,var(--hc-cream)_92%,transparent)]">{a.texto}</span>
             </li>
           ))}
         </ul>
