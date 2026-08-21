@@ -45,7 +45,7 @@ interface CirurgiaCadastrada {
   whatsappEnviado: boolean;
 }
 
-export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
+export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | null; onCadastrar?: () => void }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
   const [auxiliarPct, setAuxiliarPct] = useState(0.3); // 0.3 = auxiliar médico · 0.1 = instrumentador
@@ -131,6 +131,7 @@ export function CadastrarCirurgia({ pre }: { pre?: PreCirurgia | null }) {
       setPacienteNascimento("");
       setPacienteFicha("");
       setPacienteWhats("");
+      onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {

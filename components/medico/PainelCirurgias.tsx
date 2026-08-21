@@ -10,7 +10,7 @@ import type { Procedimento } from "@/lib/data/procedimentos";
  * O médico pode cadastrar do zero OU escolher uma cirurgia já ativa,
  * que preenche o formulário acima e rola até ele para gerar o acesso.
  */
-export function PainelCirurgias() {
+export function PainelCirurgias({ onCadastrar }: { onCadastrar?: () => void }) {
   const [pre, setPre] = useState<PreCirurgia | null>(null);
   const topoRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +27,7 @@ export function PainelCirurgias() {
   return (
     <>
       <section ref={topoRef} className="scroll-mt-6">
-        <CadastrarCirurgia pre={pre} />
+        <CadastrarCirurgia pre={pre} onCadastrar={onCadastrar} />
       </section>
       <section className="mt-8">
         <CatalogoProcedimentos onUsar={usarCirurgia} />

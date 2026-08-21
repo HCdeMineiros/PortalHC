@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { PainelCirurgias } from "./PainelCirurgias";
 import { CadastrarInternacao } from "./CadastrarInternacao";
+import { MinhasSolicitacoes } from "./MinhasSolicitacoes";
 
 type Aba = "cirurgia" | "internacao";
 
 export function PainelMedico() {
   const [aba, setAba] = useState<Aba>("cirurgia");
+  const [versao, setVersao] = useState(0);
+  const aoCadastrar = () => setVersao((v) => v + 1);
 
   const botao = (chave: Aba, rotulo: string) =>
     `rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
@@ -28,7 +31,16 @@ export function PainelMedico() {
       </div>
 
       <div className="mt-6">
-        {aba === "cirurgia" ? <PainelCirurgias /> : <CadastrarInternacao />}
+        {aba === "cirurgia" ? (
+          <PainelCirurgias onCadastrar={aoCadastrar} />
+        ) : (
+          <CadastrarInternacao onCadastrar={aoCadastrar} />
+        )}
+      </div>
+
+      {/* Lista de todos os cadastros do médico — permanecem até a exclusão pelo faturamento */}
+      <div className="mt-8">
+        <MinhasSolicitacoes versao={versao} />
       </div>
     </div>
   );

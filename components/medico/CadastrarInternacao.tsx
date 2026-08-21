@@ -24,7 +24,7 @@ interface Cadastrada {
   whatsappEnviado: boolean;
 }
 
-export function CadastrarInternacao() {
+export function CadastrarInternacao({ onCadastrar }: { onCadastrar?: () => void }) {
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
   const [pacienteNascimento, setPacienteNascimento] = useState("");
@@ -68,6 +68,7 @@ export function CadastrarInternacao() {
       setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), codigoAcesso: json.codigo, whatsappEnviado: !!json.whatsapp_enviado }, ...prev]);
       setPacienteNome(""); setPacienteCpf(""); setPacienteNascimento(""); setPacienteFicha(""); setPacienteWhats("");
       setAcomodacao("");
+      onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {
