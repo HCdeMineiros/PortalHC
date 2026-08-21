@@ -17,8 +17,15 @@ import {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      {/* brilho de fundo extremamente discreto */}
+      {/* fundo com a fachada do hospital — bem transparente, mais aparente à direita */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-[0.28] [mask-image:linear-gradient(to_right,transparent_0%,transparent_34%,rgba(0,0,0,.55)_66%,rgba(0,0,0,.9)_100%)]"
+          style={{ backgroundImage: "url('/brand/fachada-hc.jpg')" }}
+        />
+        {/* véu creme para manter o visual leve */}
+        <div className="absolute inset-0 bg-[var(--hc-cream)]/45" />
+        {/* brilhos discretos por cima */}
         <div className="absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle,rgba(201,162,39,.10),transparent_60%)]" />
         <div className="absolute -left-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(225,29,42,.06),transparent_60%)]" />
       </div>
