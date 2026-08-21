@@ -9,7 +9,7 @@ const ITENS = [
 
 export function TrustBar() {
   return (
-    <section className="border-y border-[var(--hc-line)] bg-white/60">
+    <section className="relative z-20 border-y border-[var(--hc-line)] bg-[var(--hc-cream)]">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-px overflow-hidden px-5 sm:px-6 lg:grid-cols-4">
         {ITENS.map(({ icon: Icon, titulo, sub }) => (
           <div key={titulo} className="flex items-center gap-3 py-6 sm:py-7">

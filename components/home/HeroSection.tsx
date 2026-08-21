@@ -21,11 +21,11 @@ export function HeroSection() {
       {/* fundo com a fachada do hospital — transparente, mais aparente à direita */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.45] [mask-image:linear-gradient(to_right,transparent_0%,transparent_30%,rgba(0,0,0,.6)_62%,rgba(0,0,0,1)_100%)]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.6] [mask-image:linear-gradient(to_right,transparent_0%,transparent_26%,rgba(0,0,0,.65)_58%,rgba(0,0,0,1)_100%)]"
           style={{ backgroundImage: "url('/brand/fachada-hc.jpg')" }}
         />
         {/* véu creme para manter o visual leve */}
-        <div className="absolute inset-0 bg-[var(--hc-cream)]/25" />
+        <div className="absolute inset-0 bg-[var(--hc-cream)]/15" />
         {/* brilhos discretos por cima */}
         <div className="absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle,rgba(201,162,39,.10),transparent_60%)]" />
         <div className="absolute -left-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(225,29,42,.06),transparent_60%)]" />
@@ -59,7 +59,7 @@ export function HeroSection() {
         </div>
 
         {/* Mockup de celular */}
-        <div className="relative z-10 hidden justify-center self-end md:flex md:-mb-20 lg:-mb-28">
+        <div className="relative z-10 hidden justify-center self-end md:flex md:-mb-32 lg:-mb-44">
           <TelefoneMockup />
         </div>
       </div>

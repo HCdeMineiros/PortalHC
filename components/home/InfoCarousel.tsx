@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const TOTAL = 3;
-const INTERVALO = 6000;
+const INTERVALO = 9000;
 
 export function InfoCarousel() {
   const [i, setI] = useState(0);
@@ -48,7 +48,7 @@ export function InfoCarousel() {
             onMouseLeave={() => setPausado(false)}
           >
             <div
-              className="flex transition-transform duration-700 ease-out"
+              className="flex transition-transform duration-1000 ease-out"
               style={{ transform: `translateX(-${i * 100}%)` }}
             >
               <SlidePassos />
