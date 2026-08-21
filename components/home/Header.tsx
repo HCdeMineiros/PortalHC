@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Stethoscope, Building2 } from "lucide-react";
+import { Stethoscope, Building2, FlaskConical } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
 export function Header() {
@@ -23,12 +23,17 @@ export function Header() {
           : "border-b border-transparent bg-[color-mix(in_srgb,var(--hc-cream)_70%,white)]/60 backdrop-blur-sm"
       }`}
     >
-      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between gap-3 px-5 sm:px-6">
+      <div className="mx-auto flex min-h-24 w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-6">
         <Link href="/" aria-label="Portal HC — início" className="flex-none">
-          <Logo height={46} />
+          <span className="sm:hidden">
+            <Logo height={42} />
+          </span>
+          <span className="hidden sm:block">
+            <Logo height={64} />
+          </span>
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             href="/medico"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(160,12,34,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105 sm:px-5"
@@ -44,6 +49,14 @@ export function Header() {
             <Building2 className="h-4 w-4" aria-hidden />
             <span className="hidden sm:inline">Acesso da Equipe</span>
             <span className="sm:hidden">Equipe</span>
+          </Link>
+          <Link
+            href="/paciente/acesso"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-gold)] to-[var(--hc-gold-deep)] px-4 py-2.5 text-sm font-semibold text-[var(--hc-ink)] shadow-[0_10px_24px_-12px_rgba(154,123,18,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105 sm:px-5"
+          >
+            <FlaskConical className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Acesse seus exames</span>
+            <span className="sm:hidden">Exames</span>
           </Link>
         </div>
       </div>
