@@ -25,11 +25,8 @@ async function validarEquipe(req: Request) {
   if (!perfil || !PAPEIS_EQUIPE.includes(perfil.papel)) {
     return { erro: NextResponse.json({ erro: "Sem permissão (equipe)." }, { status: 403 }) };
   }
-  return { user: auth.user, papel: perfil.papel as string };
+  return { user: auth.user };
 }
-
-// Quem pode excluir uma solicitação (faturamento/financeiro).
-const PAPEIS_EXCLUSAO = ["faturamento", "admin_dpo"];
 
 /** Lista todas as cirurgias cadastradas (equipe vê todas). */
 export async function GET(req: Request) {
@@ -59,7 +56,7 @@ export async function GET(req: Request) {
     docs_ok: aceitesPorSol[c.id] ?? 0,
   }));
 
-  return NextResponse.json({ ok: true, cirurgias: comStatus, papel: v.papel });
+  return NextResponse.json({ ok: true, cirurgias: comStatus });
 }
 
 /** Finaliza o atendimento OU lança a acomodação. */
@@ -73,17 +70,6 @@ export async function POST(req: Request) {
   if (!id) return NextResponse.json({ erro: "ID não informado." }, { status: 400 });
 
   const admin = criarClienteAdmin();
-
-  if (acao === "excluir") {
-    if (!PAPEIS_EXCLUSAO.includes(v.papel ?? "")) {
-      return NextResponse.json({ erro: "Apenas o faturamento pode excluir cadastros." }, { status: 403 });
-    }
-    // remove os aceites do paciente antes da solicitação (evita conflito de referência)
-    await admin.from("aceites_paciente").delete().eq("solicitacao_id", id);
-    const { error } = await admin.from("solicitacoes").delete().eq("id", id);
-    if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
-    return NextResponse.json({ ok: true });
-  }
 
   if (acao === "finalizar") {
     const { error } = await admin

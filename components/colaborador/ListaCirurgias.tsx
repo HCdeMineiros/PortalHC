@@ -54,11 +54,8 @@ function StatusDocumentos({ ok, total }: { ok: number; total: number }) {
   );
 }
 
-const PODE_EXCLUIR = ["faturamento", "admin_dpo"];
-
 export function ListaCirurgias() {
   const [cirurgias, setCirurgias] = useState<Cirurgia[]>([]);
-  const [papel, setPapel] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
@@ -77,10 +74,7 @@ export function ListaCirurgias() {
       const resp = await fetch("/api/colaborador/cirurgias", { headers: { Authorization: `Bearer ${t}` } });
       const json = await resp.json();
       if (!resp.ok) setErro(json?.erro || "Falha ao carregar.");
-      else {
-        setCirurgias(json.cirurgias ?? []);
-        setPapel(json.papel ?? "");
-      }
+      else setCirurgias(json.cirurgias ?? []);
     } catch {
       setErro("Erro de conexão.");
     } finally {
@@ -146,7 +140,7 @@ export function ListaCirurgias() {
       ) : (
         <ul className="mt-4 space-y-4">
           {filtradas.map((c) => (
-            <CardCirurgia key={c.id} c={c} atualizar={atualizar} onMudou={carregar} podeExcluir={PODE_EXCLUIR.includes(papel)} />
+            <CardCirurgia key={c.id} c={c} atualizar={atualizar} onMudou={carregar} />
           ))}
         </ul>
       )}
@@ -158,12 +152,10 @@ function CardCirurgia({
   c,
   atualizar,
   onMudou,
-  podeExcluir,
 }: {
   c: Cirurgia;
   atualizar: (id: string, body: Record<string, unknown>) => Promise<{ acomodacao_total_centavos?: number }>;
   onMudou: () => void;
-  podeExcluir: boolean;
 }) {
   const [acom, setAcom] = useState(c.acomodacao ?? "");
   const [dias, setDias] = useState(c.acomodacao_dias ? String(c.acomodacao_dias) : "1");
@@ -195,20 +187,6 @@ function CardCirurgia({
     setMsg("");
     try {
       await atualizar(c.id, { acao: "finalizar" });
-      onMudou();
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Falha.");
-    } finally {
-      setOcupado(false);
-    }
-  }
-
-  async function excluir() {
-    if (!confirm(`Excluir definitivamente a solicitação ${c.numero}? Esta ação não pode ser desfeita e removerá o cadastro também da área do médico.`)) return;
-    setOcupado(true);
-    setMsg("");
-    try {
-      await atualizar(c.id, { acao: "excluir" });
       onMudou();
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Falha.");
@@ -306,24 +284,13 @@ function CardCirurgia({
           <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
           <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {encerrada ? (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
-          ) : (
-            <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
-              Finalizar atendimento
-            </button>
-          )}
-          {podeExcluir && (
-            <button
-              onClick={excluir}
-              disabled={ocupado}
-              className="rounded-full border border-[var(--hc-red-600)]/40 bg-white px-4 py-2 text-sm font-semibold text-[var(--hc-red-600)] transition-colors hover:bg-[var(--hc-red-050)]"
-            >
-              Excluir
-            </button>
-          )}
-        </div>
+        {encerrada ? (
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
+        ) : (
+          <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
+            Finalizar atendimento
+          </button>
+        )}
       </div>
       {msg && <p className="mt-2 text-sm text-[var(--hc-red-600)]">{msg}</p>}
     </li>
