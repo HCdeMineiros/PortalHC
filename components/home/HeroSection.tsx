@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Stethoscope,
   Bell,
   FileText,
   CheckCircle2,
@@ -41,18 +40,12 @@ export function HeroSection() {
             no seu tempo, onde você estiver.
           </p>
 
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-9 flex">
             <Link
               href="/paciente/acesso"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] px-7 py-4 text-base font-semibold text-white shadow-[0_14px_30px_-12px_rgba(160,12,34,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] px-8 py-4 text-base font-semibold text-white shadow-[0_14px_30px_-12px_rgba(160,12,34,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105"
             >
               <User className="h-5 w-5" aria-hidden /> Acessar como paciente
-            </Link>
-            <Link
-              href="/medico"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--hc-line)] bg-white px-7 py-4 text-base font-semibold text-[var(--hc-ink)] transition-all hover:-translate-y-0.5 hover:border-[var(--hc-gold)]"
-            >
-              <Stethoscope className="h-5 w-5 text-[var(--hc-red-600)]" aria-hidden /> Área Médica
             </Link>
           </div>
         </div>
