@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Stethoscope, Building2, FlaskConical } from "lucide-react";
+import { Stethoscope, Building2, Settings } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
 export function Header() {
@@ -51,12 +51,12 @@ export function Header() {
             <span className="sm:hidden">Equipe</span>
           </Link>
           <Link
-            href="/paciente/acesso"
+            href="/admin"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-gold)] to-[var(--hc-gold-deep)] px-4 py-2.5 text-sm font-semibold text-[var(--hc-ink)] shadow-[0_10px_24px_-12px_rgba(154,123,18,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105 sm:px-5"
           >
-            <FlaskConical className="h-4 w-4" aria-hidden />
-            <span className="hidden sm:inline">Acesse seus exames</span>
-            <span className="sm:hidden">Exames</span>
+            <Settings className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Administração</span>
+            <span className="sm:hidden">Admin</span>
           </Link>
         </div>
       </div>
