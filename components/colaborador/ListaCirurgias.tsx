@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS } from "@/lib/data/acomodacoes";
+import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -23,6 +24,7 @@ interface Cirurgia {
   tipo: string;
   status: string;
   procedimento_nome: string | null;
+  componentes_centavos: { cirurgiao?: number; auxiliar?: number } | null;
   valor_total_centavos: number | null;
   codigo_acesso: string | null;
   data_prevista: string | null;
@@ -30,9 +32,10 @@ interface Cirurgia {
   acomodacao_dias: number | null;
   acomodacao_total_centavos: number | null;
   finalizada_em: string | null;
+  criado_em: string;
   docs_total: number;
   docs_ok: number;
-  pacientes: { nome: string; cpf: string; ref_externa_promedico: string | null; telefone_whatsapp: string | null } | null;
+  pacientes: { nome: string; cpf: string | null; data_nascimento: string | null; ref_externa_promedico: string | null; telefone_whatsapp: string | null } | null;
   medicos: { nome: string } | null;
 }
 
@@ -56,6 +59,7 @@ function StatusDocumentos({ ok, total }: { ok: number; total: number }) {
 
 export function ListaCirurgias() {
   const [cirurgias, setCirurgias] = useState<Cirurgia[]>([]);
+  const [papel, setPapel] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
@@ -74,7 +78,10 @@ export function ListaCirurgias() {
       const resp = await fetch("/api/colaborador/cirurgias", { headers: { Authorization: `Bearer ${t}` } });
       const json = await resp.json();
       if (!resp.ok) setErro(json?.erro || "Falha ao carregar.");
-      else setCirurgias(json.cirurgias ?? []);
+      else {
+        setCirurgias(json.cirurgias ?? []);
+        setPapel(json.papel ?? "");
+      }
     } catch {
       setErro("Erro de conexão.");
     } finally {
@@ -140,7 +147,7 @@ export function ListaCirurgias() {
       ) : (
         <ul className="mt-4 space-y-4">
           {filtradas.map((c) => (
-            <CardCirurgia key={c.id} c={c} atualizar={atualizar} onMudou={carregar} />
+            <CardCirurgia key={c.id} c={c} atualizar={atualizar} onMudou={carregar} papel={papel} />
           ))}
         </ul>
       )}
@@ -152,15 +159,19 @@ function CardCirurgia({
   c,
   atualizar,
   onMudou,
+  papel,
 }: {
   c: Cirurgia;
   atualizar: (id: string, body: Record<string, unknown>) => Promise<{ acomodacao_total_centavos?: number }>;
   onMudou: () => void;
+  papel: string;
 }) {
   const [acom, setAcom] = useState(c.acomodacao ?? "");
   const [dias, setDias] = useState(c.acomodacao_dias ? String(c.acomodacao_dias) : "1");
   const [msg, setMsg] = useState("");
   const [ocupado, setOcupado] = useState(false);
+  const [editando, setEditando] = useState(false);
+  const editavel = c.status !== "encerrada" && podeEditar(c.criado_em, papel);
 
   const encerrada = c.status === "encerrada";
   const ehInternacao = c.tipo === "internacao_clinica";
@@ -284,14 +295,39 @@ function CardCirurgia({
           <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
           <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</span>
         </div>
-        {encerrada ? (
-          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
-        ) : (
-          <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
-            Finalizar atendimento
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {editavel && (
+            <button
+              onClick={() => setEditando((v) => !v)}
+              className="rounded-full border border-[var(--hc-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hc-ink)] transition-colors hover:border-[var(--hc-gold)]"
+            >
+              {editando ? "Cancelar" : "✎ Editar"}
+            </button>
+          )}
+          {encerrada ? (
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
+          ) : (
+            <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
+              Finalizar atendimento
+            </button>
+          )}
+        </div>
       </div>
+      {!editavel && !encerrada && (
+        <p className="mt-2 text-right text-xs text-[var(--hc-ink-soft)]">
+          Prazo de edição ({MINUTOS_EDICAO} min) encerrado — somente a administração edita.
+        </p>
+      )}
+      {editando && editavel && (
+        <FormularioEdicaoSolicitacao
+          c={c}
+          onCancelar={() => setEditando(false)}
+          onSalvo={() => {
+            setEditando(false);
+            onMudou();
+          }}
+        />
+      )}
       {msg && <p className="mt-2 text-sm text-[var(--hc-red-600)]">{msg}</p>}
     </li>
   );

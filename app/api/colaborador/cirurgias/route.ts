@@ -25,7 +25,7 @@ async function validarEquipe(req: Request) {
   if (!perfil || !PAPEIS_EQUIPE.includes(perfil.papel)) {
     return { erro: NextResponse.json({ erro: "Sem permissão (equipe)." }, { status: 403 }) };
   }
-  return { user: auth.user };
+  return { user: auth.user, papel: perfil.papel as string };
 }
 
 /** Lista todas as cirurgias cadastradas (equipe vê todas). */
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
   const { data, error } = await admin
     .from("solicitacoes")
     .select(
-      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, codigo_acesso, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
+      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, componentes_centavos, codigo_acesso, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, data_nascimento, ref_externa_promedico, telefone_whatsapp), medicos(nome)",
     )
     .order("criado_em", { ascending: false });
   if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
@@ -56,7 +56,7 @@ export async function GET(req: Request) {
     docs_ok: aceitesPorSol[c.id] ?? 0,
   }));
 
-  return NextResponse.json({ ok: true, cirurgias: comStatus });
+  return NextResponse.json({ ok: true, cirurgias: comStatus, papel: v.papel });
 }
 
 /** Finaliza o atendimento OU lança a acomodação. */

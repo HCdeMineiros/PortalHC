@@ -25,6 +25,7 @@ export async function GET(req: Request) {
   if (!perfil || !["medico", "admin_dpo"].includes(perfil.papel)) {
     return NextResponse.json({ erro: "Apenas médicos." }, { status: 403 });
   }
+  const papel = perfil.papel as string;
 
   const admin = criarClienteAdmin();
   const { data, error } = await admin
@@ -49,5 +50,5 @@ export async function GET(req: Request) {
     docs_ok: aceitesPorSol[s.id] ?? 0,
   }));
 
-  return NextResponse.json({ ok: true, solicitacoes: comStatus });
+  return NextResponse.json({ ok: true, solicitacoes: comStatus, papel });
 }

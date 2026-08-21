@@ -28,8 +28,8 @@ export async function POST(req: Request) {
   const { data: auth } = await comoUsuario.auth.getUser(token);
   if (!auth.user) return NextResponse.json({ erro: "Sessão inválida." }, { status: 401 });
   const { data: perfil } = await comoUsuario.from("usuarios").select("papel").eq("id", auth.user.id).single();
-  if (!perfil || !["medico", "admin_dpo"].includes(perfil.papel)) {
-    return NextResponse.json({ erro: "Apenas médicos podem editar." }, { status: 403 });
+  if (!perfil || !["medico", "admin_dpo", "internacao", "faturamento"].includes(perfil.papel)) {
+    return NextResponse.json({ erro: "Sem permissão para editar." }, { status: 403 });
   }
 
   const b = await req.json().catch(() => null);
@@ -39,15 +39,30 @@ export async function POST(req: Request) {
   const admin = criarClienteAdmin();
   const { data: sol } = await admin
     .from("solicitacoes")
-    .select("id, tipo, status, criado_por, paciente_id")
+    .select("id, tipo, status, criado_por, paciente_id, criado_em")
     .eq("id", id)
     .single();
   if (!sol) return NextResponse.json({ erro: "Solicitação não encontrada." }, { status: 404 });
-  if (sol.criado_por !== auth.user.id && perfil.papel !== "admin_dpo") {
-    return NextResponse.json({ erro: "Você só pode editar os seus cadastros." }, { status: 403 });
-  }
   if (sol.status === "encerrada") {
     return NextResponse.json({ erro: "Atendimento finalizado não pode ser editado." }, { status: 400 });
+  }
+
+  // Regra de edição: admin edita sempre; médico (criador) e equipe só nos
+  // primeiros 30 minutos do cadastro (janela para corrigir erro de digitação).
+  const ehAdmin = perfil.papel === "admin_dpo";
+  const ehEquipe = ["internacao", "faturamento"].includes(perfil.papel);
+  const ehCriador = sol.criado_por === auth.user.id;
+  const dentro30 = Date.now() - new Date(sol.criado_em).getTime() <= 30 * 60 * 1000;
+  const permitido = ehAdmin || (dentro30 && (ehCriador || ehEquipe));
+  if (!permitido) {
+    return NextResponse.json(
+      {
+        erro: dentro30
+          ? "Você não pode editar este cadastro."
+          : "O prazo de 30 minutos para edição expirou. Somente o administrador pode editar.",
+      },
+      { status: 403 },
+    );
   }
 
   // Dados do paciente (comuns aos dois tipos)
