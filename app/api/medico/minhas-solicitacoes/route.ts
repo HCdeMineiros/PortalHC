@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   const { data, error } = await admin
     .from("solicitacoes")
     .select(
-      "id, numero, tipo, status, procedimento_nome, valor_total_centavos, codigo_acesso, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, ref_externa_promedico)",
+      "id, numero, tipo, status, procedimento_nome, componentes_centavos, valor_total_centavos, codigo_acesso, data_prevista, acomodacao, acomodacao_dias, acomodacao_total_centavos, finalizada_em, criado_em, pacientes(nome, cpf, data_nascimento, ref_externa_promedico, telefone_whatsapp)",
     )
     .eq("criado_por", auth.user.id)
     .order("criado_em", { ascending: false });
