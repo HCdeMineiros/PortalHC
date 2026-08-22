@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS } from "@/lib/data/acomodacoes";
 import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
+import { HOSPITAL } from "@/lib/brand";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -42,6 +43,90 @@ interface Cirurgia {
 }
 
 const nomeAcom = (chave: string | null) => ACOMODACOES.find((a) => a.chave === chave)?.nome ?? "—";
+
+const esc = (s: unknown) =>
+  String(s ?? "").replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m] as string);
+const maskCpf = (v: string | null) => {
+  const d = (v ?? "").replace(/\D/g, "").slice(0, 11);
+  return d ? d.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2") : "—";
+};
+
+/** Abre uma janela com o documento da diferença de acomodação e chama a impressão. */
+function imprimirDiferenca(c: Cirurgia) {
+  const comp = c.componentes_centavos ?? {};
+  const criado = c.criado_em ? new Date(c.criado_em).toLocaleString("pt-BR") : "";
+  const linhaItem = (rot: string, val: number) =>
+    `<tr><td>${rot}</td><td class="v">${brl(val)}</td></tr>`;
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<title>Diferença de acomodação — ${esc(c.numero)}</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Times New Roman", serif; color: #1A1616; margin: 32px; }
+  .top { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C9A227; padding-bottom:12px; }
+  .hosp { font-size: 18px; font-weight: bold; }
+  .sub { font-size: 12px; color:#4B4444; }
+  h1 { font-size: 20px; margin: 20px 0 4px; }
+  .meta { font-size: 12px; color:#4B4444; margin-bottom: 16px; }
+  .box { border:1px solid #E7DFD5; border-radius:8px; padding:12px 16px; margin-bottom:14px; }
+  .box h2 { font-size: 12px; text-transform:uppercase; letter-spacing:.06em; color:#9A7B12; margin:0 0 8px; }
+  .row { font-size: 14px; margin: 3px 0; }
+  table { width:100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 6px 0; border-bottom: 1px dashed #E7DFD5; }
+  td.v { text-align: right; font-variant-numeric: tabular-nums; }
+  .total { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:16px; font-weight:bold; }
+  .total .g { color:#C8102E; font-size:20px; }
+  .assin { margin-top:48px; display:flex; gap:48px; }
+  .assin div { flex:1; border-top:1px solid #1A1616; padding-top:6px; font-size:12px; text-align:center; color:#4B4444; }
+  .rodape { margin-top:28px; font-size:11px; color:#4B4444; text-align:center; }
+  @media print { body { margin: 16mm; } }
+</style></head><body>
+  <div class="top">
+    <div>
+      <div class="hosp">${esc(HOSPITAL.nome)}</div>
+      <div class="sub">${esc(HOSPITAL.endereco)} · ${esc(HOSPITAL.cidade)} · ${esc(HOSPITAL.telefones.join(" · "))}</div>
+    </div>
+  </div>
+
+  <h1>Diferença de Acomodação</h1>
+  <div class="meta">Nº da solicitação: <b>${esc(c.numero)}</b>${criado ? ` · Emitido em ${esc(criado)}` : ""}</div>
+
+  <div class="box">
+    <h2>Paciente</h2>
+    <div class="row"><b>${esc(c.pacientes?.nome ?? "—")}</b></div>
+    <div class="row">CPF: ${maskCpf(c.pacientes?.cpf ?? "")} · Ficha (PROMÉDICO): ${esc(c.pacientes?.ref_externa_promedico ?? "—")}</div>
+    <div class="row">Plano de saúde: <b>${esc(comp.plano ?? "—")}</b></div>
+    <div class="row">Médico cirurgião: <b>${esc(comp.medicoNome ?? "—")}</b></div>
+  </div>
+
+  <div class="box">
+    <h2>Composição da diferença</h2>
+    <table>
+      ${linhaItem("Honorário médico", comp.medico ?? 0)}
+      ${linhaItem("Honorário do anestesista", comp.anestesista ?? 0)}
+      ${linhaItem("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
+      ${linhaItem("Taxa de sala · hospital", comp.hospital ?? 0)}
+    </table>
+    <div class="total"><span>Total da diferença</span><span class="g">${brl(c.valor_total_centavos)}</span></div>
+  </div>
+
+  <div class="assin">
+    <div>Responsável pelo lançamento</div>
+    <div>Paciente / responsável</div>
+  </div>
+
+  <div class="rodape">Documento para lançamento — anexar ao prontuário. ${esc(HOSPITAL.nomeCurto)} · ${esc(HOSPITAL.dominio)}</div>
+</body></html>`;
+
+  const w = window.open("", "_blank", "width=820,height=920");
+  if (!w) {
+    alert("Não foi possível abrir a janela de impressão. Habilite os pop-ups para este site.");
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 300);
+}
 
 /** Selo do progresso de assinatura dos documentos pelo paciente. */
 function StatusDocumentos({ ok, total }: { ok: number; total: number }) {
@@ -269,13 +354,21 @@ function CardCirurgia({
             <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
             <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(c.valor_total_centavos)}</span>
           </div>
-          {encerrada ? (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Baixa dada (recebido)</span>
-          ) : (
-            <button onClick={darBaixa} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
-              Dar baixa (recebido)
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => imprimirDiferenca(c)}
+              className="rounded-full border border-[var(--hc-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hc-ink)] transition-colors hover:border-[var(--hc-gold)]"
+            >
+              🖨 Imprimir
             </button>
-          )}
+            {encerrada ? (
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Baixa dada (recebido)</span>
+            ) : (
+              <button onClick={darBaixa} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
+                Dar baixa (recebido)
+              </button>
+            )}
+          </div>
         </div>
         {msg && <p className="mt-2 text-sm text-[var(--hc-red-600)]">{msg}</p>}
       </li>
