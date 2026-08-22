@@ -14,8 +14,9 @@ export interface PreCirurgia {
  * A partir do valor do cirurgião: Anestesista 50% · Auxiliar 30% · Hospital 60%
  * (recalculado no servidor).
  */
-const ANESTESISTA_PCT = 0.5;
-const AUXILIAR_PCT = 0.3;
+const ANESTESISTA_PCT = 0.3;
+const AUXILIAR_MEDICO_PCT = 0.3;
+const INSTRUMENTADOR_PCT = 0.1;
 const HOSPITAL_PCT = 0.6;
 
 const brl = (centavos: number) =>
@@ -48,7 +49,8 @@ interface CirurgiaCadastrada {
 export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | null; onCadastrar?: () => void }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
-  const [auxiliarPct, setAuxiliarPct] = useState(0.3); // 0.3 = auxiliar médico · 0.1 = instrumentador
+  const [auxiliarMedico, setAuxiliarMedico] = useState(true); // 30%
+  const [instrumentador, setInstrumentador] = useState(false); // 10% — pode marcar junto com o auxiliar
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
   const [pacienteNascimento, setPacienteNascimento] = useState("");
@@ -69,10 +71,11 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
 
   const calc = useMemo(() => {
     const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
-    const auxiliar = Math.round(cirurgiao * auxiliarPct);
+    const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
+    const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
-    return { anestesista, auxiliar, hospital, total: cirurgiao + anestesista + auxiliar + hospital };
-  }, [cirurgiao, auxiliarPct]);
+    return { anestesista, auxMedico, instrum, hospital, total: cirurgiao + anestesista + auxMedico + instrum + hospital };
+  }, [cirurgiao, auxiliarMedico, instrumentador]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -100,7 +103,8 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
         body: JSON.stringify({
           nome: nome.trim(),
           cirurgiaoCentavos: cirurgiao,
-          auxiliarPct,
+          auxiliarMedico,
+          instrumentador,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpfDigitos,
           pacienteNascimento,
@@ -126,6 +130,8 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
       ]);
       setNome("");
       setCirurgiaoStr("");
+      setAuxiliarMedico(true);
+      setInstrumentador(false);
       setPacienteNome("");
       setPacienteCpf("");
       setPacienteNascimento("");
@@ -146,8 +152,9 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
         Cadastrar cirurgia
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-        Informe o <strong>valor do cirurgião</strong> e escolha o auxiliar. Anestesista (50%) e
-        taxa de sala do hospital (60%) são calculados automaticamente.
+        Informe o <strong>valor do cirurgião</strong>. Anestesista (30%) e taxa de sala do
+        hospital (60%) são calculados automaticamente. Marque auxiliar médico (30%) e/ou
+        instrumentador (10%) se houver.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -161,26 +168,16 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           </Campo>
 
           <div>
-            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Auxiliar</span>
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Equipe auxiliar (opcional)</span>
             <div className="flex flex-wrap gap-3">
-              {[
-                { pct: 0.3, rotulo: "Auxiliar médico (30%)" },
-                { pct: 0.1, rotulo: "Instrumentador (10%)" },
-              ].map((o) => (
-                <button
-                  key={o.pct}
-                  type="button"
-                  onClick={() => setAuxiliarPct(o.pct)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    auxiliarPct === o.pct
-                      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
-                      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
-                  }`}
-                >
-                  {o.rotulo}
-                </button>
-              ))}
+              <button type="button" onClick={() => setAuxiliarMedico((v) => !v)} className={botaoAux(auxiliarMedico)}>
+                {auxiliarMedico ? "✓ " : ""}Auxiliar médico (30%)
+              </button>
+              <button type="button" onClick={() => setInstrumentador((v) => !v)} className={botaoAux(instrumentador)}>
+                {instrumentador ? "✓ " : ""}Instrumentador (10%)
+              </button>
             </div>
+            <p className="mt-1.5 text-xs text-[var(--hc-ink-soft)]">Pode marcar os dois, se houver.</p>
           </div>
 
           <div className="border-t border-[var(--hc-line)] pt-4">
@@ -210,8 +207,9 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
         <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-5">
           <p className="mb-3 text-sm font-semibold text-[var(--hc-ink)]">Composição do valor</p>
           <Linha rotulo="Cirurgião" valor={brl(cirurgiao)} destaque />
-          <Linha rotulo="Anestesista (50% do cirurgião)" valor={brl(calc.anestesista)} auto />
-          <Linha rotulo={`Auxiliar (${Math.round(auxiliarPct * 100)}% do cirurgião)`} valor={brl(calc.auxiliar)} auto />
+          <Linha rotulo="Anestesista (30% do cirurgião)" valor={brl(calc.anestesista)} auto />
+          {auxiliarMedico && <Linha rotulo="Auxiliar médico (30% do cirurgião)" valor={brl(calc.auxMedico)} auto />}
+          {instrumentador && <Linha rotulo="Instrumentador (10% do cirurgião)" valor={brl(calc.instrum)} auto />}
           <Linha rotulo="Taxa de sala · hospital (60% do cirurgião)" valor={brl(calc.hospital)} auto />
           <div className="mt-3 flex items-center justify-between border-t border-[var(--hc-line)] pt-3">
             <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total</span>
@@ -266,6 +264,13 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
 
 const inputCls =
   "w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-2.5 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]";
+
+const botaoAux = (ativo: boolean) =>
+  `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+    ativo
+      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+  }`;
 
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (

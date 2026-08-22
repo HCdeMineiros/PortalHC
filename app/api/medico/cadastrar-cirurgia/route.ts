@@ -6,8 +6,9 @@ import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { numeroSolicitacao } from "@/lib/util/numero";
 import { enviarCodigoWhatsapp } from "@/lib/notifications/whatsapp";
 
-const ANESTESISTA_PCT = 0.5;
-const AUXILIAR_PCT = 0.3;
+const ANESTESISTA_PCT = 0.3;
+const AUXILIAR_MEDICO_PCT = 0.3;
+const INSTRUMENTADOR_PCT = 0.1;
 const HOSPITAL_PCT = 0.6;
 
 const soDigitos = (s: string) => String(s ?? "").replace(/\D/g, "");
@@ -44,7 +45,8 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   const nome = String(b?.nome ?? "").trim();
   const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
-  const auxiliarPct = Number(b?.auxiliarPct) === 0.1 ? 0.1 : AUXILIAR_PCT; // 10% instrumentador · 30% auxiliar médico
+  const auxiliarMedico = b?.auxiliarMedico === true || b?.auxiliarMedico === "true"; // 30%
+  const instrumentador = b?.instrumentador === true || b?.instrumentador === "true"; // 10% (pode marcar junto)
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
   const ficha = String(b?.pacienteFicha ?? "").trim();
@@ -60,9 +62,10 @@ export async function POST(req: Request) {
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
 
   const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
-  const auxiliar = Math.round(cirurgiao * auxiliarPct);
+  const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
+  const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
   const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
-  const total = cirurgiao + anestesista + auxiliar + hospital;
+  const total = cirurgiao + anestesista + auxMedico + instrum + hospital;
 
   let admin;
   try {
@@ -132,7 +135,7 @@ export async function POST(req: Request) {
         data_prevista: dataPrevista,
         status: "aguardando_paciente",
         procedimento_nome: nome,
-        componentes_centavos: { cirurgiao, anestesista, auxiliar, hospital },
+        componentes_centavos: { cirurgiao, anestesista, auxiliarMedico: auxMedico, instrumentador: instrum, hospital },
         valor_total_centavos: total,
         codigo_acesso_hash: hash(codigo),
         codigo_acesso: codigo,

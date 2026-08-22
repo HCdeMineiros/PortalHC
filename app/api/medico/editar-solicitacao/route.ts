@@ -3,8 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
-const ANESTESISTA_PCT = 0.5;
-const AUXILIAR_PCT = 0.3;
+const ANESTESISTA_PCT = 0.3;
+const AUXILIAR_MEDICO_PCT = 0.3;
+const INSTRUMENTADOR_PCT = 0.1;
 const HOSPITAL_PCT = 0.6;
 
 const soDigitos = (s: unknown) => String(s ?? "").replace(/\D/g, "");
@@ -85,15 +86,17 @@ export async function POST(req: Request) {
   } else {
     const nome = String(b?.nome ?? "").trim();
     const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
-    const auxiliarPct = Number(b?.auxiliarPct) === 0.1 ? 0.1 : AUXILIAR_PCT;
+    const auxiliarMedico = b?.auxiliarMedico === true || b?.auxiliarMedico === "true";
+    const instrumentador = b?.instrumentador === true || b?.instrumentador === "true";
     if (!nome) return NextResponse.json({ erro: "Informe o nome da cirurgia." }, { status: 400 });
     if (cirurgiao <= 0) return NextResponse.json({ erro: "Informe o valor do cirurgião." }, { status: 400 });
     const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
-    const auxiliar = Math.round(cirurgiao * auxiliarPct);
+    const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
+    const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
     upd.procedimento_nome = nome;
-    upd.componentes_centavos = { cirurgiao, anestesista, auxiliar, hospital };
-    upd.valor_total_centavos = cirurgiao + anestesista + auxiliar + hospital;
+    upd.componentes_centavos = { cirurgiao, anestesista, auxiliarMedico: auxMedico, instrumentador: instrum, hospital };
+    upd.valor_total_centavos = cirurgiao + anestesista + auxMedico + instrum + hospital;
   }
 
   const { error: e1 } = await admin.from("solicitacoes").update(upd).eq("id", id);

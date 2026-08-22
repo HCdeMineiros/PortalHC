@@ -35,7 +35,7 @@ export interface EdicaoDados {
   id: string;
   tipo: string;
   procedimento_nome: string | null;
-  componentes_centavos: { cirurgiao?: number; auxiliar?: number } | null;
+  componentes_centavos: { cirurgiao?: number; auxiliar?: number; auxiliarMedico?: number; instrumentador?: number } | null;
   acomodacao: string | null;
   pacientes: {
     nome: string;
@@ -75,13 +75,17 @@ export function FormularioEdicaoSolicitacao({
   onSalvo: () => void;
 }) {
   const ehInternacao = c.tipo === "internacao_clinica";
-  const cirurgiaoInicial = c.componentes_centavos?.cirurgiao ?? 0;
-  const auxInicial =
-    cirurgiaoInicial > 0 && (c.componentes_centavos?.auxiliar ?? 0) / cirurgiaoInicial < 0.2 ? 0.1 : 0.3;
+  const comp = c.componentes_centavos ?? {};
+  const cirurgiaoInicial = comp.cirurgiao ?? 0;
+  // fallback para cadastros antigos (auxiliar único): 30% = auxiliar médico · 10% = instrumentador
+  const ratioAux = cirurgiaoInicial > 0 && comp.auxiliar ? comp.auxiliar / cirurgiaoInicial : 0;
+  const auxMedInicial = (comp.auxiliarMedico ?? 0) > 0 || ratioAux >= 0.2;
+  const instrumInicial = (comp.instrumentador ?? 0) > 0 || (ratioAux > 0 && ratioAux < 0.2);
 
   const [nome, setNome] = useState(c.procedimento_nome ?? "");
   const [cirurgiaoStr, setCirurgiaoStr] = useState(cirurgiaoInicial ? (cirurgiaoInicial / 100).toString() : "");
-  const [auxiliarPct, setAuxiliarPct] = useState(auxInicial);
+  const [auxiliarMedico, setAuxiliarMedico] = useState(auxMedInicial);
+  const [instrumentador, setInstrumentador] = useState(instrumInicial);
   const [acomodacao, setAcomodacao] = useState(c.acomodacao ?? "");
   const [pacienteNome, setPacienteNome] = useState(c.pacientes?.nome ?? "");
   const [pacienteCpf, setPacienteCpf] = useState(mascararCpf(c.pacientes?.cpf ?? ""));
@@ -115,7 +119,8 @@ export function FormularioEdicaoSolicitacao({
           id: c.id,
           nome: nome.trim(),
           cirurgiaoCentavos: paraCentavos(cirurgiaoStr),
-          auxiliarPct,
+          auxiliarMedico,
+          instrumentador,
           acomodacao,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpf,
@@ -149,25 +154,30 @@ export function FormularioEdicaoSolicitacao({
             <input inputMode="decimal" value={cirurgiaoStr} onChange={(e) => setCirurgiaoStr(e.target.value)} placeholder="0,00" className={inputCls} />
           </Campo>
           <div className="sm:col-span-2">
-            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Auxiliar</span>
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Equipe auxiliar (opcional)</span>
             <div className="flex flex-wrap gap-3">
-              {[
-                { pct: 0.3, rotulo: "Auxiliar médico (30%)" },
-                { pct: 0.1, rotulo: "Instrumentador (10%)" },
-              ].map((o) => (
-                <button
-                  key={o.pct}
-                  type="button"
-                  onClick={() => setAuxiliarPct(o.pct)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    auxiliarPct === o.pct
-                      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
-                      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
-                  }`}
-                >
-                  {o.rotulo}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setAuxiliarMedico((v) => !v)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  auxiliarMedico
+                    ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                    : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                }`}
+              >
+                {auxiliarMedico ? "✓ " : ""}Auxiliar médico (30%)
+              </button>
+              <button
+                type="button"
+                onClick={() => setInstrumentador((v) => !v)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  instrumentador
+                    ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                    : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                }`}
+              >
+                {instrumentador ? "✓ " : ""}Instrumentador (10%)
+              </button>
             </div>
           </div>
         </div>
