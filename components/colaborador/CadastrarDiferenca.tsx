@@ -209,15 +209,31 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
               </div>
               <div>
                 <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Acomodação</span>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-stretch gap-2">
                   <button type="button" onClick={() => setAcomodacaoDif("")} className={botaoAcom(acomodacaoDif === "")}>
                     Nenhuma
                   </button>
-                  {DIFERENCA_ACOMODACAO[tratamento].map((a) => (
-                    <button key={a.chave} type="button" onClick={() => setAcomodacaoDif(a.chave)} className={botaoAcom(acomodacaoDif === a.chave)}>
-                      {a.nome}
-                    </button>
-                  ))}
+                  {DIFERENCA_ACOMODACAO[tratamento].map((a) => {
+                    const ativo = acomodacaoDif === a.chave;
+                    return (
+                      <button
+                        key={a.chave}
+                        type="button"
+                        onClick={() => setAcomodacaoDif(a.chave)}
+                        className={`rounded-2xl px-4 py-2.5 text-left text-sm font-semibold transition-colors ${
+                          ativo
+                            ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                            : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                        }`}
+                      >
+                        <span className="block">{a.nome}</span>
+                        <span className={`block text-[11px] font-normal ${ativo ? "text-white/85" : "text-[var(--hc-ink-soft)]"}`}>
+                          {a.taxaFixaCentavos > 0 ? `taxa fixa ${brl(a.taxaFixaCentavos)} + ` : ""}
+                          {brl(a.diariaCentavos)}/dia
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               {acomodacaoDif && acomInfo && (
