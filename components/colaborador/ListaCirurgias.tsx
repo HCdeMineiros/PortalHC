@@ -25,7 +25,7 @@ interface Cirurgia {
   status: string;
   procedimento_nome: string | null;
   componentes_centavos:
-    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string }
+    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string; medicoNome?: string }
     | null;
   valor_total_centavos: number | null;
   codigo_acesso: string | null;
@@ -208,6 +208,20 @@ function CardCirurgia({
     }
   }
 
+  async function darBaixa() {
+    if (!confirm(`Registrar o RECEBIMENTO da diferença de acomodação (Sol. ${c.numero})?`)) return;
+    setOcupado(true);
+    setMsg("");
+    try {
+      await atualizar(c.id, { acao: "finalizar" });
+      onMudou();
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Falha.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
   // Card específico da diferença de acomodação (lançamento financeiro)
   if (c.tipo === "diferenca_acomodacao") {
     const comp = c.componentes_centavos ?? {};
@@ -228,6 +242,7 @@ function CardCirurgia({
             </div>
             <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
               {c.pacientes?.nome} · Ficha {c.pacientes?.ref_externa_promedico || "—"} · Sol. {c.numero}
+              {comp.medicoNome ? ` · Cir. ${comp.medicoNome}` : ""}
             </p>
             {comp.plano && (
               <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
@@ -255,10 +270,10 @@ function CardCirurgia({
             <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(c.valor_total_centavos)}</span>
           </div>
           {encerrada ? (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Baixa dada (recebido)</span>
           ) : (
-            <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
-              Finalizar atendimento
+            <button onClick={darBaixa} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
+              Dar baixa (recebido)
             </button>
           )}
         </div>

@@ -33,6 +33,7 @@ interface Cadastrada {
 }
 
 export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }) {
+  const [cirurgiaoNome, setCirurgiaoNome] = useState("");
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
@@ -54,6 +55,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     e.preventDefault();
     setErro("");
     const cpf = pacienteCpf.replace(/\D/g, "");
+    if (!cirurgiaoNome.trim()) return setErro("Informe o nome do médico cirurgião.");
     if (!pacienteNome.trim()) return setErro("Informe o nome do paciente.");
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha.");
@@ -70,6 +72,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
+          cirurgiaoNome: cirurgiaoNome.trim(),
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpf,
           pacienteFicha: pacienteFicha.trim(),
@@ -83,6 +86,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
       setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? total }, ...prev]);
+      setCirurgiaoNome("");
       setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPlanoSaude("");
       setMedicoStr(""); setAnestesistaStr(""); setAuxiliarStr(""); setSalaStr("");
       onCadastrar?.();
@@ -104,7 +108,12 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
         Informe os valores a acrescentar.
       </p>
 
-      <form onSubmit={cadastrar} className="mt-6 grid gap-6 lg:grid-cols-2">
+      <form onSubmit={cadastrar} className="mt-6 space-y-6">
+        <Campo label="Médico cirurgião">
+          <input value={cirurgiaoNome} onChange={(e) => setCirurgiaoNome(e.target.value)} placeholder="Nome do cirurgião" className={inputCls} />
+        </Campo>
+
+        <div className="grid gap-6 lg:grid-cols-2">
         {/* Valores da diferença */}
         <div className="space-y-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Valores da diferença</p>
@@ -151,6 +160,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
           <button type="submit" disabled={enviando} className="hc-btn hc-btn-primary w-full">
             {enviando ? "Salvando…" : "Cadastrar diferença de acomodação"}
           </button>
+        </div>
         </div>
       </form>
 

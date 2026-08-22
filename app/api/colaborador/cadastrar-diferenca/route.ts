@@ -32,6 +32,7 @@ export async function POST(req: Request) {
   }
 
   const b = await req.json().catch(() => null);
+  const cirurgiaoNome = String(b?.cirurgiaoNome ?? "").trim();
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
   const ficha = String(b?.pacienteFicha ?? "").trim();
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
   const hospital = cent(b?.taxaSalaCentavos);
   const total = medico + anestesista + auxiliar + hospital;
 
+  if (!cirurgiaoNome) return NextResponse.json({ erro: "Informe o nome do médico cirurgião." }, { status: 400 });
   if (!pacienteNome) return NextResponse.json({ erro: "Informe o nome do paciente." }, { status: 400 });
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha." }, { status: 400 });
@@ -85,7 +87,7 @@ export async function POST(req: Request) {
         medico_id: null,
         status: "aguardando_paciente",
         procedimento_nome: "Diferença de acomodação",
-        componentes_centavos: { medico, anestesista, auxiliar, hospital, plano },
+        componentes_centavos: { medico, anestesista, auxiliar, hospital, plano, medicoNome: cirurgiaoNome },
         valor_total_centavos: total,
         criado_por: auth.user.id,
       })
