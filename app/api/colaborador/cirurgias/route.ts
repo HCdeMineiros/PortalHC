@@ -21,11 +21,11 @@ async function validarEquipe(req: Request) {
   });
   const { data: auth } = await comoUsuario.auth.getUser(token);
   if (!auth.user) return { erro: NextResponse.json({ erro: "Sessão inválida." }, { status: 401 }) };
-  const { data: perfil } = await comoUsuario.from("usuarios").select("papel").eq("id", auth.user.id).single();
+  const { data: perfil } = await comoUsuario.from("usuarios").select("nome, papel").eq("id", auth.user.id).single();
   if (!perfil || !PAPEIS_EQUIPE.includes(perfil.papel)) {
     return { erro: NextResponse.json({ erro: "Sem permissão (equipe)." }, { status: 403 }) };
   }
-  return { user: auth.user, papel: perfil.papel as string };
+  return { user: auth.user, papel: perfil.papel as string, nome: (perfil.nome as string) ?? "" };
 }
 
 /** Lista todas as cirurgias cadastradas (equipe vê todas). */
@@ -72,9 +72,16 @@ export async function POST(req: Request) {
   const admin = criarClienteAdmin();
 
   if (acao === "finalizar") {
+    // guarda quem finalizou/baixou dentro de componentes_centavos (jsonb), sem nova coluna
+    const { data: atual } = await admin.from("solicitacoes").select("componentes_centavos").eq("id", id).single();
+    const comp = {
+      ...(atual?.componentes_centavos ?? {}),
+      finalizadaPorNome: v.nome || "",
+      finalizadaPorId: v.user.id,
+    };
     const { error } = await admin
       .from("solicitacoes")
-      .update({ status: "encerrada", finalizada_em: new Date().toISOString() })
+      .update({ status: "encerrada", finalizada_em: new Date().toISOString(), componentes_centavos: comp })
       .eq("id", id);
     if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
     return NextResponse.json({ ok: true });

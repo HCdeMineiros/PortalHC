@@ -4,8 +4,7 @@ import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaColaborador } from "@/components/colaborador/GuardaColaborador";
-import { ListaCirurgias } from "@/components/colaborador/ListaCirurgias";
-import { SecaoCadastros } from "@/components/colaborador/SecaoCadastros";
+import { PainelEquipe } from "@/components/colaborador/PainelEquipe";
 
 export default function AreaColaborador() {
   return (
@@ -31,11 +30,7 @@ export default function AreaColaborador() {
           </section>
 
           <section className="mt-8">
-            <SecaoCadastros />
-          </section>
-
-          <section className="mt-8">
-            <ListaCirurgias />
+            <PainelEquipe />
           </section>
         </main>
       </GuardaColaborador>
