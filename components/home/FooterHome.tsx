@@ -71,10 +71,15 @@ export function FooterHome() {
           <p className="text-xs text-[var(--hc-ink-soft)]">
             © {ano} {HOSPITAL.nomeCurto} · {HOSPITAL.nome}
           </p>
-          <p className="inline-flex items-center gap-2 text-xs text-[var(--hc-ink-soft)]">
-            <ShieldCheck className="h-4 w-4 text-[var(--hc-gold-deep)]" aria-hidden />
-            Dados tratados conforme a LGPD
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="inline-flex items-center gap-2 text-xs text-[var(--hc-ink-soft)]">
+              <ShieldCheck className="h-4 w-4 text-[var(--hc-gold-deep)]" aria-hidden />
+              Dados tratados conforme a LGPD
+            </p>
+            <Link href="/admin" className="text-xs text-[var(--hc-ink-soft)]/70 transition-colors hover:text-[var(--hc-red-600)]">
+              Administração
+            </Link>
+          </div>
         </div>
         <p className="pb-6 text-center text-[11px] text-[var(--hc-ink-soft)]/80">
           Versão de demonstração do projeto — dados fictícios, sem informações reais de pacientes.
