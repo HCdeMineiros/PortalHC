@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
-import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS } from "@/lib/data/acomodacoes";
+import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo } from "@/lib/data/acomodacoes";
 import { selecionarDocumentos } from "@/lib/data/documentos-solicitacao";
 
 const PAPEIS_EQUIPE = ["internacao", "faturamento", "admin_dpo"];
@@ -90,10 +90,25 @@ export async function POST(req: Request) {
   if (acao === "acomodacao") {
     const chave = String(b?.acomodacao ?? "");
     const dias = Math.max(1, Math.round(Number(b?.dias) || 0));
+    const { data: sol } = await admin.from("solicitacoes").select("tipo, componentes_centavos").eq("id", id).single();
+
+    // Diferença de acomodação: usa a tabela clínico/cirúrgico (taxa fixa + diária)
+    if (sol?.tipo === "diferenca_acomodacao") {
+      const comp = (sol.componentes_centavos ?? {}) as { tratamento?: string };
+      const tratamento = comp.tratamento === "clinico" ? "clinico" : "cirurgico";
+      const info = difAcomInfo(tratamento, chave);
+      if (!info) return NextResponse.json({ erro: "Acomodação inválida." }, { status: 400 });
+      const total = info.taxaFixaCentavos + info.diariaCentavos * dias;
+      const { error } = await admin
+        .from("solicitacoes")
+        .update({ acomodacao: chave, acomodacao_dias: dias, acomodacao_total_centavos: total })
+        .eq("id", id);
+      if (error) return NextResponse.json({ erro: error.message }, { status: 400 });
+      return NextResponse.json({ ok: true, acomodacao_total_centavos: total });
+    }
+
     const acom = ACOMODACOES.find((a) => a.chave === chave);
     if (!acom) return NextResponse.json({ erro: "Acomodação inválida." }, { status: 400 });
-
-    const { data: sol } = await admin.from("solicitacoes").select("tipo").eq("id", id).single();
 
     let total: number;
     if (sol?.tipo === "internacao_clinica") {

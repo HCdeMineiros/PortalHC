@@ -48,21 +48,20 @@ export async function POST(req: Request) {
   const hospital = cobrarSala ? Math.round(medico * 0.5) : 0;
   const honorarios = medico + anestesista + auxiliar + hospital;
 
-  // Acomodação da diferença (tabela clínico/cirúrgico): taxa fixa + diária × qtde
+  // Acomodação: tratamento + acomodação são escolhidos aqui; as DIÁRIAS e o valor
+  // são lançados depois, no acerto (fechamento), dentro do cadastro.
   const tratamento = b?.tratamento === "clinico" ? "clinico" : "cirurgico";
   const acomodacaoChave = String(b?.acomodacao ?? "");
-  const dias = Math.max(1, Math.round(Number(b?.diarias) || 0));
-  const acomInfo = acomodacaoChave ? difAcomInfo(tratamento, acomodacaoChave) : undefined;
-  const acomodacaoTotal = acomInfo ? acomInfo.taxaFixaCentavos + acomInfo.diariaCentavos * dias : 0;
-
-  const total = honorarios + acomodacaoTotal;
+  const acomValida = acomodacaoChave ? !!difAcomInfo(tratamento, acomodacaoChave) : false;
 
   if (!cirurgiaoNome) return NextResponse.json({ erro: "Informe o nome do médico cirurgião." }, { status: 400 });
   if (!pacienteNome) return NextResponse.json({ erro: "Informe o nome do paciente." }, { status: 400 });
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha." }, { status: 400 });
   if (!plano) return NextResponse.json({ erro: "Informe o plano de saúde." }, { status: 400 });
-  if (total <= 0) return NextResponse.json({ erro: "Informe o honorário médico e/ou a acomodação." }, { status: 400 });
+  if (honorarios <= 0 && !acomValida) {
+    return NextResponse.json({ erro: "Informe o honorário médico e/ou selecione a acomodação." }, { status: 400 });
+  }
 
   let admin;
   try {
@@ -103,9 +102,9 @@ export async function POST(req: Request) {
         procedimento_nome: "Diferença de acomodação",
         componentes_centavos: { medico, anestesista, auxiliar, hospital, plano, medicoNome: cirurgiaoNome, tratamento },
         valor_total_centavos: honorarios,
-        acomodacao: acomodacaoChave || null,
-        acomodacao_dias: acomInfo ? dias : null,
-        acomodacao_total_centavos: acomodacaoTotal,
+        acomodacao: acomValida ? acomodacaoChave : null,
+        acomodacao_dias: null,
+        acomodacao_total_centavos: 0,
         criado_por: auth.user.id,
       })
       .select("id")
@@ -117,5 +116,5 @@ export async function POST(req: Request) {
   }
   if (!solicitacao) return NextResponse.json({ erro: "Não foi possível gerar o número." }, { status: 500 });
 
-  return NextResponse.json({ ok: true, numero, total_centavos: total });
+  return NextResponse.json({ ok: true, numero, total_centavos: honorarios });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo } from "@/lib/data/acomodacoes";
+import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo, DIFERENCA_ACOMODACAO } from "@/lib/data/acomodacoes";
 import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
 import { HOSPITAL } from "@/lib/brand";
 
@@ -358,14 +358,53 @@ function CardCirurgia({
           {(comp.anestesista ?? 0) > 0 && linha("Honorário do anestesista", comp.anestesista ?? 0)}
           {(comp.auxiliar ?? 0) > 0 && linha("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
           {(comp.hospital ?? 0) > 0 && linha("Taxa de sala · hospital", comp.hospital ?? 0)}
-          {c.acomodacao &&
+          {(c.acomodacao_total_centavos ?? 0) > 0 &&
             linha(
-              `Acomodação — ${difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao)?.nome ?? c.acomodacao} (${c.acomodacao_dias}× diária${
-                (difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao)?.taxaFixaCentavos ?? 0) > 0 ? " + taxa fixa" : ""
+              `Acomodação — ${difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao ?? "")?.nome ?? c.acomodacao} (${c.acomodacao_dias}× diária${
+                (difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao ?? "")?.taxaFixaCentavos ?? 0) > 0 ? " + taxa fixa" : ""
               })`,
               c.acomodacao_total_centavos ?? 0,
             )}
         </div>
+
+        {/* Lançamento das diárias no acerto */}
+        {!encerrada && (
+          <div className="mt-4 rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">
+              Acomodação — lançar diárias (acerto)
+            </p>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="block">
+                <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Acomodação</span>
+                <select
+                  value={acom}
+                  onChange={(e) => setAcom(e.target.value)}
+                  className="rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]"
+                >
+                  <option value="">Selecionar…</option>
+                  {DIFERENCA_ACOMODACAO[comp.tratamento === "clinico" ? "clinico" : "cirurgico"].map((a) => (
+                    <option key={a.chave} value={a.chave}>
+                      {a.nome} ({a.taxaFixaCentavos > 0 ? `taxa ${brl(a.taxaFixaCentavos)} + ` : ""}{brl(a.diariaCentavos)}/dia)
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Diárias</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={dias}
+                  onChange={(e) => setDias(e.target.value)}
+                  className="w-20 rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]"
+                />
+              </label>
+              <button onClick={lancarAcomodacao} disabled={ocupado} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">
+                {c.acomodacao_dias ? "Atualizar diárias" : "Lançar diárias"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>

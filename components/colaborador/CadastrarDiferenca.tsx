@@ -93,7 +93,6 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
   const [cobrarSala, setCobrarSala] = useState(true);
   const [tratamento, setTratamento] = useState<"clinico" | "cirurgico">("cirurgico");
   const [acomodacaoDif, setAcomodacaoDif] = useState("");
-  const [diarias, setDiarias] = useState("1");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<Cadastrada[]>([]);
@@ -106,14 +105,8 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     return { base, anestesista, auxiliar, sala, total: base + anestesista + auxiliar + sala };
   }, [medicoStr, cobrarAnestesista, cobrarAuxiliar, cobrarSala]);
 
-  const acom = useMemo(() => {
-    const info = difAcomInfo(tratamento, acomodacaoDif);
-    const dias = Math.max(1, parseInt(diarias) || 0);
-    const total = info ? info.taxaFixaCentavos + info.diariaCentavos * dias : 0;
-    return { info, dias, total };
-  }, [tratamento, acomodacaoDif, diarias]);
-
-  const grandTotal = calc.total + acom.total;
+  // valor de referência da acomodação por diária (as diárias são lançadas no acerto)
+  const acomInfo = useMemo(() => difAcomInfo(tratamento, acomodacaoDif), [tratamento, acomodacaoDif]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -124,7 +117,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha.");
     if (!planoSaude.trim()) return setErro("Informe o plano de saúde.");
-    if (grandTotal <= 0) return setErro("Informe o honorário médico e/ou a acomodação.");
+    if (calc.total <= 0 && !acomodacaoDif) return setErro("Informe o honorário médico e/ou selecione a acomodação.");
 
     setEnviando(true);
     try {
@@ -147,17 +140,16 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
           cobrarSala,
           tratamento,
           acomodacao: acomodacaoDif,
-          diarias: acom.dias,
         }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
-      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? grandTotal }, ...prev]);
+      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? calc.total }, ...prev]);
       setCirurgiaoNome("");
       setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPlanoSaude("");
       setMedicoStr("");
       setCobrarAnestesista(true); setCobrarAuxiliar(true); setCobrarSala(true);
-      setTratamento("cirurgico"); setAcomodacaoDif(""); setDiarias("1");
+      setTratamento("cirurgico"); setAcomodacaoDif("");
       onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -228,17 +220,13 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
                   ))}
                 </div>
               </div>
-              {acomodacaoDif && (
-                <div className="flex flex-wrap items-end gap-3">
-                  <label className="block">
-                    <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Diárias</span>
-                    <input type="number" min={1} value={diarias} onChange={(e) => setDiarias(e.target.value)} className="w-24 rounded-xl border border-[var(--hc-line)] bg-white px-3 py-2 outline-none focus:border-[var(--hc-gold)]" />
-                  </label>
-                  <p className="pb-2 text-sm text-[var(--hc-ink-soft)]">
-                    {acom.info && acom.info.taxaFixaCentavos > 0 ? `Taxa fixa ${brl(acom.info.taxaFixaCentavos)} + ` : ""}
-                    {acom.dias}× {brl(acom.info?.diariaCentavos ?? 0)} = <strong className="text-[var(--hc-ink)]">{brl(acom.total)}</strong>
-                  </p>
-                </div>
+              {acomodacaoDif && acomInfo && (
+                <p className="text-sm text-[var(--hc-ink-soft)]">
+                  Valor de referência:{" "}
+                  {acomInfo.taxaFixaCentavos > 0 ? `taxa fixa ${brl(acomInfo.taxaFixaCentavos)} + ` : ""}
+                  {brl(acomInfo.diariaCentavos)}/diária.{" "}
+                  <strong className="text-[var(--hc-ink)]">As diárias e o total serão lançados no acerto (fechamento).</strong>
+                </p>
               )}
             </div>
           </div>
@@ -263,12 +251,10 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
 
             <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
               <div className="flex items-center justify-between">
-                <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total da diferença</span>
-                <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(grandTotal)}</span>
+                <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Honorários (parcial)</span>
+                <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(calc.total)}</span>
               </div>
-              {acom.total > 0 && (
-                <p className="mt-1 text-xs text-[var(--hc-ink-soft)]">Inclui honorários {brl(calc.total)} + acomodação {brl(acom.total)}.</p>
-              )}
+              <p className="mt-1 text-xs text-[var(--hc-ink-soft)]">A acomodação (diárias) entra no acerto, dentro do cadastro.</p>
             </div>
 
             {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
