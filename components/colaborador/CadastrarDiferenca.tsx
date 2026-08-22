@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { DIFERENCA_ACOMODACAO, difAcomInfo } from "@/lib/data/acomodacoes";
 
 const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -20,6 +21,13 @@ function mascararCpf(v: string) {
 
 const inputCls =
   "w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-2.5 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]";
+
+const botaoAcom = (ativo: boolean) =>
+  `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+    ativo
+      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+  }`;
 
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -83,6 +91,9 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
   const [cobrarAnestesista, setCobrarAnestesista] = useState(true);
   const [cobrarAuxiliar, setCobrarAuxiliar] = useState(true);
   const [cobrarSala, setCobrarSala] = useState(true);
+  const [tratamento, setTratamento] = useState<"clinico" | "cirurgico">("cirurgico");
+  const [acomodacaoDif, setAcomodacaoDif] = useState("");
+  const [diarias, setDiarias] = useState("1");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<Cadastrada[]>([]);
@@ -95,6 +106,15 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     return { base, anestesista, auxiliar, sala, total: base + anestesista + auxiliar + sala };
   }, [medicoStr, cobrarAnestesista, cobrarAuxiliar, cobrarSala]);
 
+  const acom = useMemo(() => {
+    const info = difAcomInfo(tratamento, acomodacaoDif);
+    const dias = Math.max(1, parseInt(diarias) || 0);
+    const total = info ? info.taxaFixaCentavos + info.diariaCentavos * dias : 0;
+    return { info, dias, total };
+  }, [tratamento, acomodacaoDif, diarias]);
+
+  const grandTotal = calc.total + acom.total;
+
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
@@ -104,7 +124,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha.");
     if (!planoSaude.trim()) return setErro("Informe o plano de saúde.");
-    if (calc.base <= 0) return setErro("Informe o honorário médico.");
+    if (grandTotal <= 0) return setErro("Informe o honorário médico e/ou a acomodação.");
 
     setEnviando(true);
     try {
@@ -125,15 +145,19 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
           cobrarAnestesista,
           cobrarAuxiliar,
           cobrarSala,
+          tratamento,
+          acomodacao: acomodacaoDif,
+          diarias: acom.dias,
         }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
-      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? calc.total }, ...prev]);
+      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? grandTotal }, ...prev]);
       setCirurgiaoNome("");
       setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPlanoSaude("");
       setMedicoStr("");
       setCobrarAnestesista(true); setCobrarAuxiliar(true); setCobrarSala(true);
+      setTratamento("cirurgico"); setAcomodacaoDif(""); setDiarias("1");
       onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -169,6 +193,54 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
             <ItemProporcional label="Honorário do anestesista (30%)" valor={calc.anestesista} ativo={cobrarAnestesista} onToggle={() => setCobrarAnestesista((v) => !v)} />
             <ItemProporcional label="Honorário do médico auxiliar (30%)" valor={calc.auxiliar} ativo={cobrarAuxiliar} onToggle={() => setCobrarAuxiliar((v) => !v)} />
             <ItemProporcional label="Taxa de sala · hospital (50%)" valor={calc.sala} ativo={cobrarSala} onToggle={() => setCobrarSala((v) => !v)} />
+
+            {/* Acomodação (tabela da diferença) */}
+            <div className="space-y-3 border-t border-[var(--hc-line)] pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Acomodação</p>
+              <div>
+                <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Tipo de tratamento</span>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { chave: "cirurgico", nome: "Cirúrgico" },
+                    { chave: "clinico", nome: "Clínico" },
+                  ] as const).map((t) => (
+                    <button
+                      key={t.chave}
+                      type="button"
+                      onClick={() => setTratamento(t.chave)}
+                      className={botaoAcom(tratamento === t.chave)}
+                    >
+                      {t.nome}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Acomodação</span>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setAcomodacaoDif("")} className={botaoAcom(acomodacaoDif === "")}>
+                    Nenhuma
+                  </button>
+                  {DIFERENCA_ACOMODACAO[tratamento].map((a) => (
+                    <button key={a.chave} type="button" onClick={() => setAcomodacaoDif(a.chave)} className={botaoAcom(acomodacaoDif === a.chave)}>
+                      {a.nome}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {acomodacaoDif && (
+                <div className="flex flex-wrap items-end gap-3">
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Diárias</span>
+                    <input type="number" min={1} value={diarias} onChange={(e) => setDiarias(e.target.value)} className="w-24 rounded-xl border border-[var(--hc-line)] bg-white px-3 py-2 outline-none focus:border-[var(--hc-gold)]" />
+                  </label>
+                  <p className="pb-2 text-sm text-[var(--hc-ink-soft)]">
+                    {acom.info && acom.info.taxaFixaCentavos > 0 ? `Taxa fixa ${brl(acom.info.taxaFixaCentavos)} + ` : ""}
+                    {acom.dias}× {brl(acom.info?.diariaCentavos ?? 0)} = <strong className="text-[var(--hc-ink)]">{brl(acom.total)}</strong>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Paciente + total */}
@@ -192,8 +264,11 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
             <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
               <div className="flex items-center justify-between">
                 <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total da diferença</span>
-                <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(calc.total)}</span>
+                <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(grandTotal)}</span>
               </div>
+              {acom.total > 0 && (
+                <p className="mt-1 text-xs text-[var(--hc-ink-soft)]">Inclui honorários {brl(calc.total)} + acomodação {brl(acom.total)}.</p>
+              )}
             </div>
 
             {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}

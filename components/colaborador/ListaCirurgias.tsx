@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS } from "@/lib/data/acomodacoes";
+import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo } from "@/lib/data/acomodacoes";
 import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
 import { HOSPITAL } from "@/lib/brand";
 
@@ -26,7 +26,7 @@ interface Cirurgia {
   status: string;
   procedimento_nome: string | null;
   componentes_centavos:
-    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string; medicoNome?: string }
+    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string; medicoNome?: string; tratamento?: string }
     | null;
   valor_total_centavos: number | null;
   codigo_acesso: string | null;
@@ -55,8 +55,11 @@ const maskCpf = (v: string | null) => {
 function imprimirDiferenca(c: Cirurgia) {
   const comp = c.componentes_centavos ?? {};
   const criado = c.criado_em ? new Date(c.criado_em).toLocaleString("pt-BR") : "";
+  const totalGeral = (c.valor_total_centavos ?? 0) + (c.acomodacao_total_centavos ?? 0);
+  const difAcom = c.acomodacao ? difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao) : undefined;
   const linhaItem = (rot: string, val: number) =>
     `<tr><td>${rot}</td><td class="v">${brl(val)}</td></tr>`;
+  const linhaOpc = (rot: string, val: number) => (val > 0 ? linhaItem(rot, val) : "");
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <title>Diferença de acomodação — ${esc(c.numero)}</title>
 <style>
@@ -101,12 +104,20 @@ function imprimirDiferenca(c: Cirurgia) {
   <div class="box">
     <h2>Composição da diferença</h2>
     <table>
-      ${linhaItem("Honorário médico", comp.medico ?? 0)}
-      ${linhaItem("Honorário do anestesista", comp.anestesista ?? 0)}
-      ${linhaItem("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
-      ${linhaItem("Taxa de sala · hospital", comp.hospital ?? 0)}
+      ${linhaOpc("Honorário médico", comp.medico ?? 0)}
+      ${linhaOpc("Honorário do anestesista", comp.anestesista ?? 0)}
+      ${linhaOpc("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
+      ${linhaOpc("Taxa de sala · hospital", comp.hospital ?? 0)}
+      ${
+        c.acomodacao
+          ? linhaItem(
+              `Acomodação — ${difAcom?.nome ?? c.acomodacao} (${c.acomodacao_dias}× diária${(difAcom?.taxaFixaCentavos ?? 0) > 0 ? " + taxa fixa" : ""})`,
+              c.acomodacao_total_centavos ?? 0,
+            )
+          : ""
+      }
     </table>
-    <div class="total"><span>Total da diferença</span><span class="g">${brl(c.valor_total_centavos)}</span></div>
+    <div class="total"><span>Total da diferença</span><span class="g">${brl(totalGeral)}</span></div>
   </div>
 
   <div class="assin">
@@ -337,22 +348,29 @@ function CardCirurgia({
           </div>
           <div className="text-right">
             <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Total da diferença</p>
-            <p className="font-semibold text-[var(--hc-ink)]">{brl(c.valor_total_centavos)}</p>
+            <p className="font-semibold text-[var(--hc-ink)]">{brl(totalGeral)}</p>
           </div>
         </div>
 
         <div className="mt-4 rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4 text-sm">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Composição da diferença</p>
-          {linha("Honorário médico", comp.medico ?? 0)}
-          {linha("Honorário do anestesista", comp.anestesista ?? 0)}
-          {linha("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
-          {linha("Taxa de sala · hospital", comp.hospital ?? 0)}
+          {(comp.medico ?? 0) > 0 && linha("Honorário médico", comp.medico ?? 0)}
+          {(comp.anestesista ?? 0) > 0 && linha("Honorário do anestesista", comp.anestesista ?? 0)}
+          {(comp.auxiliar ?? 0) > 0 && linha("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
+          {(comp.hospital ?? 0) > 0 && linha("Taxa de sala · hospital", comp.hospital ?? 0)}
+          {c.acomodacao &&
+            linha(
+              `Acomodação — ${difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao)?.nome ?? c.acomodacao} (${c.acomodacao_dias}× diária${
+                (difAcomInfo(comp.tratamento ?? "cirurgico", c.acomodacao)?.taxaFixaCentavos ?? 0) > 0 ? " + taxa fixa" : ""
+              })`,
+              c.acomodacao_total_centavos ?? 0,
+            )}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
-            <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(c.valor_total_centavos)}</span>
+            <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button
