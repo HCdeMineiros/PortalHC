@@ -49,6 +49,7 @@ interface CirurgiaCadastrada {
 export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | null; onCadastrar?: () => void }) {
   const [nome, setNome] = useState("");
   const [cirurgiaoStr, setCirurgiaoStr] = useState("");
+  const [anestesistaAtivo, setAnestesistaAtivo] = useState(true); // 30% — pode desativar
   const [auxiliarMedico, setAuxiliarMedico] = useState(true); // 30%
   const [instrumentador, setInstrumentador] = useState(false); // 10% — pode marcar junto com o auxiliar
   const [pacienteNome, setPacienteNome] = useState("");
@@ -70,12 +71,12 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
   const cirurgiao = paraCentavos(cirurgiaoStr);
 
   const calc = useMemo(() => {
-    const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
+    const anestesista = anestesistaAtivo ? Math.round(cirurgiao * ANESTESISTA_PCT) : 0;
     const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
     const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
     return { anestesista, auxMedico, instrum, hospital, total: cirurgiao + anestesista + auxMedico + instrum + hospital };
-  }, [cirurgiao, auxiliarMedico, instrumentador]);
+  }, [cirurgiao, anestesistaAtivo, auxiliarMedico, instrumentador]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -103,6 +104,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
         body: JSON.stringify({
           nome: nome.trim(),
           cirurgiaoCentavos: cirurgiao,
+          cobrarAnestesista: anestesistaAtivo,
           auxiliarMedico,
           instrumentador,
           pacienteNome: pacienteNome.trim(),
@@ -130,6 +132,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
       ]);
       setNome("");
       setCirurgiaoStr("");
+      setAnestesistaAtivo(true);
       setAuxiliarMedico(true);
       setInstrumentador(false);
       setPacienteNome("");
@@ -168,8 +171,11 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           </Campo>
 
           <div>
-            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Equipe auxiliar (opcional)</span>
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Itens do procedimento (opcional)</span>
             <div className="flex flex-wrap gap-3">
+              <button type="button" onClick={() => setAnestesistaAtivo((v) => !v)} className={botaoAux(anestesistaAtivo)}>
+                {anestesistaAtivo ? "✓ " : ""}Anestesista (30%)
+              </button>
               <button type="button" onClick={() => setAuxiliarMedico((v) => !v)} className={botaoAux(auxiliarMedico)}>
                 {auxiliarMedico ? "✓ " : ""}Auxiliar médico (30%)
               </button>
@@ -177,7 +183,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
                 {instrumentador ? "✓ " : ""}Instrumentador (10%)
               </button>
             </div>
-            <p className="mt-1.5 text-xs text-[var(--hc-ink-soft)]">Pode marcar os dois, se houver.</p>
+            <p className="mt-1.5 text-xs text-[var(--hc-ink-soft)]">Desmarque o que não houver cobrança.</p>
           </div>
 
           <div className="border-t border-[var(--hc-line)] pt-4">
@@ -207,7 +213,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
         <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-5">
           <p className="mb-3 text-sm font-semibold text-[var(--hc-ink)]">Composição do valor</p>
           <Linha rotulo="Cirurgião" valor={brl(cirurgiao)} destaque />
-          <Linha rotulo="Anestesista (30% do cirurgião)" valor={brl(calc.anestesista)} auto />
+          {anestesistaAtivo && <Linha rotulo="Anestesista (30% do cirurgião)" valor={brl(calc.anestesista)} auto />}
           {auxiliarMedico && <Linha rotulo="Auxiliar médico (30% do cirurgião)" valor={brl(calc.auxMedico)} auto />}
           {instrumentador && <Linha rotulo="Instrumentador (10% do cirurgião)" valor={brl(calc.instrum)} auto />}
           <Linha rotulo="Taxa de sala · hospital (60% do cirurgião)" valor={brl(calc.hospital)} auto />

@@ -35,7 +35,7 @@ export interface EdicaoDados {
   id: string;
   tipo: string;
   procedimento_nome: string | null;
-  componentes_centavos: { cirurgiao?: number; auxiliar?: number; auxiliarMedico?: number; instrumentador?: number } | null;
+  componentes_centavos: { cirurgiao?: number; anestesista?: number; auxiliar?: number; auxiliarMedico?: number; instrumentador?: number } | null;
   acomodacao: string | null;
   pacientes: {
     nome: string;
@@ -81,9 +81,11 @@ export function FormularioEdicaoSolicitacao({
   const ratioAux = cirurgiaoInicial > 0 && comp.auxiliar ? comp.auxiliar / cirurgiaoInicial : 0;
   const auxMedInicial = (comp.auxiliarMedico ?? 0) > 0 || ratioAux >= 0.2;
   const instrumInicial = (comp.instrumentador ?? 0) > 0 || (ratioAux > 0 && ratioAux < 0.2);
+  const anestInicial = comp.anestesista == null ? true : comp.anestesista > 0;
 
   const [nome, setNome] = useState(c.procedimento_nome ?? "");
   const [cirurgiaoStr, setCirurgiaoStr] = useState(cirurgiaoInicial ? (cirurgiaoInicial / 100).toString() : "");
+  const [anestesistaAtivo, setAnestesistaAtivo] = useState(anestInicial);
   const [auxiliarMedico, setAuxiliarMedico] = useState(auxMedInicial);
   const [instrumentador, setInstrumentador] = useState(instrumInicial);
   const [acomodacao, setAcomodacao] = useState(c.acomodacao ?? "");
@@ -119,6 +121,7 @@ export function FormularioEdicaoSolicitacao({
           id: c.id,
           nome: nome.trim(),
           cirurgiaoCentavos: paraCentavos(cirurgiaoStr),
+          cobrarAnestesista: anestesistaAtivo,
           auxiliarMedico,
           instrumentador,
           acomodacao,
@@ -154,8 +157,19 @@ export function FormularioEdicaoSolicitacao({
             <input inputMode="decimal" value={cirurgiaoStr} onChange={(e) => setCirurgiaoStr(e.target.value)} placeholder="0,00" className={inputCls} />
           </Campo>
           <div className="sm:col-span-2">
-            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Equipe auxiliar (opcional)</span>
+            <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Itens do procedimento (opcional)</span>
             <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setAnestesistaAtivo((v) => !v)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  anestesistaAtivo
+                    ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                    : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                }`}
+              >
+                {anestesistaAtivo ? "✓ " : ""}Anestesista (30%)
+              </button>
               <button
                 type="button"
                 onClick={() => setAuxiliarMedico((v) => !v)}

@@ -45,6 +45,7 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   const nome = String(b?.nome ?? "").trim();
   const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
+  const cobrarAnestesista = b?.cobrarAnestesista !== false; // 30% — default true
   const auxiliarMedico = b?.auxiliarMedico === true || b?.auxiliarMedico === "true"; // 30%
   const instrumentador = b?.instrumentador === true || b?.instrumentador === "true"; // 10% (pode marcar junto)
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) return NextResponse.json({ erro: "Data de nascimento do paciente inválida." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha do paciente." }, { status: 400 });
 
-  const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
+  const anestesista = cobrarAnestesista ? Math.round(cirurgiao * ANESTESISTA_PCT) : 0;
   const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
   const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
   const hospital = Math.round(cirurgiao * HOSPITAL_PCT);

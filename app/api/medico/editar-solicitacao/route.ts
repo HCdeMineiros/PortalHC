@@ -86,11 +86,12 @@ export async function POST(req: Request) {
   } else {
     const nome = String(b?.nome ?? "").trim();
     const cirurgiao = Math.max(0, Math.round(Number(b?.cirurgiaoCentavos) || 0));
+    const cobrarAnestesista = b?.cobrarAnestesista !== false;
     const auxiliarMedico = b?.auxiliarMedico === true || b?.auxiliarMedico === "true";
     const instrumentador = b?.instrumentador === true || b?.instrumentador === "true";
     if (!nome) return NextResponse.json({ erro: "Informe o nome da cirurgia." }, { status: 400 });
     if (cirurgiao <= 0) return NextResponse.json({ erro: "Informe o valor do cirurgião." }, { status: 400 });
-    const anestesista = Math.round(cirurgiao * ANESTESISTA_PCT);
+    const anestesista = cobrarAnestesista ? Math.round(cirurgiao * ANESTESISTA_PCT) : 0;
     const auxMedico = auxiliarMedico ? Math.round(cirurgiao * AUXILIAR_MEDICO_PCT) : 0;
     const instrum = instrumentador ? Math.round(cirurgiao * INSTRUMENTADOR_PCT) : 0;
     const hospital = Math.round(cirurgiao * HOSPITAL_PCT);
