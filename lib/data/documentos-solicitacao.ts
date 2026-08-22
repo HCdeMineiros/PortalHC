@@ -37,6 +37,9 @@ function melhorTcle(nome: string) {
 
 /** Documentos que o paciente deve ler/assinar/dar OK, conforme o tipo da solicitação. */
 export function selecionarDocumentos(sol: { tipo: string | null; procedimento_nome: string | null }): DocSolicitacao[] {
+  // Diferença de acomodação é um lançamento financeiro — sem documentos a assinar.
+  if (sol.tipo === "diferenca_acomodacao") return [];
+
   const docs: DocSolicitacao[] = [];
   const add = (chave: string, tipo: DocSolicitacao["tipo"], titulo: string, subtitulo: string, corpo: string[]) =>
     docs.push({ chave, tipo, titulo, subtitulo, corpo, exigeAssinatura: tipo === "termo_consentimento" });

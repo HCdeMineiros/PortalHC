@@ -5,7 +5,7 @@ import { FundoSuave } from "@/components/brand/FundoSuave";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaColaborador } from "@/components/colaborador/GuardaColaborador";
 import { ListaCirurgias } from "@/components/colaborador/ListaCirurgias";
-import { SecaoInternacao } from "@/components/colaborador/SecaoInternacao";
+import { SecaoCadastros } from "@/components/colaborador/SecaoCadastros";
 
 export default function AreaColaborador() {
   return (
@@ -31,7 +31,7 @@ export default function AreaColaborador() {
           </section>
 
           <section className="mt-8">
-            <SecaoInternacao />
+            <SecaoCadastros />
           </section>
 
           <section className="mt-8">

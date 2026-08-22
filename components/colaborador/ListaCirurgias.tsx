@@ -24,7 +24,9 @@ interface Cirurgia {
   tipo: string;
   status: string;
   procedimento_nome: string | null;
-  componentes_centavos: { cirurgiao?: number; auxiliar?: number } | null;
+  componentes_centavos:
+    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string }
+    | null;
   valor_total_centavos: number | null;
   codigo_acesso: string | null;
   data_prevista: string | null;
@@ -204,6 +206,65 @@ function CardCirurgia({
     } finally {
       setOcupado(false);
     }
+  }
+
+  // Card específico da diferença de acomodação (lançamento financeiro)
+  if (c.tipo === "diferenca_acomodacao") {
+    const comp = c.componentes_centavos ?? {};
+    const linha = (rotulo: string, valor: number) => (
+      <div className="flex items-center justify-between py-1">
+        <span className="text-[var(--hc-ink-soft)]">{rotulo}</span>
+        <span className="text-[var(--hc-ink)]">{brl(valor)}</span>
+      </div>
+    );
+    return (
+      <li className={`hc-card p-5 ${encerrada ? "opacity-70" : ""}`}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Diferença de acomodação</h3>
+              <span className="hc-badge">Plano · diferença</span>
+              {encerrada && <span className="hc-badge">Encerrada</span>}
+            </div>
+            <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
+              {c.pacientes?.nome} · Ficha {c.pacientes?.ref_externa_promedico || "—"} · Sol. {c.numero}
+            </p>
+            {comp.plano && (
+              <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
+                Plano de saúde: <strong className="text-[var(--hc-ink)]">{comp.plano}</strong>
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Total da diferença</p>
+            <p className="font-semibold text-[var(--hc-ink)]">{brl(c.valor_total_centavos)}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4 text-sm">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Composição da diferença</p>
+          {linha("Honorário médico", comp.medico ?? 0)}
+          {linha("Honorário do anestesista", comp.anestesista ?? 0)}
+          {linha("Honorário do médico auxiliar", comp.auxiliar ?? 0)}
+          {linha("Taxa de sala · hospital", comp.hospital ?? 0)}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span className="text-sm text-[var(--hc-ink-soft)]">Total geral: </span>
+            <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(c.valor_total_centavos)}</span>
+          </div>
+          {encerrada ? (
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ Atendimento finalizado</span>
+          ) : (
+            <button onClick={finalizar} disabled={ocupado} className="hc-btn hc-btn-primary px-6 py-2.5">
+              Finalizar atendimento
+            </button>
+          )}
+        </div>
+        {msg && <p className="mt-2 text-sm text-[var(--hc-red-600)]">{msg}</p>}
+      </li>
+    );
   }
 
   return (
