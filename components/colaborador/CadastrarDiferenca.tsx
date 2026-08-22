@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 
 const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+const ANESTESISTA_PCT = 0.3;
+const AUXILIAR_PCT = 0.3;
+const SALA_PCT = 0.5;
+
 function paraCentavos(v: string): number {
   const limpo = v.replace(/[^\d,.-]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
   const n = parseFloat(limpo);
@@ -26,6 +30,43 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+/** Item proporcional ao honorário médico, com botão para cobrar/não cobrar. */
+function ItemProporcional({
+  label,
+  valor,
+  ativo,
+  onToggle,
+}: {
+  label: string;
+  valor: number;
+  ativo: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className={`rounded-xl border p-3 ${ativo ? "border-[var(--hc-line)] bg-white" : "border-[var(--hc-line)] bg-[var(--hc-cream-2)]"}`}>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-[var(--hc-ink)]">{label}</p>
+          <p className={`text-sm ${ativo ? "font-semibold text-[var(--hc-ink)]" : "text-[var(--hc-ink-soft)] line-through"}`}>
+            {ativo ? brl(valor) : "Não será cobrado"}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`flex-none rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+            ativo
+              ? "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-red-600)] hover:text-[var(--hc-red-600)]"
+              : "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white"
+          }`}
+        >
+          {ativo ? "Não cobrar" : "Incluir"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 interface Cadastrada {
   numero: string;
   pacienteNome: string;
@@ -39,17 +80,20 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [planoSaude, setPlanoSaude] = useState("");
   const [medicoStr, setMedicoStr] = useState("");
-  const [anestesistaStr, setAnestesistaStr] = useState("");
-  const [auxiliarStr, setAuxiliarStr] = useState("");
-  const [salaStr, setSalaStr] = useState("");
+  const [cobrarAnestesista, setCobrarAnestesista] = useState(true);
+  const [cobrarAuxiliar, setCobrarAuxiliar] = useState(true);
+  const [cobrarSala, setCobrarSala] = useState(true);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<Cadastrada[]>([]);
 
-  const total = useMemo(
-    () => paraCentavos(medicoStr) + paraCentavos(anestesistaStr) + paraCentavos(auxiliarStr) + paraCentavos(salaStr),
-    [medicoStr, anestesistaStr, auxiliarStr, salaStr],
-  );
+  const calc = useMemo(() => {
+    const base = paraCentavos(medicoStr);
+    const anestesista = cobrarAnestesista ? Math.round(base * ANESTESISTA_PCT) : 0;
+    const auxiliar = cobrarAuxiliar ? Math.round(base * AUXILIAR_PCT) : 0;
+    const sala = cobrarSala ? Math.round(base * SALA_PCT) : 0;
+    return { base, anestesista, auxiliar, sala, total: base + anestesista + auxiliar + sala };
+  }, [medicoStr, cobrarAnestesista, cobrarAuxiliar, cobrarSala]);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -60,7 +104,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     if (cpf.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha.");
     if (!planoSaude.trim()) return setErro("Informe o plano de saúde.");
-    if (total <= 0) return setErro("Informe ao menos um valor da diferença.");
+    if (calc.base <= 0) return setErro("Informe o honorário médico.");
 
     setEnviando(true);
     try {
@@ -77,18 +121,19 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
           pacienteCpf: cpf,
           pacienteFicha: pacienteFicha.trim(),
           planoSaude: planoSaude.trim(),
-          honorarioMedicoCentavos: paraCentavos(medicoStr),
-          anestesistaCentavos: paraCentavos(anestesistaStr),
-          auxiliarCentavos: paraCentavos(auxiliarStr),
-          taxaSalaCentavos: paraCentavos(salaStr),
+          honorarioMedicoCentavos: calc.base,
+          cobrarAnestesista,
+          cobrarAuxiliar,
+          cobrarSala,
         }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao cadastrar.");
-      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? total }, ...prev]);
+      setCadastradas((prev) => [{ numero: json.numero, pacienteNome: pacienteNome.trim(), total: json.total_centavos ?? calc.total }, ...prev]);
       setCirurgiaoNome("");
       setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPlanoSaude("");
-      setMedicoStr(""); setAnestesistaStr(""); setAuxiliarStr(""); setSalaStr("");
+      setMedicoStr("");
+      setCobrarAnestesista(true); setCobrarAuxiliar(true); setCobrarSala(true);
       onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -105,7 +150,8 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
         Para o paciente de plano (enfermaria) que sobe de acomodação pagando a diferença.
-        Informe os valores a acrescentar.
+        Informe o <strong>honorário médico</strong>; os demais são proporcionais (anestesista 30%,
+        auxiliar 30% e taxa de sala 50%) e podem ser desativados se não houver cobrança.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 space-y-6">
@@ -114,53 +160,47 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
         </Campo>
 
         <div className="grid gap-6 lg:grid-cols-2">
-        {/* Valores da diferença */}
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Valores da diferença</p>
-          <Campo label="Honorário médico (R$)">
-            <input inputMode="decimal" value={medicoStr} onChange={(e) => setMedicoStr(e.target.value)} placeholder="0,00" className={inputCls} />
-          </Campo>
-          <Campo label="Honorário do anestesista (R$)">
-            <input inputMode="decimal" value={anestesistaStr} onChange={(e) => setAnestesistaStr(e.target.value)} placeholder="0,00" className={inputCls} />
-          </Campo>
-          <Campo label="Honorário do médico auxiliar (R$)">
-            <input inputMode="decimal" value={auxiliarStr} onChange={(e) => setAuxiliarStr(e.target.value)} placeholder="0,00" className={inputCls} />
-          </Campo>
-          <Campo label="Taxa de sala · hospital (R$)">
-            <input inputMode="decimal" value={salaStr} onChange={(e) => setSalaStr(e.target.value)} placeholder="0,00" className={inputCls} />
-          </Campo>
-        </div>
-
-        {/* Paciente + total */}
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Paciente</p>
-          <Campo label="Nome completo">
-            <input value={pacienteNome} onChange={(e) => setPacienteNome(e.target.value)} placeholder="Nome completo" className={inputCls} />
-          </Campo>
-          <div className="grid grid-cols-2 gap-4">
-            <Campo label="CPF">
-              <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
+          {/* Valores da diferença */}
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Valores da diferença</p>
+            <Campo label="Honorário médico (R$)">
+              <input inputMode="decimal" value={medicoStr} onChange={(e) => setMedicoStr(e.target.value)} placeholder="0,00" className={inputCls} />
             </Campo>
-            <Campo label="Nº da ficha (PROMÉDICO)">
-              <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />
-            </Campo>
+            <ItemProporcional label="Honorário do anestesista (30%)" valor={calc.anestesista} ativo={cobrarAnestesista} onToggle={() => setCobrarAnestesista((v) => !v)} />
+            <ItemProporcional label="Honorário do médico auxiliar (30%)" valor={calc.auxiliar} ativo={cobrarAuxiliar} onToggle={() => setCobrarAuxiliar((v) => !v)} />
+            <ItemProporcional label="Taxa de sala · hospital (50%)" valor={calc.sala} ativo={cobrarSala} onToggle={() => setCobrarSala((v) => !v)} />
           </div>
-          <Campo label="Plano de saúde">
-            <input value={planoSaude} onChange={(e) => setPlanoSaude(e.target.value)} placeholder="Ex.: Unimed, Bradesco Saúde…" className={inputCls} />
-          </Campo>
 
-          <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
-            <div className="flex items-center justify-between">
-              <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total da diferença</span>
-              <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(total)}</span>
+          {/* Paciente + total */}
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Paciente</p>
+            <Campo label="Nome completo">
+              <input value={pacienteNome} onChange={(e) => setPacienteNome(e.target.value)} placeholder="Nome completo" className={inputCls} />
+            </Campo>
+            <div className="grid grid-cols-2 gap-4">
+              <Campo label="CPF">
+                <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
+              </Campo>
+              <Campo label="Nº da ficha (PROMÉDICO)">
+                <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />
+              </Campo>
             </div>
-          </div>
+            <Campo label="Plano de saúde">
+              <input value={planoSaude} onChange={(e) => setPlanoSaude(e.target.value)} placeholder="Ex.: Unimed, Bradesco Saúde…" className={inputCls} />
+            </Campo>
 
-          {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-          <button type="submit" disabled={enviando} className="hc-btn hc-btn-primary w-full">
-            {enviando ? "Salvando…" : "Cadastrar diferença de acomodação"}
-          </button>
-        </div>
+            <div className="rounded-2xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total da diferença</span>
+                <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(calc.total)}</span>
+              </div>
+            </div>
+
+            {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
+            <button type="submit" disabled={enviando} className="hc-btn hc-btn-primary w-full">
+              {enviando ? "Salvando…" : "Cadastrar diferença de acomodação"}
+            </button>
+          </div>
         </div>
       </form>
 

@@ -37,10 +37,14 @@ export async function POST(req: Request) {
   const cpf = soDigitos(b?.pacienteCpf);
   const ficha = String(b?.pacienteFicha ?? "").trim();
   const plano = String(b?.planoSaude ?? "").trim();
+  // Só o honorário médico é digitado; os demais são proporcionais (podem ser desativados).
   const medico = cent(b?.honorarioMedicoCentavos);
-  const anestesista = cent(b?.anestesistaCentavos);
-  const auxiliar = cent(b?.auxiliarCentavos);
-  const hospital = cent(b?.taxaSalaCentavos);
+  const cobrarAnestesista = b?.cobrarAnestesista !== false;
+  const cobrarAuxiliar = b?.cobrarAuxiliar !== false;
+  const cobrarSala = b?.cobrarSala !== false;
+  const anestesista = cobrarAnestesista ? Math.round(medico * 0.3) : 0;
+  const auxiliar = cobrarAuxiliar ? Math.round(medico * 0.3) : 0;
+  const hospital = cobrarSala ? Math.round(medico * 0.5) : 0;
   const total = medico + anestesista + auxiliar + hospital;
 
   if (!cirurgiaoNome) return NextResponse.json({ erro: "Informe o nome do médico cirurgião." }, { status: 400 });
@@ -48,7 +52,7 @@ export async function POST(req: Request) {
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha." }, { status: 400 });
   if (!plano) return NextResponse.json({ erro: "Informe o plano de saúde." }, { status: 400 });
-  if (total <= 0) return NextResponse.json({ erro: "Informe ao menos um valor da diferença." }, { status: 400 });
+  if (medico <= 0) return NextResponse.json({ erro: "Informe o honorário médico." }, { status: 400 });
 
   let admin;
   try {
