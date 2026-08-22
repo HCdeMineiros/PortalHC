@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ACOMODACOES } from "@/lib/data/acomodacoes";
 
 const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const valorDiaria = (chave: string) => ACOMODACOES.find((a) => a.chave === chave)?.totalDiaCentavos ?? 0;
 
 function paraCentavos(v: string): number {
   const limpo = v.replace(/[^\d,.-]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
@@ -105,27 +108,36 @@ export function CadastrarInternacao({ onCadastrar }: { onCadastrar?: () => void 
         </div>
 
         <div className="border-t border-[var(--hc-line)] pt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Acomodação</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Acomodação (valores particulares)</p>
           <div className="flex flex-wrap gap-3">
             {[
               { chave: "enfermaria", nome: "Enfermaria" },
               { chave: "apartamento", nome: "Apartamento" },
               { chave: "suite", nome: "Suíte" },
-            ].map((a) => (
-              <button
-                key={a.chave}
-                type="button"
-                onClick={() => setAcomodacao(a.chave)}
-                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
-                  acomodacao === a.chave
-                    ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
-                    : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
-                }`}
-              >
-                {a.nome}
-              </button>
-            ))}
+            ].map((a) => {
+              const ativo = acomodacao === a.chave;
+              return (
+                <button
+                  key={a.chave}
+                  type="button"
+                  onClick={() => setAcomodacao(a.chave)}
+                  className={`rounded-2xl px-5 py-3 text-sm font-semibold transition-colors ${
+                    ativo
+                      ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+                      : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+                  }`}
+                >
+                  <span className="block">{a.nome}</span>
+                  <span className={`block text-xs font-normal ${ativo ? "text-white/85" : "text-[var(--hc-ink-soft)]"}`}>
+                    {brl(valorDiaria(a.chave))}/dia
+                  </span>
+                </button>
+              );
+            })}
           </div>
+          <p className="mt-2 text-xs text-[var(--hc-ink-soft)]">
+            Sem taxa fixa (internação clínica). A equipe lança as diárias no acerto para gerar o valor.
+          </p>
         </div>
 
         {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
