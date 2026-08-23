@@ -16,6 +16,7 @@ function paraCentavos(v: string): number {
 const ANESTESISTA_PCT = 0.3;
 const AUXILIAR_MEDICO_PCT = 0.3;
 const INSTRUMENTADOR_PCT = 0.1;
+const PEDIATRA_PCT = 0.35;
 const HOSPITAL_PCT = 0.6;
 
 const inputCls =
@@ -30,6 +31,11 @@ const toggle = (ativo: boolean) =>
 const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m] as string);
 
+interface Outro {
+  desc: string;
+  valorStr: string;
+}
+
 export function Orcamento() {
   const [tipo, setTipo] = useState<"cirurgico" | "clinico">("cirurgico");
   const [pacienteNome, setPacienteNome] = useState("");
@@ -38,8 +44,11 @@ export function Orcamento() {
   const [anestesista, setAnestesista] = useState(true);
   const [auxiliarMedico, setAuxiliarMedico] = useState(true);
   const [instrumentador, setInstrumentador] = useState(false);
+  const [pediatra, setPediatra] = useState(false);
   const [acomodacao, setAcomodacao] = useState("");
   const [diarias, setDiarias] = useState("1");
+  const [taxaFixaAtiva, setTaxaFixaAtiva] = useState(true);
+  const [outros, setOutros] = useState<Outro[]>([]);
 
   function escolherProcedimento(codigo: string) {
     const p = PROCEDIMENTOS.find((x) => x.codigo === codigo);
@@ -56,16 +65,22 @@ export function Orcamento() {
     const anest = anestesista ? Math.round(cir * ANESTESISTA_PCT) : 0;
     const auxMed = auxiliarMedico ? Math.round(cir * AUXILIAR_MEDICO_PCT) : 0;
     const instr = instrumentador ? Math.round(cir * INSTRUMENTADOR_PCT) : 0;
+    const pedi = pediatra ? Math.round(cir * PEDIATRA_PCT) : 0;
     const hosp = Math.round(cir * HOSPITAL_PCT);
-    const honorarios = cir + anest + auxMed + instr + hosp;
+    const honorarios = cir + anest + auxMed + instr + pedi + hosp;
 
     const info = ACOMODACOES.find((a) => a.chave === acomodacao);
     const dias = Math.max(1, parseInt(diarias) || 0);
-    const taxaFixa = tipo === "cirurgico" ? TAXA_FIXA_CIRURGICA_CENTAVOS : 0;
+    const taxaFixa = info && taxaFixaAtiva ? TAXA_FIXA_CIRURGICA_CENTAVOS : 0;
     const acomTotal = info ? taxaFixa + info.totalDiaCentavos * dias : 0;
 
-    return { cir, anest, auxMed, instr, hosp, honorarios, info, dias, taxaFixa, acomTotal, total: honorarios + acomTotal };
-  }, [tipo, cirurgiaoStr, anestesista, auxiliarMedico, instrumentador, acomodacao, diarias]);
+    const outrosItens = outros
+      .map((o) => ({ desc: o.desc.trim() || "Outros", val: paraCentavos(o.valorStr) }))
+      .filter((o) => o.val > 0);
+    const outrosTotal = outrosItens.reduce((s, o) => s + o.val, 0);
+
+    return { cir, anest, auxMed, instr, pedi, hosp, honorarios, info, dias, taxaFixa, acomTotal, outrosItens, outrosTotal, total: honorarios + acomTotal + outrosTotal };
+  }, [tipo, cirurgiaoStr, anestesista, auxiliarMedico, instrumentador, pediatra, acomodacao, diarias, taxaFixaAtiva, outros]);
 
   function imprimir() {
     const linhas: string[] = [];
@@ -75,12 +90,15 @@ export function Orcamento() {
       if (calc.anest > 0) linhas.push(linha("Anestesista (30%)", calc.anest));
       if (calc.auxMed > 0) linhas.push(linha("Auxiliar médico (30%)", calc.auxMed));
       if (calc.instr > 0) linhas.push(linha("Instrumentador (10%)", calc.instr));
+      if (calc.pedi > 0) linhas.push(linha("Pediatra (35%)", calc.pedi));
       linhas.push(linha("Taxa de sala · hospital (60%)", calc.hosp));
     }
     if (calc.info) {
       const rot = `Acomodação — ${calc.info.nome} (${calc.dias}× diária${calc.taxaFixa > 0 ? " + taxa fixa" : ""})`;
       linhas.push(linha(rot, calc.acomTotal));
     }
+    for (const o of calc.outrosItens) linhas.push(linha(o.desc, o.val));
+
     const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <title>Orçamento — ${esc(HOSPITAL.nomeCurto)}</title>
 <style>
@@ -102,7 +120,7 @@ export function Orcamento() {
   <div class="meta">${pacienteNome ? `Paciente: <b>${esc(pacienteNome)}</b> · ` : ""}Emitido em ${esc(new Date().toLocaleString("pt-BR"))} · Tratamento ${tipo === "cirurgico" ? "cirúrgico" : "clínico"}</div>
   <table>${linhas.join("")}</table>
   <div class="total"><span>Total estimado</span><span class="g">${brl(calc.total)}</span></div>
-  <div class="aviso"><b>Aviso:</b> valores estimados para orientação do paciente (tabela particular). O valor final pode variar conforme o número de diárias e os itens efetivamente utilizados no atendimento.</div>
+  <div class="aviso"><b>Aviso:</b> valores estimados para orientação do paciente (tabela particular). O valor final pode variar conforme o número de diárias e os itens efetivamente utilizados no atendimento. <b>Materiais e medicamentos terão o valor apenas ao final do procedimento.</b></div>
   <div class="rodape">${esc(HOSPITAL.nomeCurto)} · ${esc(HOSPITAL.dominio)}</div>
 </body></html>`;
     const w = window.open("", "_blank", "width=820,height=920");
@@ -161,6 +179,7 @@ export function Orcamento() {
                   <button type="button" onClick={() => setAnestesista((v) => !v)} className={toggle(anestesista)}>{anestesista ? "✓ " : ""}Anestesista (30%)</button>
                   <button type="button" onClick={() => setAuxiliarMedico((v) => !v)} className={toggle(auxiliarMedico)}>{auxiliarMedico ? "✓ " : ""}Auxiliar médico (30%)</button>
                   <button type="button" onClick={() => setInstrumentador((v) => !v)} className={toggle(instrumentador)}>{instrumentador ? "✓ " : ""}Instrumentador (10%)</button>
+                  <button type="button" onClick={() => setPediatra((v) => !v)} className={toggle(pediatra)}>{pediatra ? "✓ " : ""}Pediatra (35%)</button>
                 </div>
               </div>
             </>
@@ -175,11 +194,49 @@ export function Orcamento() {
               ))}
             </select>
             {acomodacao && (
-              <label className="mt-3 block w-32">
-                <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Diárias</span>
-                <input type="number" min={1} value={diarias} onChange={(e) => setDiarias(e.target.value)} className={inputCls} />
-              </label>
+              <div className="mt-3 flex flex-wrap items-end gap-3">
+                <label className="block w-32">
+                  <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Diárias</span>
+                  <input type="number" min={1} value={diarias} onChange={(e) => setDiarias(e.target.value)} className={inputCls} />
+                </label>
+                <button type="button" onClick={() => setTaxaFixaAtiva((v) => !v)} className={toggle(taxaFixaAtiva)}>
+                  {taxaFixaAtiva ? "✓ " : ""}Taxa fixa ({brl(TAXA_FIXA_CIRURGICA_CENTAVOS)})
+                </button>
+              </div>
             )}
+          </div>
+
+          {/* Outros valores (taxa de RN, vídeo, etc.) */}
+          <div className="border-t border-[var(--hc-line)] pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-[var(--hc-ink)]">Outros (taxa de RN, vídeo, etc.)</span>
+              <button type="button" onClick={() => setOutros((p) => [...p, { desc: "", valorStr: "" }])} className="hc-btn hc-btn-ghost px-3 py-1.5 text-xs">
+                + Adicionar
+              </button>
+            </div>
+            <div className="mt-2 space-y-2">
+              {outros.map((o, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    value={o.desc}
+                    onChange={(e) => setOutros((p) => p.map((x, idx) => (idx === i ? { ...x, desc: e.target.value } : x)))}
+                    placeholder="Descrição (ex.: Taxa de RN)"
+                    className={inputCls}
+                  />
+                  <input
+                    inputMode="decimal"
+                    value={o.valorStr}
+                    onChange={(e) => setOutros((p) => p.map((x, idx) => (idx === i ? { ...x, valorStr: e.target.value } : x)))}
+                    placeholder="R$ 0,00"
+                    className="w-32 rounded-xl border border-[var(--hc-line)] bg-white px-3 py-2.5 outline-none focus:border-[var(--hc-gold)]"
+                  />
+                  <button type="button" onClick={() => setOutros((p) => p.filter((_, idx) => idx !== i))} aria-label="Remover" className="flex-none rounded-xl border border-[var(--hc-line)] px-3 text-[var(--hc-red-600)] hover:bg-[var(--hc-red-050)]">
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {outros.length === 0 && <p className="text-xs text-[var(--hc-ink-soft)]">Nenhum item extra. Use para taxas avulsas (RN, vídeo, etc.).</p>}
+            </div>
           </div>
         </div>
 
@@ -192,6 +249,7 @@ export function Orcamento() {
               {calc.anest > 0 && <Linha rot="Anestesista (30%)" val={calc.anest} />}
               {calc.auxMed > 0 && <Linha rot="Auxiliar médico (30%)" val={calc.auxMed} />}
               {calc.instr > 0 && <Linha rot="Instrumentador (10%)" val={calc.instr} />}
+              {calc.pedi > 0 && <Linha rot="Pediatra (35%)" val={calc.pedi} />}
               <Linha rot="Taxa de sala · hospital (60%)" val={calc.hosp} />
             </>
           )}
@@ -201,19 +259,18 @@ export function Orcamento() {
               val={calc.acomTotal}
             />
           )}
+          {calc.outrosItens.map((o, i) => (
+            <Linha key={i} rot={o.desc} val={o.val} />
+          ))}
           <div className="mt-2 flex items-center justify-between border-t border-[var(--hc-line)] pt-3">
             <span className="font-serif text-lg font-semibold text-[var(--hc-ink)]">Total estimado</span>
             <span className="font-serif text-2xl font-semibold text-[var(--hc-red-600)]">{brl(calc.total)}</span>
           </div>
-          <button
-            onClick={imprimir}
-            disabled={calc.total <= 0}
-            className="hc-btn hc-btn-primary mt-2 w-full disabled:opacity-50"
-          >
+          <button onClick={imprimir} disabled={calc.total <= 0} className="hc-btn hc-btn-primary mt-2 w-full disabled:opacity-50">
             🖨 Imprimir orçamento
           </button>
           <p className="text-[11px] text-[var(--hc-ink-soft)]">
-            Valores estimados (tabela particular). O total pode variar conforme diárias e itens utilizados.
+            Valores estimados (tabela particular). Materiais e medicamentos só terão valor ao final do procedimento.
           </p>
         </div>
       </div>

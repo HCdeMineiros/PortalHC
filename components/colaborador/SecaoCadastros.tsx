@@ -26,7 +26,6 @@ export function SecaoCadastros() {
     <div>
       <div className="flex flex-wrap gap-3">
         {botaoCadastro("internacao", "internação clínica")}
-        {botaoCadastro("diferenca", "diferença de acomodação")}
         <button
           onClick={() => setAberto((v) => (v === "orcamento" ? null : "orcamento"))}
           className={`w-full rounded-full px-5 py-2.5 text-sm font-semibold transition-colors sm:w-auto ${
@@ -37,6 +36,7 @@ export function SecaoCadastros() {
         >
           {ativoOrc ? "Fechar orçamento" : "💰 Orçamento (prévia)"}
         </button>
+        {botaoCadastro("diferenca", "diferença de acomodação")}
       </div>
 
       {aberto === "internacao" && (
