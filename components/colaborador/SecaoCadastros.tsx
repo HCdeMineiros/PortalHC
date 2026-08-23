@@ -26,17 +26,17 @@ export function SecaoCadastros() {
     <div>
       <div className="flex flex-wrap gap-3">
         {botaoCadastro("internacao", "internação clínica")}
+        {botaoCadastro("diferenca", "diferença de acomodação")}
         <button
           onClick={() => setAberto((v) => (v === "orcamento" ? null : "orcamento"))}
-          className={`w-full rounded-full px-5 py-2.5 text-sm font-semibold transition-colors sm:w-auto ${
+          className={`w-full whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-colors sm:w-auto ${
             ativoOrc
               ? "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
               : "bg-gradient-to-b from-[var(--hc-gold)] to-[var(--hc-gold-deep)] text-[var(--hc-ink)] shadow-[0_10px_24px_-12px_rgba(154,123,18,.7)] hover:brightness-105"
           }`}
         >
-          {ativoOrc ? "Fechar orçamento" : "💰 Orçamento (prévia)"}
+          {ativoOrc ? "Fechar orçamento" : "💰 Orçamento"}
         </button>
-        {botaoCadastro("diferenca", "diferença de acomodação")}
       </div>
 
       {aberto === "internacao" && (
