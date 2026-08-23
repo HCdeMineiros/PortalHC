@@ -1,11 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { HOSPITAL } from "@/lib/brand";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 const dataHora = (s: string | null) => (s ? new Date(s).toLocaleString("pt-BR") : "—");
+
+/** Data local (YYYY-MM-DD) de um timestamp ISO. */
+function ymdLocal(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function hojeYmd(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function ymdParaBr(ymd: string): string {
+  if (!ymd) return "";
+  const [y, m, d] = ymd.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+const esc = (s: unknown) =>
+  String(s ?? "").replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m] as string);
 
 function rotuloTipo(tipo: string) {
   if (tipo === "diferenca_acomodacao") return "Diferença de acomodação";
@@ -38,6 +58,7 @@ export function PainelFaturamento() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
+  const [dataFiltro, setDataFiltro] = useState<string>(hojeYmd()); // "" = todos
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -66,22 +87,81 @@ export function PainelFaturamento() {
     carregar();
   }, [carregar]);
 
-  const filtradas = itens.filter((c) => {
+  const filtradas = useMemo(() => {
     const q = busca.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      (c.numero ?? "").toLowerCase().includes(q) ||
-      (c.procedimento_nome ?? "").toLowerCase().includes(q) ||
-      (c.pacientes?.nome ?? "").toLowerCase().includes(q) ||
-      (c.pacientes?.ref_externa_promedico ?? "").toLowerCase().includes(q) ||
-      (c.componentes_centavos?.finalizadaPorNome ?? "").toLowerCase().includes(q)
-    );
-  });
+    return itens.filter((c) => {
+      if (dataFiltro && ymdLocal(c.finalizada_em) !== dataFiltro) return false;
+      if (!q) return true;
+      return (
+        (c.numero ?? "").toLowerCase().includes(q) ||
+        (c.procedimento_nome ?? "").toLowerCase().includes(q) ||
+        (c.pacientes?.nome ?? "").toLowerCase().includes(q) ||
+        (c.pacientes?.ref_externa_promedico ?? "").toLowerCase().includes(q) ||
+        (c.componentes_centavos?.finalizadaPorNome ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [itens, busca, dataFiltro]);
 
   const somaTotal = filtradas.reduce(
     (acc, c) => acc + (c.valor_total_centavos ?? 0) + (c.acomodacao_total_centavos ?? 0),
     0,
   );
+
+  const rotuloPeriodo = dataFiltro ? ymdParaBr(dataFiltro) : "Todos os registros";
+
+  function imprimir() {
+    const linhas = filtradas
+      .map((c) => {
+        const total = (c.valor_total_centavos ?? 0) + (c.acomodacao_total_centavos ?? 0);
+        const resp = c.componentes_centavos?.finalizadaPorNome || "—";
+        return `<tr>
+          <td>${esc(dataHora(c.finalizada_em))}</td>
+          <td>${esc(c.pacientes?.nome ?? "—")}<br><span class="s">${esc(rotuloTipo(c.tipo))} · Sol. ${esc(c.numero)}</span></td>
+          <td>${esc(resp)}</td>
+          <td class="v">${brl(total)}</td>
+        </tr>`;
+      })
+      .join("");
+
+    const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<title>Faturamento — ${esc(rotuloPeriodo)}</title>
+<style>
+  body{font-family:Georgia,"Times New Roman",serif;color:#1A1616;margin:28px;}
+  .top{border-bottom:2px solid #C9A227;padding-bottom:12px;}
+  .hosp{font-size:18px;font-weight:bold;} .sub{font-size:12px;color:#4B4444;}
+  h1{font-size:20px;margin:18px 0 2px;} .meta{font-size:12px;color:#4B4444;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:7px 8px;border-bottom:1px solid #E7DFD5;text-align:left;vertical-align:top;}
+  th{background:#F3EEE7;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  td.v,th.v{text-align:right;font-variant-numeric:tabular-nums;}
+  .s{color:#4B4444;font-size:11px;}
+  .total{display:flex;justify-content:space-between;margin-top:14px;font-size:16px;font-weight:bold;border-top:2px solid #C9A227;padding-top:10px;}
+  .total .g{color:#C8102E;font-size:20px;}
+  .rodape{margin-top:20px;font-size:11px;color:#4B4444;text-align:center;}
+  @media print{body{margin:12mm;}}
+</style></head><body>
+  <div class="top"><div class="hosp">${esc(HOSPITAL.nome)}</div>
+  <div class="sub">${esc(HOSPITAL.endereco)} · ${esc(HOSPITAL.cidade)} · ${esc(HOSPITAL.telefones.join(" · "))}</div></div>
+  <h1>Faturamento — finalizados e baixados</h1>
+  <div class="meta">Período: <b>${esc(rotuloPeriodo)}</b> · ${filtradas.length} registro(s) · Emitido em ${esc(new Date().toLocaleString("pt-BR"))}</div>
+  <table>
+    <thead><tr><th>Baixa (data/hora)</th><th>Paciente / atendimento</th><th>Responsável</th><th class="v">Total</th></tr></thead>
+    <tbody>${linhas || `<tr><td colspan="4">Nenhum registro no período.</td></tr>`}</tbody>
+  </table>
+  <div class="total"><span>Total do período</span><span class="g">${brl(somaTotal)}</span></div>
+  <div class="rodape">${esc(HOSPITAL.nomeCurto)} · ${esc(HOSPITAL.dominio)}</div>
+</body></html>`;
+
+    const w = window.open("", "_blank", "width=900,height=920");
+    if (!w) {
+      alert("Não foi possível abrir a janela de impressão. Habilite os pop-ups para este site.");
+      return;
+    }
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+  }
 
   return (
     <div className="hc-card p-6 sm:p-7">
@@ -89,13 +169,51 @@ export function PainelFaturamento() {
         <div>
           <h2 className="font-serif text-2xl font-semibold text-[var(--hc-ink)]">Faturamento — finalizados e baixados</h2>
           <p className="text-sm text-[var(--hc-ink-soft)]">
-            {filtradas.length} {filtradas.length === 1 ? "registro" : "registros"} · total {brl(somaTotal)}
+            Período: <strong>{rotuloPeriodo}</strong> · {filtradas.length} {filtradas.length === 1 ? "registro" : "registros"} · total {brl(somaTotal)}
           </p>
         </div>
-        <button onClick={carregar} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">Atualizar</button>
+        <div className="flex gap-2">
+          <button onClick={carregar} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">Atualizar</button>
+          <button onClick={imprimir} disabled={filtradas.length === 0} className="hc-btn hc-btn-primary px-4 py-2 text-sm disabled:opacity-50">
+            🖨 Imprimir
+          </button>
+        </div>
       </div>
 
-      <div className="relative mt-5">
+      {/* Filtro de data */}
+      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] p-3">
+        <button
+          onClick={() => setDataFiltro(hojeYmd())}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            dataFiltro === hojeYmd()
+              ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+              : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+          }`}
+        >
+          Diário (hoje)
+        </button>
+        <label className="block">
+          <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Data específica</span>
+          <input
+            type="date"
+            value={dataFiltro}
+            onChange={(e) => setDataFiltro(e.target.value)}
+            className="rounded-lg border border-[var(--hc-line)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--hc-gold)]"
+          />
+        </label>
+        <button
+          onClick={() => setDataFiltro("")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            dataFiltro === ""
+              ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
+              : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
+          }`}
+        >
+          Todos
+        </button>
+      </div>
+
+      <div className="relative mt-4">
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
@@ -110,7 +228,7 @@ export function PainelFaturamento() {
       {carregando ? (
         <p className="mt-6 text-sm text-[var(--hc-ink-soft)]">Carregando…</p>
       ) : filtradas.length === 0 ? (
-        <p className="mt-6 text-sm text-[var(--hc-ink-soft)]">Nenhum atendimento finalizado ainda.</p>
+        <p className="mt-6 text-sm text-[var(--hc-ink-soft)]">Nenhum atendimento finalizado no período.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {filtradas.map((c) => {
