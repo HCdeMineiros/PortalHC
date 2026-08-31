@@ -4,9 +4,12 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const XLSX = require("xlsx");
 
-const SRC = "C:/Users/promedico/Desktop/Documentos PortalHC/TABELA - CIRURGIAS, DIÁRIAS.xlsx";
+const SRC = "C:/Users/promedico/Desktop/TABELA%20-%20CIRURGIAS,%20DI%C3%81RIAS2%20-%20ATUALIZADA.xlsx";
 const wb = XLSX.read(readFileSync(SRC), { type: "buffer" });
-const ws = wb.Sheets["CIRURGIAS - PARTICULAR"];
+// aba das cirurgias particulares (nome pode variar entre versões da planilha)
+const NOME_ABA =
+  wb.SheetNames.find((n) => /CIRURGIAS/i.test(n) && !/DI[ÁA]RIA|DIFEREN/i.test(n)) || wb.SheetNames[0];
+const ws = wb.Sheets[NOME_ABA];
 const linhas = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false, defval: "" });
 
 const cent = (v) => (v === "" || v == null ? 0 : Math.round(Number(v) * 100));
@@ -37,7 +40,7 @@ const divergentes = procedimentos.filter((p) => {
 });
 
 const ts = `// GERADO automaticamente por scripts/gerar-catalogo.mjs — não editar à mão.
-// Fonte: "TABELA - CIRURGIAS, DIÁRIAS.xlsx" · aba "CIRURGIAS - PARTICULAR".
+// Fonte: "TABELA - CIRURGIAS, DIÁRIAS2 - ATUALIZADA.xlsx" · aba "${NOME_ABA}".
 
 export interface ComponentesValor {
   cirurgiao: number;
@@ -58,7 +61,7 @@ export interface Procedimento {
 }
 
 /** Versão vigente da tabela de preços (para o versionamento no banco). */
-export const TABELA_VERSAO = "Outubro/2024";
+export const TABELA_VERSAO = "Atualizada 2 (2026)";
 export const TABELA_MOEDA = "BRL";
 
 export const PROCEDIMENTOS: Procedimento[] = ${JSON.stringify(procedimentos, null, 2)};

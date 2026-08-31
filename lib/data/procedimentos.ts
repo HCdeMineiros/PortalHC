@@ -1,5 +1,5 @@
 // GERADO automaticamente por scripts/gerar-catalogo.mjs — não editar à mão.
-// Fonte: "TABELA - CIRURGIAS, DIÁRIAS.xlsx" · aba "CIRURGIAS - PARTICULAR".
+// Fonte: "TABELA - CIRURGIAS, DIÁRIAS2 - ATUALIZADA.xlsx" · aba "CIRURGIAS - ATUALIZADAS 2".
 
 export interface ComponentesValor {
   cirurgiao: number;
@@ -20,7 +20,7 @@ export interface Procedimento {
 }
 
 /** Versão vigente da tabela de preços (para o versionamento no banco). */
-export const TABELA_VERSAO = "Outubro/2024";
+export const TABELA_VERSAO = "Atualizada 2 (2026)";
 export const TABELA_MOEDA = "BRL";
 
 export const PROCEDIMENTOS: Procedimento[] = [
@@ -29,28 +29,28 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "nome": "APENDICECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 330000,
-      "auxiliar1": 66000,
+      "auxiliar1": 99000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 99000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 165000
+      "taxaSala": 198000
     },
-    "valorTotalCentavos": 671000
+    "valorTotalCentavos": 726000
   },
   {
     "codigo": "P002",
     "nome": "APENDICECTOMIA POR VIDEO",
     "componentesCentavos": {
       "cirurgiao": 440000,
-      "auxiliar1": 99000,
+      "auxiliar1": 132000,
       "auxiliar2": 0,
-      "anestesista": 165000,
+      "anestesista": 132000,
       "pediatra": 0,
       "exRnVideo": 88000,
-      "taxaSala": 165000
+      "taxaSala": 264000
     },
-    "valorTotalCentavos": 957000
+    "valorTotalCentavos": 1056000
   },
   {
     "codigo": "P003",
@@ -59,12 +59,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 88000,
       "auxiliar1": 0,
       "auxiliar2": 0,
-      "anestesista": 44000,
+      "anestesista": 26400,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 66000
+      "taxaSala": 60000
     },
-    "valorTotalCentavos": 198000
+    "valorTotalCentavos": 174400
   },
   {
     "codigo": "P004",
@@ -73,12 +73,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 220000,
       "auxiliar1": 66000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 66000,
       "pediatra": 77000,
       "exRnVideo": 33000,
       "taxaSala": 132000
     },
-    "valorTotalCentavos": 638000
+    "valorTotalCentavos": 594000
   },
   {
     "codigo": "P005",
@@ -87,12 +87,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P006",
@@ -101,12 +101,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 220000,
       "auxiliar1": 66000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 66000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 132000
     },
-    "valorTotalCentavos": 528000
+    "valorTotalCentavos": 484000
   },
   {
     "codigo": "P007",
@@ -115,68 +115,68 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 110000,
       "auxiliar1": 0,
       "auxiliar2": 0,
-      "anestesista": 55000,
+      "anestesista": 33000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 66000
     },
-    "valorTotalCentavos": 231000
+    "valorTotalCentavos": 209000
   },
   {
     "codigo": "P008",
     "nome": "HERNIA INGUINAL UNILATERAL",
     "componentesCentavos": {
       "cirurgiao": 330000,
-      "auxiliar1": 66000,
+      "auxiliar1": 99000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 99000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 198000
     },
-    "valorTotalCentavos": 616000
+    "valorTotalCentavos": 726000
   },
   {
     "codigo": "P009",
     "nome": "HERNIA INGUINAL BILATERAL",
     "componentesCentavos": {
       "cirurgiao": 440000,
-      "auxiliar1": 99000,
+      "auxiliar1": 132000,
       "auxiliar2": 0,
-      "anestesista": 165000,
+      "anestesista": 132000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 165000
+      "taxaSala": 264000
     },
-    "valorTotalCentavos": 869000
+    "valorTotalCentavos": 968000
   },
   {
     "codigo": "P010",
     "nome": "HERNIA INGUINAL RN",
     "componentesCentavos": {
       "cirurgiao": 550000,
-      "auxiliar1": 99000,
+      "auxiliar1": 165000,
       "auxiliar2": 0,
-      "anestesista": 170500,
+      "anestesista": 165000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 165000
+      "taxaSala": 330000
     },
-    "valorTotalCentavos": 984500
+    "valorTotalCentavos": 1210000
   },
   {
     "codigo": "P011",
     "nome": "HERNIA UMBILICAL",
     "componentesCentavos": {
       "cirurgiao": 220000,
-      "auxiliar1": 49500,
+      "auxiliar1": 66000,
       "auxiliar2": 0,
-      "anestesista": 82500,
+      "anestesista": 66000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 132000
     },
-    "valorTotalCentavos": 462000
+    "valorTotalCentavos": 484000
   },
   {
     "codigo": "P012",
@@ -185,12 +185,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P013",
@@ -199,12 +199,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 165000,
       "auxiliar1": 49500,
       "auxiliar2": 0,
-      "anestesista": 82500,
+      "anestesista": 49500,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 99000
     },
-    "valorTotalCentavos": 407000
+    "valorTotalCentavos": 363000
   },
   {
     "codigo": "P014",
@@ -213,12 +213,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 165000,
       "auxiliar1": 49500,
       "auxiliar2": 16500,
-      "anestesista": 82500,
+      "anestesista": 49500,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 99000
     },
-    "valorTotalCentavos": 423500
+    "valorTotalCentavos": 379500
   },
   {
     "codigo": "P015",
@@ -227,12 +227,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 220000,
       "auxiliar1": 66000,
       "auxiliar2": 22000,
-      "anestesista": 110000,
+      "anestesista": 66000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 143000
+      "taxaSala": 132000
     },
-    "valorTotalCentavos": 561000
+    "valorTotalCentavos": 506000
   },
   {
     "codigo": "P016",
@@ -241,26 +241,26 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 110000,
       "auxiliar1": 33000,
       "auxiliar2": 0,
-      "anestesista": 55000,
+      "anestesista": 33000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 66000
     },
-    "valorTotalCentavos": 264000
+    "valorTotalCentavos": 242000
   },
   {
     "codigo": "P017",
     "nome": "NEFRECTOMIA PARCIAL",
     "componentesCentavos": {
       "cirurgiao": 154000,
-      "auxiliar1": 44000,
+      "auxiliar1": 46200,
       "auxiliar2": 0,
-      "anestesista": 77000,
+      "anestesista": 46200,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 92400
     },
-    "valorTotalCentavos": 385000
+    "valorTotalCentavos": 338800
   },
   {
     "codigo": "P018",
@@ -269,12 +269,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 176000,
       "auxiliar1": 52800,
       "auxiliar2": 0,
-      "anestesista": 88000,
+      "anestesista": 52800,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 132000
+      "taxaSala": 105600
     },
-    "valorTotalCentavos": 448800
+    "valorTotalCentavos": 387200
   },
   {
     "codigo": "P019",
@@ -283,12 +283,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 198000,
       "auxiliar1": 59400,
       "auxiliar2": 0,
-      "anestesista": 99000,
+      "anestesista": 59400,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 132000
+      "taxaSala": 118800
     },
-    "valorTotalCentavos": 488400
+    "valorTotalCentavos": 435600
   },
   {
     "codigo": "P020",
@@ -297,12 +297,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 110000,
       "auxiliar1": 33000,
       "auxiliar2": 0,
-      "anestesista": 55000,
+      "anestesista": 33000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 66000
     },
-    "valorTotalCentavos": 264000
+    "valorTotalCentavos": 242000
   },
   {
     "codigo": "P021",
@@ -311,12 +311,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 154000,
       "auxiliar1": 46200,
       "auxiliar2": 0,
-      "anestesista": 77000,
+      "anestesista": 46200,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 92400
     },
-    "valorTotalCentavos": 387200
+    "valorTotalCentavos": 338800
   },
   {
     "codigo": "P022",
@@ -325,12 +325,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P023",
@@ -342,9 +342,9 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "anestesista": 0,
       "pediatra": 77000,
       "exRnVideo": 33000,
-      "taxaSala": 110000
+      "taxaSala": 132000
     },
-    "valorTotalCentavos": 440000
+    "valorTotalCentavos": 462000
   },
   {
     "codigo": "P024",
@@ -353,12 +353,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 165000,
       "auxiliar1": 49500,
       "auxiliar2": 0,
-      "anestesista": 82500,
+      "anestesista": 49500,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 99000
     },
-    "valorTotalCentavos": 407000
+    "valorTotalCentavos": 363000
   },
   {
     "codigo": "P025",
@@ -367,12 +367,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 165000,
       "auxiliar1": 49500,
       "auxiliar2": 0,
-      "anestesista": 82500,
+      "anestesista": 49500,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 99000
     },
-    "valorTotalCentavos": 407000
+    "valorTotalCentavos": 363000
   },
   {
     "codigo": "P026",
@@ -381,12 +381,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 110000,
       "auxiliar1": 33000,
       "auxiliar2": 0,
-      "anestesista": 55000,
+      "anestesista": 33000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 66000
     },
-    "valorTotalCentavos": 264000
+    "valorTotalCentavos": 242000
   },
   {
     "codigo": "P027",
@@ -395,12 +395,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 176000,
       "auxiliar1": 52800,
       "auxiliar2": 0,
-      "anestesista": 88000,
+      "anestesista": 52800,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 132000
+      "taxaSala": 105600
     },
-    "valorTotalCentavos": 448800
+    "valorTotalCentavos": 387200
   },
   {
     "codigo": "P028",
@@ -409,12 +409,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 220000,
       "auxiliar1": 66000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 66000,
       "pediatra": 0,
       "exRnVideo": 88000,
-      "taxaSala": 143000
+      "taxaSala": 132000
     },
-    "valorTotalCentavos": 627000
+    "valorTotalCentavos": 572000
   },
   {
     "codigo": "P029",
@@ -423,12 +423,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P030",
@@ -437,12 +437,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P031",
@@ -451,12 +451,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P032",
@@ -465,12 +465,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P033",
@@ -479,12 +479,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P034",
@@ -493,12 +493,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P035",
@@ -507,26 +507,26 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 132000,
       "auxiliar1": 39600,
       "auxiliar2": 0,
-      "anestesista": 66000,
+      "anestesista": 39600,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 110000
+      "taxaSala": 79200
     },
-    "valorTotalCentavos": 347600
+    "valorTotalCentavos": 290400
   },
   {
     "codigo": "P036",
     "nome": "VARIZES 1 PERNA C/ INSUF. VENOSA",
     "componentesCentavos": {
       "cirurgiao": 165000,
-      "auxiliar1": 52800,
+      "auxiliar1": 49500,
       "auxiliar2": 0,
-      "anestesista": 88000,
+      "anestesista": 49500,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 143000
+      "taxaSala": 99000
     },
-    "valorTotalCentavos": 448800
+    "valorTotalCentavos": 363000
   },
   {
     "codigo": "P037",
@@ -535,12 +535,12 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 264000,
       "auxiliar1": 79200,
       "auxiliar2": 0,
-      "anestesista": 132000,
+      "anestesista": 79200,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 143000
+      "taxaSala": 158400
     },
-    "valorTotalCentavos": 618200
+    "valorTotalCentavos": 580800
   },
   {
     "codigo": "P038",
@@ -549,40 +549,40 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 330000,
       "auxiliar1": 99000,
       "auxiliar2": 0,
-      "anestesista": 165000,
+      "anestesista": 99000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 143000
+      "taxaSala": 198000
     },
-    "valorTotalCentavos": 737000
+    "valorTotalCentavos": 726000
   },
   {
     "codigo": "P039",
     "nome": "VASECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 110000,
-      "auxiliar1": 11000,
+      "auxiliar1": 33000,
       "auxiliar2": 0,
       "anestesista": 0,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 66000
     },
-    "valorTotalCentavos": 187000
+    "valorTotalCentavos": 209000
   },
   {
     "codigo": "P040",
     "nome": "VIDEOCOLECISTECTOMIA (VESÍCULA VIDEO)",
     "componentesCentavos": {
       "cirurgiao": 495000,
-      "auxiliar1": 115500,
+      "auxiliar1": 148500,
       "auxiliar2": 0,
-      "anestesista": 165000,
+      "anestesista": 148500,
       "pediatra": 0,
       "exRnVideo": 88000,
-      "taxaSala": 198000
+      "taxaSala": 297000
     },
-    "valorTotalCentavos": 1061500
+    "valorTotalCentavos": 1177000
   },
   {
     "codigo": "P041",
@@ -591,43 +591,169 @@ export const PROCEDIMENTOS: Procedimento[] = [
       "cirurgiao": 220000,
       "auxiliar1": 66000,
       "auxiliar2": 0,
-      "anestesista": 110000,
+      "anestesista": 66000,
       "pediatra": 0,
       "exRnVideo": 0,
       "taxaSala": 132000
     },
-    "valorTotalCentavos": 528000
+    "valorTotalCentavos": 484000
   },
   {
     "codigo": "P042",
     "nome": "HISTEROSCOPIA",
     "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
+      "cirurgiao": 150000,
+      "auxiliar1": 45000,
       "auxiliar2": 0,
-      "anestesista": 0,
+      "anestesista": 45000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 0
+      "taxaSala": 90000
     },
-    "valorTotalCentavos": 0
+    "valorTotalCentavos": 330000
   },
   {
     "codigo": "P043",
     "nome": "DIU COM SEDAÇÃO",
     "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
+      "cirurgiao": 70000,
+      "auxiliar1": 21000,
       "auxiliar2": 0,
-      "anestesista": 0,
+      "anestesista": 21000,
       "pediatra": 0,
       "exRnVideo": 0,
-      "taxaSala": 0
+      "taxaSala": 42000
     },
-    "valorTotalCentavos": 0
+    "valorTotalCentavos": 154000
   },
   {
     "codigo": "P044",
+    "nome": "HERNIA ENCARCERADA SEM RESSECÇÃO + INCISIONAL",
+    "componentesCentavos": {
+      "cirurgiao": 440000,
+      "auxiliar1": 132000,
+      "auxiliar2": 0,
+      "anestesista": 132000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 264000
+    },
+    "valorTotalCentavos": 968000
+  },
+  {
+    "codigo": "P045",
+    "nome": "HERNIA INCISIONAL",
+    "componentesCentavos": {
+      "cirurgiao": 330000,
+      "auxiliar1": 99000,
+      "auxiliar2": 0,
+      "anestesista": 99000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 198000
+    },
+    "valorTotalCentavos": 726000
+  },
+  {
+    "codigo": "P046",
+    "nome": "HERNIA ENCARCERADA SEM RESSECÇÃO",
+    "componentesCentavos": {
+      "cirurgiao": 330000,
+      "auxiliar1": 99000,
+      "auxiliar2": 0,
+      "anestesista": 99000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 198000
+    },
+    "valorTotalCentavos": 726000
+  },
+  {
+    "codigo": "P047",
+    "nome": "HERNIA ENCARCERADA COM RESSECÇÃO",
+    "componentesCentavos": {
+      "cirurgiao": 330000,
+      "auxiliar1": 99000,
+      "auxiliar2": 0,
+      "anestesista": 99000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 198000
+    },
+    "valorTotalCentavos": 726000
+  },
+  {
+    "codigo": "P048",
+    "nome": "CERARIANA COM LAQUEADURA",
+    "componentesCentavos": {
+      "cirurgiao": 330000,
+      "auxiliar1": 99000,
+      "auxiliar2": 0,
+      "anestesista": 99000,
+      "pediatra": 77000,
+      "exRnVideo": 0,
+      "taxaSala": 198000
+    },
+    "valorTotalCentavos": 803000
+  },
+  {
+    "codigo": "P049",
+    "nome": "ORQUIECTOMIA",
+    "componentesCentavos": {
+      "cirurgiao": 132000,
+      "auxiliar1": 39600,
+      "auxiliar2": 0,
+      "anestesista": 39600,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 79200
+    },
+    "valorTotalCentavos": 290400
+  },
+  {
+    "codigo": "P050",
+    "nome": "ORQUIDOPEXIA UNILATERAL",
+    "componentesCentavos": {
+      "cirurgiao": 132000,
+      "auxiliar1": 39600,
+      "auxiliar2": 0,
+      "anestesista": 39600,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 79200
+    },
+    "valorTotalCentavos": 290400
+  },
+  {
+    "codigo": "P051",
+    "nome": "REVERSÃO DE VASECTOMIA",
+    "componentesCentavos": {
+      "cirurgiao": 330000,
+      "auxiliar1": 99000,
+      "auxiliar2": 0,
+      "anestesista": 99000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 198000
+    },
+    "valorTotalCentavos": 726000
+  },
+  {
+    "codigo": "P052",
+    "nome": "CONIZAÇÃO",
+    "componentesCentavos": {
+      "cirurgiao": 110000,
+      "auxiliar1": 33000,
+      "auxiliar2": 0,
+      "anestesista": 33000,
+      "pediatra": 0,
+      "exRnVideo": 0,
+      "taxaSala": 66000
+    },
+    "valorTotalCentavos": 242000
+  },
+  {
+    "codigo": "P053",
     "nome": "AMIGDALECTOMIA + ADENOIDECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -641,63 +767,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P045",
-    "nome": "HERNIA ENCARCERADA SEM RESSECÇÃO + INCISIONAL",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P046",
-    "nome": "HERNIA INCISIONAL",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P047",
-    "nome": "HERNIA ENCARCERADA SEM RESSECÇÃO",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P048",
-    "nome": "HERNIA ENCARCERADA COM RESSECÇÃO",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P049",
+    "codigo": "P054",
     "nome": "LOMBOTOMIA EXPLORADORA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -711,21 +781,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P050",
-    "nome": "CERARIANA COM LAQUEADURA",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P051",
+    "codigo": "P055",
     "nome": "RECONSTRUÇÃO LCA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -739,7 +795,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P052",
+    "codigo": "P056",
     "nome": "RECONSTRUÇÃO LCA COM MENISCECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -753,21 +809,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P053",
-    "nome": "ORQUIECTOMIA",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P054",
+    "codigo": "P057",
     "nome": "HERNIA INGUINAL E UMBILICAL",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -781,7 +823,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P055",
+    "codigo": "P058",
     "nome": "ADENOIDECTOMIA + TURBINECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -795,7 +837,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P056",
+    "codigo": "P059",
     "nome": "CERCLAGEM CERVICAL",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -809,21 +851,7 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P057",
-    "nome": "ORQUIDOPEXIA UNILATERAL",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P058",
+    "codigo": "P060",
     "nome": "SEPTOPLASTIA + TURBINECTOMIA",
     "componentesCentavos": {
       "cirurgiao": 0,
@@ -837,36 +865,8 @@ export const PROCEDIMENTOS: Procedimento[] = [
     "valorTotalCentavos": 0
   },
   {
-    "codigo": "P059",
-    "nome": "HERNIA EPIGÁTRICA",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
-    "codigo": "P060",
-    "nome": "REVERSÃO DE VASECTOMIA",
-    "componentesCentavos": {
-      "cirurgiao": 0,
-      "auxiliar1": 0,
-      "auxiliar2": 0,
-      "anestesista": 0,
-      "pediatra": 0,
-      "exRnVideo": 0,
-      "taxaSala": 0
-    },
-    "valorTotalCentavos": 0
-  },
-  {
     "codigo": "P061",
-    "nome": "CONIZAÇÃO",
+    "nome": "HERNIA EPIGÁTRICA",
     "componentesCentavos": {
       "cirurgiao": 0,
       "auxiliar1": 0,
