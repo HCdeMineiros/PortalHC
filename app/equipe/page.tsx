@@ -2,13 +2,15 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
-import { BedDouble, Receipt, Briefcase, SprayCan, ArrowRight } from "lucide-react";
+import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, ArrowRight } from "lucide-react";
 
 const SETORES = [
   { chave: "internacao", nome: "Internação", desc: "Cadastros, acomodação e finalização dos atendimentos.", icon: BedDouble, redir: "/colaborador" },
   { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/colaborador" },
+  { chave: "cobranca", nome: "Cobrança", desc: "Setor de cobrança e recebimentos.", icon: CircleDollarSign, redir: "/cobranca" },
   { chave: "administrativo", nome: "Administrativo", desc: "Área administrativa do hospital.", icon: Briefcase, redir: "/administrativo" },
   { chave: "limpeza", nome: "Manutenção de limpeza", desc: "Setor de manutenção e limpeza.", icon: SprayCan, redir: "/limpeza" },
+  { chave: "gestao", nome: "Gestão do Sistema", desc: "Usuários, LGPD/DPO e configurações (acesso do gestor).", icon: Settings, redir: "/admin" },
 ];
 
 export default function AcessoEquipe() {

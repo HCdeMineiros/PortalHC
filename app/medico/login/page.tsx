@@ -28,8 +28,10 @@ export default function LoginMedico() {
   const SETOR_LABEL: Record<string, string> = {
     internacao: "Internação",
     faturamento: "Faturamento",
+    cobranca: "Cobrança",
     administrativo: "Administrativo",
     limpeza: "Manutenção de limpeza",
+    gestao: "Gestão do Sistema",
   };
   const badge = setor && SETOR_LABEL[setor]
     ? `Acesso · ${SETOR_LABEL[setor]}`
@@ -66,6 +68,7 @@ export default function LoginMedico() {
           const p = perfil?.papel;
           if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
           else if (p === "administrativo") destino = "/administrativo";
+          else if (p === "cobranca") destino = "/cobranca";
           else if (p === "limpeza") destino = "/limpeza";
         }
       }

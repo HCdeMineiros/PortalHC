@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
-const PAPEIS_VALIDOS = ["medico", "internacao", "faturamento", "admin_dpo", "administrativo", "limpeza"];
+const PAPEIS_VALIDOS = ["medico", "internacao", "faturamento", "cobranca", "admin_dpo", "administrativo", "limpeza"];
 
 /**
  * Cria um usuário (médico/colaborador) — SOMENTE admin_dpo.
