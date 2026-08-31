@@ -48,8 +48,8 @@ export async function POST(req: Request) {
   if (!PAPEIS_VALIDOS.includes(papel)) {
     return NextResponse.json({ erro: "Papel inválido." }, { status: 400 });
   }
-  if (senha.length < 8) {
-    return NextResponse.json({ erro: "A senha deve ter ao menos 8 caracteres." }, { status: 400 });
+  if (senha.length < 6) {
+    return NextResponse.json({ erro: "A senha deve ter ao menos 6 caracteres." }, { status: 400 });
   }
 
   let admin;
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
     email,
     password: senha,
     email_confirm: true,
+    app_metadata: { trocar_senha: true }, // senha provisória: obriga a trocar no 1º acesso
   });
   if (criarErr || !novo.user) {
     return NextResponse.json(

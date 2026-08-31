@@ -17,12 +17,19 @@ export default function LoginMedico() {
   const [carregando, setCarregando] = useState(false);
   const [ehMedico, setEhMedico] = useState(false);
   const [setor, setSetor] = useState("");
+  const [inatividade, setInatividade] = useState(false);
+  // troca obrigatória de senha no 1º acesso
+  const [fase, setFase] = useState<"login" | "nova">("login");
+  const [destino, setDestino] = useState("/medico");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confSenha, setConfSenha] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const redir = params.get("redir") || "";
     setEhMedico(redir.startsWith("/medico"));
     setSetor(params.get("setor") || "");
+    setInatividade(params.get("motivo") === "inatividade");
   }, []);
 
   const SETOR_LABEL: Record<string, string> = {
@@ -72,7 +79,47 @@ export default function LoginMedico() {
           else if (p === "limpeza") destino = "/limpeza";
         }
       }
+      // senha provisória → obriga a trocar antes de entrar
+      const provisoria = entrada.user?.app_metadata?.trocar_senha === true;
+      if (provisoria) {
+        setDestino(destino);
+        setFase("nova");
+        return;
+      }
       router.push(destino);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function salvarNovaSenha(e: React.FormEvent) {
+    e.preventDefault();
+    setErro("");
+    if (novaSenha.length < 6) return setErro("A nova senha deve ter ao menos 6 caracteres.");
+    if (novaSenha !== confSenha) return setErro("A confirmação da nova senha não confere.");
+    setCarregando(true);
+    try {
+      const { criarClienteBrowser } = await import("@/lib/supabase/client");
+      const { data } = await criarClienteBrowser().auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) {
+        setErro("Sessão expirada. Entre novamente.");
+        setFase("login");
+        return;
+      }
+      const resp = await fetch("/api/usuario/senha-inicial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ novaSenha }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) {
+        setErro(json?.erro || "Não foi possível trocar a senha.");
+        return;
+      }
+      router.push(destino);
+    } catch {
+      setErro("Erro de conexão. Tente novamente.");
     } finally {
       setCarregando(false);
     }
@@ -89,46 +136,88 @@ export default function LoginMedico() {
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
         <div className="hc-card hc-gold-frame hc-fade-up p-8">
           <span className="hc-badge">{badge}</span>
-          <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">
-            Entrar
-          </h1>
-          <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
-            Médicos e colaboradores. Use seu e-mail e senha; você vai direto para a sua área.
-          </p>
+          {fase === "login" ? (
+            <>
+              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Entrar</h1>
+              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+                Médicos e colaboradores. Use seu e-mail e senha; você vai direto para a sua área.
+              </p>
 
-          {!SUPABASE_CONFIGURADO && (
-            <div className="mt-5 rounded-xl border border-dashed border-[var(--hc-gold)] bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
-              Ambiente de demonstração — o login real é ativado quando o banco de dados
-              (Supabase) for conectado.
-            </div>
+              {inatividade && (
+                <div className="mt-5 rounded-xl border border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
+                  Sua sessão foi encerrada por inatividade (30 minutos). Entre novamente.
+                </div>
+              )}
+
+              {!SUPABASE_CONFIGURADO && (
+                <div className="mt-5 rounded-xl border border-dashed border-[var(--hc-gold)] bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
+                  Ambiente de demonstração — o login real é ativado quando o banco de dados
+                  (Supabase) for conectado.
+                </div>
+              )}
+
+              <form onSubmit={entrar} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">E-mail</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={ehMedico ? "medico@portalhc.com.br" : "equipe@portalhc.com.br"}
+                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</label>
+                  <CampoSenha
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                  />
+                </div>
+                {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
+                <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
+                  {carregando ? "Entrando…" : "Entrar"}
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Defina sua senha</h1>
+              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+                Primeiro acesso: crie uma nova senha (mín. 6 caracteres) para continuar.
+              </p>
+              <form onSubmit={salvarNovaSenha} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Nova senha</label>
+                  <CampoSenha
+                    value={novaSenha}
+                    onChange={(e) => setNovaSenha(e.target.value)}
+                    placeholder="Nova senha"
+                    autoComplete="new-password"
+                    autoFocus
+                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Confirmar nova senha</label>
+                  <CampoSenha
+                    value={confSenha}
+                    onChange={(e) => setConfSenha(e.target.value)}
+                    placeholder="Repita a nova senha"
+                    autoComplete="new-password"
+                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                  />
+                </div>
+                {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
+                <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
+                  {carregando ? "Salvando…" : "Salvar e entrar"}
+                </button>
+              </form>
+            </>
           )}
-
-          <form onSubmit={entrar} className="mt-6 space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">E-mail</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={ehMedico ? "medico@portalhc.com.br" : "equipe@portalhc.com.br"}
-                className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</label>
-              <CampoSenha
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
-              />
-            </div>
-            {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-            <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
-              {carregando ? "Entrando…" : "Entrar"}
-            </button>
-          </form>
         </div>
         <p className="mt-5 text-center text-xs text-[var(--hc-ink-soft)]">
           🔒 Autenticação com dois fatores (MFA) será habilitada para colaboradores.

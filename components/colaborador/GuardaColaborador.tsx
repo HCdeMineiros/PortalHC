@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+import { InatividadeLogout } from "@/components/brand/InatividadeLogout";
 
 type Estado = "checando" | "ok" | "negado";
 const PAPEIS_EQUIPE = ["internacao", "faturamento", "admin_dpo"];
@@ -39,7 +40,7 @@ export function GuardaColaborador({ children }: { children: React.ReactNode }) {
     };
   }, [router, pathname]);
 
-  if (estado === "ok") return <>{children}</>;
+  if (estado === "ok") return (<><InatividadeLogout />{children}</>);
 
   if (estado === "negado") {
     return (

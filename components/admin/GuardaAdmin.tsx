@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 import { CampoSenha } from "@/components/brand/CampoSenha";
+import { InatividadeLogout } from "@/components/brand/InatividadeLogout";
 
 type Fase = "checando" | "senha" | "ok" | "negado";
 
@@ -68,7 +69,7 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
     }
   }
 
-  if (fase === "ok") return <>{children}</>;
+  if (fase === "ok") return (<><InatividadeLogout />{children}</>);
 
   if (fase === "negado") {
     return (

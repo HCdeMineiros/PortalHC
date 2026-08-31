@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+import { InatividadeLogout } from "@/components/brand/InatividadeLogout";
 
 /**
  * Protege a Área do Médico no cliente. Como a sessão é só em memória,
@@ -29,7 +30,7 @@ export function GuardaMedico({ children }: { children: React.ReactNode }) {
     };
   }, [router, pathname]);
 
-  if (ok) return <>{children}</>;
+  if (ok) return (<><InatividadeLogout />{children}</>);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">

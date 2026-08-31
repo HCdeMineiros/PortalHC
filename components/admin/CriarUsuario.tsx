@@ -19,21 +19,25 @@ const PAPEIS: { valor: string; rotulo: string }[] = [
   { valor: "admin_dpo", rotulo: "Administrador" },
 ];
 
+function gerarSenhaProvisoria() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let s = "";
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
 export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [papel, setPapel] = useState("medico");
-  const [senha, setSenha] = useState("");
+  const [senha, setSenha] = useState(gerarSenhaProvisoria); // provisória, já preenchida
   const [erro, setErro] = useState("");
   const [ok, setOk] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [criados, setCriados] = useState<Criado[]>([]);
 
   function gerarSenha() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
-    let s = "";
-    for (let i = 0; i < 10; i++) s += chars[Math.floor(Math.random() * chars.length)];
-    setSenha(s);
+    setSenha(gerarSenhaProvisoria());
   }
 
   async function enviar(e: React.FormEvent) {
@@ -61,10 +65,10 @@ export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
       }
       const rotulo = PAPEIS.find((p) => p.valor === papel)?.rotulo || papel;
       setCriados((prev) => [{ nome, email, papel: rotulo }, ...prev]);
-      setOk(`Usuário criado! ${nome} (${email}) pode entrar com a senha definida.`);
+      setOk(`Usuário criado! Senha provisória: ${senha} — entregue a ${nome}. Ele troca no primeiro acesso.`);
       setNome("");
       setEmail("");
-      setSenha("");
+      setSenha(gerarSenhaProvisoria());
       setPapel("medico");
       onCriado?.();
     } catch {
@@ -84,7 +88,8 @@ export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
         Cadastrar médico ou colaborador
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-        Crie o acesso (e-mail + senha) e defina o papel. A pessoa entra com essas credenciais.
+        Uma senha provisória é gerada automaticamente. Entregue-a à pessoa — no primeiro acesso
+        ela será obrigada a criar a própria senha.
       </p>
 
       <form onSubmit={enviar} className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -105,10 +110,10 @@ export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</span>
+          <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha provisória</span>
           <div className="flex gap-2">
             <div className="flex-1">
-              <CampoSenha defaultVisivel value={senha} onChange={(e) => setSenha(e.target.value)} className={inputCls} placeholder="mín. 8 caracteres" autoComplete="new-password" />
+              <CampoSenha defaultVisivel value={senha} onChange={(e) => setSenha(e.target.value)} className={inputCls} placeholder="mín. 6 caracteres" autoComplete="new-password" />
             </div>
             <button type="button" onClick={gerarSenha} className="hc-btn hc-btn-ghost flex-none px-3 py-2 text-xs">
               Gerar

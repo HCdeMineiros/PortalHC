@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+import { InatividadeLogout } from "./InatividadeLogout";
 
 type Estado = "checando" | "ok" | "negado";
 
@@ -42,7 +43,7 @@ export function GuardaSetor({
     };
   }, [router, pathname, papeis]);
 
-  if (estado === "ok") return <>{children}</>;
+  if (estado === "ok") return (<><InatividadeLogout />{children}</>);
 
   if (estado === "negado") {
     return (
