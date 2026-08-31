@@ -7,7 +7,6 @@ const brl = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency"
 
 const ANESTESISTA_PCT = 0.3;
 const AUXILIAR_PCT = 0.3;
-const SALA_PCT = 0.5;
 
 function paraCentavos(v: string): number {
   const limpo = v.replace(/[^\d,.-]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
@@ -90,7 +89,6 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
   const [medicoStr, setMedicoStr] = useState("");
   const [cobrarAnestesista, setCobrarAnestesista] = useState(true);
   const [cobrarAuxiliar, setCobrarAuxiliar] = useState(true);
-  const [cobrarSala, setCobrarSala] = useState(true);
   const [tratamento, setTratamento] = useState<"clinico" | "cirurgico">("cirurgico");
   const [acomodacaoDif, setAcomodacaoDif] = useState("");
   const [erro, setErro] = useState("");
@@ -101,9 +99,8 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
     const base = paraCentavos(medicoStr);
     const anestesista = cobrarAnestesista ? Math.round(base * ANESTESISTA_PCT) : 0;
     const auxiliar = cobrarAuxiliar ? Math.round(base * AUXILIAR_PCT) : 0;
-    const sala = cobrarSala ? Math.round(base * SALA_PCT) : 0;
-    return { base, anestesista, auxiliar, sala, total: base + anestesista + auxiliar + sala };
-  }, [medicoStr, cobrarAnestesista, cobrarAuxiliar, cobrarSala]);
+    return { base, anestesista, auxiliar, total: base + anestesista + auxiliar };
+  }, [medicoStr, cobrarAnestesista, cobrarAuxiliar]);
 
   // valor de referência da acomodação por diária (as diárias são lançadas no acerto)
   const acomInfo = useMemo(() => difAcomInfo(tratamento, acomodacaoDif), [tratamento, acomodacaoDif]);
@@ -137,7 +134,6 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
           honorarioMedicoCentavos: calc.base,
           cobrarAnestesista,
           cobrarAuxiliar,
-          cobrarSala,
           tratamento,
           acomodacao: acomodacaoDif,
         }),
@@ -148,7 +144,7 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
       setCirurgiaoNome("");
       setPacienteNome(""); setPacienteCpf(""); setPacienteFicha(""); setPlanoSaude("");
       setMedicoStr("");
-      setCobrarAnestesista(true); setCobrarAuxiliar(true); setCobrarSala(true);
+      setCobrarAnestesista(true); setCobrarAuxiliar(true);
       setTratamento("cirurgico"); setAcomodacaoDif("");
       onCadastrar?.();
     } catch {
@@ -166,8 +162,8 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
       </h2>
       <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
         Para o paciente de plano (enfermaria) que sobe de acomodação pagando a diferença.
-        Informe o <strong>honorário médico</strong>; os demais são proporcionais (anestesista 30%,
-        auxiliar 30% e taxa de sala 50%) e podem ser desativados se não houver cobrança.
+        Informe o <strong>honorário médico</strong>; os demais são proporcionais (anestesista 30%
+        e auxiliar 30%) e podem ser desativados se não houver cobrança.
       </p>
 
       <form onSubmit={cadastrar} className="mt-6 space-y-6">
@@ -184,7 +180,6 @@ export function CadastrarDiferenca({ onCadastrar }: { onCadastrar?: () => void }
             </Campo>
             <ItemProporcional label="Honorário do anestesista (30%)" valor={calc.anestesista} ativo={cobrarAnestesista} onToggle={() => setCobrarAnestesista((v) => !v)} />
             <ItemProporcional label="Honorário do médico auxiliar (30%)" valor={calc.auxiliar} ativo={cobrarAuxiliar} onToggle={() => setCobrarAuxiliar((v) => !v)} />
-            <ItemProporcional label="Taxa de sala · hospital (50%)" valor={calc.sala} ativo={cobrarSala} onToggle={() => setCobrarSala((v) => !v)} />
 
             {/* Acomodação (tabela da diferença) */}
             <div className="space-y-3 border-t border-[var(--hc-line)] pt-4">

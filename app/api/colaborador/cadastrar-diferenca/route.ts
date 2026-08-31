@@ -42,11 +42,9 @@ export async function POST(req: Request) {
   const medico = cent(b?.honorarioMedicoCentavos);
   const cobrarAnestesista = b?.cobrarAnestesista !== false;
   const cobrarAuxiliar = b?.cobrarAuxiliar !== false;
-  const cobrarSala = b?.cobrarSala !== false;
   const anestesista = cobrarAnestesista ? Math.round(medico * 0.3) : 0;
   const auxiliar = cobrarAuxiliar ? Math.round(medico * 0.3) : 0;
-  const hospital = cobrarSala ? Math.round(medico * 0.5) : 0;
-  const honorarios = medico + anestesista + auxiliar + hospital;
+  const honorarios = medico + anestesista + auxiliar;
 
   // Acomodação: tratamento + acomodação são escolhidos aqui; as DIÁRIAS e o valor
   // são lançados depois, no acerto (fechamento), dentro do cadastro.
@@ -100,7 +98,7 @@ export async function POST(req: Request) {
         medico_id: null,
         status: "aguardando_paciente",
         procedimento_nome: "Diferença de acomodação",
-        componentes_centavos: { medico, anestesista, auxiliar, hospital, plano, medicoNome: cirurgiaoNome, tratamento },
+        componentes_centavos: { medico, anestesista, auxiliar, plano, medicoNome: cirurgiaoNome, tratamento },
         valor_total_centavos: honorarios,
         acomodacao: acomValida ? acomodacaoChave : null,
         acomodacao_dias: null,
