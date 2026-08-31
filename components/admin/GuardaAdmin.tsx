@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+import { CampoSenha } from "@/components/brand/CampoSenha";
 
 type Fase = "checando" | "senha" | "ok" | "negado";
 
@@ -93,12 +94,12 @@ export function GuardaAdmin({ children }: { children: React.ReactNode }) {
           </p>
           <form onSubmit={confirmar} className="mt-6 space-y-4">
             <input value={email} readOnly className="w-full rounded-xl border border-[var(--hc-line)] bg-[var(--hc-cream)] px-4 py-3 text-[var(--hc-ink-soft)]" />
-            <input
-              type="password"
+            <CampoSenha
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="Sua senha"
               autoFocus
+              autoComplete="current-password"
               className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
             />
             {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CampoSenha } from "@/components/brand/CampoSenha";
 
 interface Criado {
   nome: string;
@@ -103,7 +104,9 @@ export function CriarUsuario({ onCriado }: { onCriado?: () => void }) {
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</span>
           <div className="flex gap-2">
-            <input value={senha} onChange={(e) => setSenha(e.target.value)} className={inputCls} placeholder="mín. 8 caracteres" />
+            <div className="flex-1">
+              <CampoSenha defaultVisivel value={senha} onChange={(e) => setSenha(e.target.value)} className={inputCls} placeholder="mín. 8 caracteres" autoComplete="new-password" />
+            </div>
             <button type="button" onClick={gerarSenha} className="hc-btn hc-btn-ghost flex-none px-3 py-2 text-xs">
               Gerar
             </button>

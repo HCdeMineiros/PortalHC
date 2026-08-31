@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
+import { CampoSenha } from "@/components/brand/CampoSenha";
 
 /**
  * Menu do usuário logado no topo: mostra quem está conectado (nome, e-mail e
@@ -186,15 +187,15 @@ function FormularioTrocarSenha({ email, onFechar }: { email: string; onFechar: (
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hc-gold-deep)]">Alterar senha</p>
       <label className="block">
         <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Senha atual</span>
-        <input type="password" value={atual} onChange={(e) => setAtual(e.target.value)} className={inputCls} autoComplete="current-password" />
+        <CampoSenha value={atual} onChange={(e) => setAtual(e.target.value)} className={inputCls} autoComplete="current-password" />
       </label>
       <label className="block">
         <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Nova senha</span>
-        <input type="password" value={nova} onChange={(e) => setNova(e.target.value)} className={inputCls} autoComplete="new-password" />
+        <CampoSenha value={nova} onChange={(e) => setNova(e.target.value)} className={inputCls} autoComplete="new-password" />
       </label>
       <label className="block">
         <span className="mb-1 block text-xs text-[var(--hc-ink-soft)]">Confirmar nova senha</span>
-        <input type="password" value={conf} onChange={(e) => setConf(e.target.value)} className={inputCls} autoComplete="new-password" />
+        <CampoSenha value={conf} onChange={(e) => setConf(e.target.value)} className={inputCls} autoComplete="new-password" />
       </label>
 
       {msg && (

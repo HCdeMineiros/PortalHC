@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
 import { FundoSuave } from "@/components/brand/FundoSuave";
+import { CampoSenha } from "@/components/brand/CampoSenha";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
 export default function LoginMedico() {
@@ -95,11 +96,11 @@ export default function LoginMedico() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</label>
-              <input
-                type="password"
+              <CampoSenha
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
               />
             </div>
