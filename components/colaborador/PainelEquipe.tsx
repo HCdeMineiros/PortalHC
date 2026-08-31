@@ -6,11 +6,15 @@ import { SecaoCadastros } from "./SecaoCadastros";
 import { ListaCirurgias } from "./ListaCirurgias";
 import { PainelFaturamento } from "./PainelFaturamento";
 
-type Aba = "atendimentos" | "faturamento";
-
+/**
+ * Conteúdo da área da equipe conforme o setor (papel) de quem entrou:
+ * - Internação → cadastros + lista de atendimentos
+ * - Faturamento → finalizados/baixados
+ * - Admin/DPO → ambos
+ * O direcionamento é feito no login (tela de setores), sem abas aqui.
+ */
 export function PainelEquipe() {
-  const [papel, setPapel] = useState("");
-  const [aba, setAba] = useState<Aba>("atendimentos");
+  const [papel, setPapel] = useState<string | null>(SUPABASE_CONFIGURADO ? null : "internacao");
 
   useEffect(() => {
     if (!SUPABASE_CONFIGURADO) return;
@@ -28,38 +32,34 @@ export function PainelEquipe() {
     };
   }, []);
 
-  const podeFaturamento = papel === "faturamento" || papel === "admin_dpo";
-
-  const botao = (chave: Aba, rotulo: string) => (
-    <button
-      onClick={() => setAba(chave)}
-      className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
-        aba === chave
-          ? "bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white shadow-[0_8px_20px_-8px_rgba(160,12,34,.6)]"
-          : "border border-[var(--hc-line)] bg-white text-[var(--hc-ink-soft)] hover:border-[var(--hc-gold)]"
-      }`}
-    >
-      {rotulo}
-    </button>
-  );
-
-  return (
-    <div>
-      <div className="flex flex-wrap justify-center gap-3">
-        {botao("atendimentos", "Atendimentos")}
-        {podeFaturamento && botao("faturamento", "Faturamento")}
+  if (papel === null) {
+    return (
+      <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--hc-line)] border-t-[var(--hc-red-600)]" />
+        <p className="text-sm text-[var(--hc-ink-soft)]">Carregando…</p>
       </div>
+    );
+  }
 
-      {aba === "atendimentos" || !podeFaturamento ? (
-        <div className="mt-6 space-y-8">
-          <SecaoCadastros />
-          <ListaCirurgias />
-        </div>
-      ) : (
-        <div className="mt-6">
-          <PainelFaturamento />
-        </div>
-      )}
+  if (papel === "faturamento") {
+    return <PainelFaturamento />;
+  }
+
+  if (papel === "admin_dpo") {
+    return (
+      <div className="space-y-8">
+        <SecaoCadastros />
+        <ListaCirurgias />
+        <PainelFaturamento />
+      </div>
+    );
+  }
+
+  // Internação (padrão da equipe): atendimentos
+  return (
+    <div className="space-y-8">
+      <SecaoCadastros />
+      <ListaCirurgias />
     </div>
   );
 }

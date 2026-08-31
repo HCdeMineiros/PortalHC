@@ -16,11 +16,26 @@ export default function LoginMedico() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [ehMedico, setEhMedico] = useState(false);
+  const [setor, setSetor] = useState("");
 
   useEffect(() => {
-    const redir = new URLSearchParams(window.location.search).get("redir") || "";
+    const params = new URLSearchParams(window.location.search);
+    const redir = params.get("redir") || "";
     setEhMedico(redir.startsWith("/medico"));
+    setSetor(params.get("setor") || "");
   }, []);
+
+  const SETOR_LABEL: Record<string, string> = {
+    internacao: "Internação",
+    faturamento: "Faturamento",
+    administrativo: "Administrativo",
+    limpeza: "Manutenção de limpeza",
+  };
+  const badge = setor && SETOR_LABEL[setor]
+    ? `Acesso · ${SETOR_LABEL[setor]}`
+    : ehMedico
+      ? "Acesso do Médico · restrito"
+      : "Acesso da Equipe · restrito";
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +65,8 @@ export default function LoginMedico() {
           const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
           const p = perfil?.papel;
           if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
+          else if (p === "administrativo") destino = "/administrativo";
+          else if (p === "limpeza") destino = "/limpeza";
         }
       }
       router.push(destino);
@@ -68,7 +85,7 @@ export default function LoginMedico() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
         <div className="hc-card hc-gold-frame hc-fade-up p-8">
-          <span className="hc-badge">{ehMedico ? "Acesso do Médico · restrito" : "Acesso da Equipe · restrito"}</span>
+          <span className="hc-badge">{badge}</span>
           <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">
             Entrar
           </h1>

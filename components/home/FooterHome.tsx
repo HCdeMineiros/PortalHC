@@ -6,7 +6,7 @@ import { HOSPITAL } from "@/lib/brand";
 const PORTAL = [
   { rotulo: "Acessar como paciente", href: "/paciente/acesso" },
   { rotulo: "Área Médica", href: "/medico" },
-  { rotulo: "Acesso da Equipe", href: "/medico/login" },
+  { rotulo: "Acesso da Equipe", href: "/equipe" },
 ];
 
 // Itens institucionais ainda sem página própria → texto, não links.

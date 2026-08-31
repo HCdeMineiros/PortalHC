@@ -43,7 +43,7 @@ export function Header() {
             <span className="sm:hidden">Médico</span>
           </Link>
           <Link
-            href="/medico/login"
+            href="/equipe"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(160,12,34,.7)] transition-all hover:-translate-y-0.5 hover:brightness-105 sm:px-5"
           >
             <Building2 className="h-4 w-4" aria-hidden />

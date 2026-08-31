@@ -13,6 +13,8 @@ const PAPEIS: { valor: string; rotulo: string }[] = [
   { valor: "medico", rotulo: "Médico" },
   { valor: "internacao", rotulo: "Internação" },
   { valor: "faturamento", rotulo: "Faturamento" },
+  { valor: "administrativo", rotulo: "Administrativo" },
+  { valor: "limpeza", rotulo: "Manutenção de limpeza" },
   { valor: "admin_dpo", rotulo: "Administrador" },
 ];
 
