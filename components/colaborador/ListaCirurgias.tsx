@@ -204,7 +204,9 @@ export function ListaCirurgias() {
     return json;
   }
 
-  const filtradas = cirurgias.filter((c) => {
+  // encerrados/baixados saem da Internação e passam a viver na aba Faturamento
+  const ativas = cirurgias.filter((c) => c.status !== "encerrada");
+  const filtradas = ativas.filter((c) => {
     const q = busca.trim().toLowerCase();
     if (!q) return true;
     return (
@@ -221,7 +223,7 @@ export function ListaCirurgias() {
         <div>
           <h2 className="font-serif text-2xl font-semibold text-[var(--hc-ink)]">Cirurgias cadastradas</h2>
           <p className="text-sm text-[var(--hc-ink-soft)]">
-            {cirurgias.length} {cirurgias.length === 1 ? "lançamento" : "lançamentos"}
+            {ativas.length} {ativas.length === 1 ? "em aberto" : "em aberto"} · finalizados vão para Faturamento
           </p>
         </div>
         <button onClick={carregar} className="hc-btn hc-btn-ghost px-4 py-2 text-sm">Atualizar</button>

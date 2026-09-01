@@ -41,13 +41,27 @@ export function PainelEquipe() {
     );
   }
 
+  const intro = (titulo: string, sub: string) => (
+    <section className="hc-fade-up text-center">
+      <span className="hc-badge">Acesso da Equipe</span>
+      <h1 className="mt-5 font-serif text-4xl font-semibold text-[var(--hc-ink)] sm:text-5xl">{titulo}</h1>
+      <p className="mx-auto mt-4 max-w-2xl text-lg text-[var(--hc-ink-soft)]">{sub}</p>
+    </section>
+  );
+
   if (papel === "faturamento") {
-    return <PainelFaturamento />;
+    return (
+      <div className="space-y-8">
+        {intro("Faturamento", "Atendimentos finalizados e baixados, com impressão por período.")}
+        <PainelFaturamento />
+      </div>
+    );
   }
 
   if (papel === "admin_dpo") {
     return (
       <div className="space-y-8">
+        {intro("Internação & Faturamento", "Cadastros e acomodação, e os atendimentos finalizados no faturamento.")}
         <SecaoCadastros />
         <ListaCirurgias />
         <PainelFaturamento />
@@ -55,9 +69,10 @@ export function PainelEquipe() {
     );
   }
 
-  // Internação (padrão da equipe): atendimentos
+  // Internação (padrão da equipe): atendimentos em aberto
   return (
     <div className="space-y-8">
+      {intro("Internação", "Cadastre, lance a acomodação e finalize; o finalizado vai para o Faturamento.")}
       <SecaoCadastros />
       <ListaCirurgias />
     </div>
