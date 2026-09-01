@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { selecionarDocumentos } from "@/lib/data/documentos-solicitacao";
 
 const soDigitos = (s: string) => String(s ?? "").replace(/\D/g, "");
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -41,11 +42,16 @@ export async function POST(req: Request) {
 
   const { data: sol } = await admin
     .from("solicitacoes")
-    .select("id")
+    .select("id, tipo, procedimento_nome")
     .eq("paciente_id", pac.id)
     .eq("codigo_acesso_hash", hash(codigo))
     .maybeSingle();
   if (!sol) return generico;
+
+  // impressão digital do texto exato do documento (evidência de integridade)
+  const doc = selecionarDocumentos({ tipo: sol.tipo, procedimento_nome: sol.procedimento_nome }).find((d) => d.chave === chave);
+  const documentoHash = doc ? hash(doc.corpo.join("\n")) : null;
+  const documentoTitulo = doc?.titulo ?? null;
 
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -63,6 +69,8 @@ export async function POST(req: Request) {
       carimbo_tempo: new Date().toISOString(),
       ip,
       user_agent: userAgent,
+      documento_hash: documentoHash,
+      documento_titulo: documentoTitulo,
     },
     { onConflict: "solicitacao_id,documento_chave" },
   );

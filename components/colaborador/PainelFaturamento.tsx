@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { HOSPITAL } from "@/lib/brand";
+import { Comprovantes } from "./Comprovantes";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -260,6 +261,7 @@ export function PainelFaturamento() {
                     <p className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</p>
                   </div>
                 </div>
+                <Comprovantes solicitacaoId={c.id} />
               </li>
             );
           })}

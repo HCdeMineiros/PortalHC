@@ -5,6 +5,7 @@ import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo, DIFERENCA_ACOMO
 import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
 import { HOSPITAL } from "@/lib/brand";
 import { BotaoWhatsapp } from "@/components/brand/BotaoWhatsapp";
+import { Comprovantes } from "./Comprovantes";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -466,6 +467,7 @@ function CardCirurgia({
                   rotulo="Reenviar por WhatsApp"
                 />
               </div>
+              <Comprovantes solicitacaoId={c.id} />
             </>
           )}
         </div>
