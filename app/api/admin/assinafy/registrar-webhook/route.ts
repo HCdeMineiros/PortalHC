@@ -4,7 +4,7 @@ import { ASSINAFY_CONFIGURADO, ASSINAFY_WEBHOOK_TOKEN } from "@/lib/assinafy/env
 import { registrarWebhook } from "@/lib/assinafy/client";
 import { HOSPITAL } from "@/lib/brand";
 
-const EVENTOS = ["signer_signed_document", "document_certificated"];
+const EVENTOS = ["signer_signed_document", "document_ready"];
 
 /** Registra/atualiza o webhook da Assinafy apontando para o nosso endpoint (somente admin). */
 export async function POST(req: Request) {

@@ -56,15 +56,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const assinado = evento === "signer_signed_document";
+  const PRONTO_ASSINADO = new Set(["ready", "certificating", "certificated"]);
+  const assinado = evento === "signer_signed_document" || PRONTO_ASSINADO.has(status);
   if (assinado && row.status !== "assinado") {
     await admin.from("assinafy_docs").update({ status: "assinado", assinado_em: new Date().toISOString() }).eq("id", row.id);
   }
 
-  // quando certificado, baixa e guarda a cópia + registra o aceite
-  if (status === "certificated") {
+  // quando assinado/pronto, baixa e guarda a cópia + registra o aceite
+  if (PRONTO_ASSINADO.has(status)) {
     try {
-      const bytes = await baixarArtefato(docId, "certificated");
+      let bytes: Uint8Array | null = null;
+      for (const art of ["certificated", "pades", "original"]) {
+        try {
+          const b = await baixarArtefato(docId, art);
+          if (b && b.length) { bytes = b; break; }
+        } catch {
+          /* tenta o próximo artefato */
+        }
+      }
+      if (!bytes) return NextResponse.json({ ok: true });
+
       const path = `${row.solicitacao_id}/${row.documento_chave}.pdf`;
       await admin.storage.from(BUCKET).upload(path, bytes, { contentType: "application/pdf", upsert: true });
 
