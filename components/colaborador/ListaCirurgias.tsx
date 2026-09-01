@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ACOMODACOES, TAXA_FIXA_CIRURGICA_CENTAVOS, difAcomInfo, DIFERENCA_ACOMODACAO } from "@/lib/data/acomodacoes";
 import { FormularioEdicaoSolicitacao, podeEditar, MINUTOS_EDICAO } from "@/components/medico/FormularioEdicaoSolicitacao";
 import { HOSPITAL } from "@/lib/brand";
+import { BotaoWhatsapp } from "@/components/brand/BotaoWhatsapp";
 
 const brl = (c: number | null | undefined) =>
   ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -448,11 +449,22 @@ function CardCirurgia({
             {c.medicos?.nome ? ` · ${c.medicos.nome}` : ""}
           </p>
           {c.codigo_acesso && (
-            <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
-              Código de acesso do paciente:{" "}
-              <strong className="font-mono tracking-[0.2em] text-[var(--hc-gold-deep)]">{c.codigo_acesso}</strong>
-              <span className="ml-1 text-xs">(repasse se ele não recebeu por WhatsApp)</span>
-            </p>
+            <>
+              <p className="mt-1 text-sm text-[var(--hc-ink-soft)]">
+                Código de acesso do paciente:{" "}
+                <strong className="font-mono tracking-[0.2em] text-[var(--hc-gold-deep)]">{c.codigo_acesso}</strong>
+                <span className="ml-1 text-xs">(repasse se ele não recebeu por WhatsApp)</span>
+              </p>
+              <div className="mt-2">
+                <BotaoWhatsapp
+                  whatsapp={c.pacientes?.telefone_whatsapp}
+                  pacienteNome={c.pacientes?.nome}
+                  procedimento={c.procedimento_nome}
+                  codigo={c.codigo_acesso}
+                  rotulo="Reenviar por WhatsApp"
+                />
+              </div>
+            </>
           )}
         </div>
         <div className="text-right">

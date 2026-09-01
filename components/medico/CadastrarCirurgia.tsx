@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { BotaoWhatsapp } from "@/components/brand/BotaoWhatsapp";
 
 /** Preenchimento vindo do catálogo (escolher uma cirurgia já ativa). */
 export interface PreCirurgia {
@@ -41,6 +42,7 @@ interface CirurgiaCadastrada {
   numero: string;
   nome: string;
   pacienteNome: string;
+  pacienteWhatsapp: string;
   codigoAcesso: string;
   total: number;
   whatsappEnviado: boolean;
@@ -124,6 +126,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           numero: json.numero,
           nome: nome.trim(),
           pacienteNome: pacienteNome.trim(),
+          pacienteWhatsapp: pacienteWhats.trim(),
           codigoAcesso: json.codigo,
           total: json.total_centavos ?? calc.total,
           whatsappEnviado: !!json.whatsapp_enviado,
@@ -239,22 +242,28 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           </h3>
           <ul className="mt-3 space-y-3">
             {cadastradas.map((c) => (
-              <li key={c.numero} className="hc-card hc-gold-frame flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="font-medium text-[var(--hc-ink)]">{c.nome}</p>
-                  <p className="text-sm text-[var(--hc-ink-soft)]">
-                    {c.pacienteNome} · Solicitação <strong className="text-[var(--hc-ink)]">{c.numero}</strong>
-                  </p>
+              <li key={c.numero} className="hc-card hc-gold-frame p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-[var(--hc-ink)]">{c.nome}</p>
+                    <p className="text-sm text-[var(--hc-ink-soft)]">
+                      {c.pacienteNome} · Solicitação <strong className="text-[var(--hc-ink)]">{c.numero}</strong>
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Código de acesso do paciente</p>
+                    <p className="font-mono text-2xl font-bold tracking-[0.3em] text-[var(--hc-gold-deep)]">{c.codigoAcesso}</p>
+                    <p className="text-sm font-semibold text-[var(--hc-red-600)]">{brl(c.total)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-[11px] uppercase tracking-wide text-[var(--hc-ink-soft)]">Código de acesso do paciente</p>
-                  <p className="font-mono text-2xl font-bold tracking-[0.3em] text-[var(--hc-gold-deep)]">{c.codigoAcesso}</p>
-                  <p className="text-sm font-semibold text-[var(--hc-red-600)]">{brl(c.total)}</p>
-                  {c.whatsappEnviado ? (
-                    <p className="text-xs font-medium text-emerald-600">✓ Enviado ao WhatsApp</p>
-                  ) : (
-                    <p className="text-xs text-[var(--hc-ink-soft)]">Anote e repasse</p>
-                  )}
+                <div className="mt-3 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--hc-line)] pt-3">
+                  <BotaoWhatsapp
+                    whatsapp={c.pacienteWhatsapp}
+                    pacienteNome={c.pacienteNome}
+                    procedimento={c.nome}
+                    codigo={c.codigoAcesso}
+                    rotulo="Enviar por WhatsApp"
+                  />
                 </div>
               </li>
             ))}
