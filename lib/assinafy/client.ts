@@ -100,6 +100,24 @@ export async function criarAssignment(
   return { assignmentId: data?.id ?? null, signingUrl: url };
 }
 
+/** Consulta a assinatura de webhook atual da conta (também serve de diagnóstico de auth). */
+export async function consultarWebhook(): Promise<unknown> {
+  const resp = await fetch(`${ASSINAFY_BASE_URL}/accounts/${ASSINAFY_ACCOUNT_ID}/webhooks/subscriptions`, { headers: cab() });
+  const j = await comoJson(resp);
+  return j.data ?? null;
+}
+
+/** Registra/atualiza o webhook da conta. */
+export async function registrarWebhook(url: string, email: string, eventos: string[]): Promise<unknown> {
+  const resp = await fetch(`${ASSINAFY_BASE_URL}/accounts/${ASSINAFY_ACCOUNT_ID}/webhooks/subscriptions`, {
+    method: "PUT",
+    headers: { ...cab(), "Content-Type": "application/json" },
+    body: JSON.stringify({ url, email, events: eventos, is_active: true }),
+  });
+  const j = await comoJson(resp);
+  return j.data ?? null;
+}
+
 /** Baixa um artefato do documento (padrão: certificado/assinado). */
 export async function baixarArtefato(documentId: string, artefato = "certificated"): Promise<Uint8Array> {
   const resp = await fetch(`${ASSINAFY_BASE_URL}/documents/${documentId}/download/${artefato}`, { headers: cab() });

@@ -5,6 +5,7 @@ import { FundoSuave } from "@/components/brand/FundoSuave";
 import { BotaoSair } from "@/components/medico/BotaoSair";
 import { GuardaAdmin } from "@/components/admin/GuardaAdmin";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
+import { PainelAssinafy } from "@/components/admin/PainelAssinafy";
 
 export default function AreaAdmin() {
   return (
@@ -35,6 +36,10 @@ export default function AreaAdmin() {
 
           <div className="mt-8">
             <PainelUsuarios />
+          </div>
+
+          <div className="mt-8">
+            <PainelAssinafy />
           </div>
         </main>
       </GuardaAdmin>
