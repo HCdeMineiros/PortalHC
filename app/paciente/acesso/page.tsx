@@ -48,6 +48,9 @@ export default function AcessoPaciente() {
   const [documentos, setDocumentos] = useState<Doc[]>([]);
   const [feitos, setFeitos] = useState<Set<string>>(new Set());
   const [aberto, setAberto] = useState<Doc | null>(null);
+  const [assinafyAtivo, setAssinafyAtivo] = useState(false);
+  const [iniciados, setIniciados] = useState<Set<string>>(new Set());
+  const [recarregando, setRecarregando] = useState(false);
 
   async function acessar(e: React.FormEvent) {
     e.preventDefault();
@@ -68,11 +71,55 @@ export default function AcessoPaciente() {
       setSolicitacao(json.solicitacao);
       setDocumentos(json.documentos ?? []);
       setFeitos(new Set(json.aceites ?? []));
+      setAssinafyAtivo(!!json.assinafyAtivo);
       setFase("painel");
     } catch {
       setErro("Erro de conexão. Tente novamente.");
     } finally {
       setEntrando(false);
+    }
+  }
+
+  async function recarregar() {
+    setRecarregando(true);
+    try {
+      const resp = await fetch("/api/paciente/acessar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim() }),
+      });
+      const json = await resp.json();
+      if (resp.ok) {
+        setDocumentos(json.documentos ?? []);
+        setFeitos(new Set(json.aceites ?? []));
+        setAssinafyAtivo(!!json.assinafyAtivo);
+      }
+    } catch {
+      /* silencioso */
+    } finally {
+      setRecarregando(false);
+    }
+  }
+
+  async function iniciarAssinatura(doc: Doc) {
+    try {
+      const resp = await fetch("/api/paciente/iniciar-assinatura", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) return alert(json?.erro || "Não foi possível iniciar a assinatura.");
+      if (json.status === "assinado") {
+        setFeitos((prev) => new Set(prev).add(doc.chave));
+        return;
+      }
+      if (json.signingUrl) {
+        window.open(json.signingUrl, "_blank", "noopener,noreferrer");
+        setIniciados((prev) => new Set(prev).add(doc.chave));
+      }
+    } catch {
+      alert("Erro de conexão. Tente novamente.");
     }
   }
 
@@ -166,7 +213,12 @@ export default function AcessoPaciente() {
           <section className="mt-6">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium text-[var(--hc-ink)]">Seu progresso</span>
-              <span className="text-[var(--hc-ink-soft)]">{concluidos} de {total} concluídos</span>
+              <span className="flex items-center gap-3">
+                <span className="text-[var(--hc-ink-soft)]">{concluidos} de {total} concluídos</span>
+                <button onClick={recarregar} disabled={recarregando} className="rounded-full border border-[var(--hc-line)] bg-white px-3 py-1 text-xs font-semibold text-[var(--hc-ink)] hover:border-[var(--hc-gold)]">
+                  {recarregando ? "Atualizando…" : "↻ Atualizar"}
+                </button>
+              </span>
             </div>
             <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[var(--hc-cream-2)]">
               <div className="h-full rounded-full bg-gradient-to-r from-[var(--hc-red)] to-[var(--hc-red-700)] transition-all duration-500" style={{ width: `${total ? (concluidos / total) * 100 : 0}%` }} />
@@ -202,6 +254,15 @@ export default function AcessoPaciente() {
                     <div className="flex-none">
                       {feito ? (
                         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ {d.exigeAssinatura ? "Assinado" : "Ciente"}</span>
+                      ) : d.exigeAssinatura && assinafyAtivo ? (
+                        <div className="flex flex-col items-stretch gap-1 sm:items-end">
+                          <button onClick={() => iniciarAssinatura(d)} className="hc-btn hc-btn-primary w-full sm:w-auto">
+                            Assinar via Assinafy
+                          </button>
+                          {iniciados.has(d.chave) && (
+                            <span className="text-[11px] text-[var(--hc-gold-deep)]">Assinatura aberta em nova aba — toque em “Atualizar” após assinar.</span>
+                          )}
+                        </div>
                       ) : (
                         <button onClick={() => setAberto(d)} className="hc-btn hc-btn-primary w-full sm:w-auto">
                           {d.exigeAssinatura ? "Ler e assinar" : "Ler e dar OK"}

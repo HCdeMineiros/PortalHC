@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { selecionarDocumentos } from "@/lib/data/documentos-solicitacao";
+import { ASSINAFY_CONFIGURADO } from "@/lib/assinafy/env";
 
 const soDigitos = (s: string) => String(s ?? "").replace(/\D/g, "");
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -54,5 +55,6 @@ export async function POST(req: Request) {
     solicitacao: { ...sol, total_geral_centavos: totalGeral },
     documentos: selecionarDocumentos(sol),
     aceites,
+    assinafyAtivo: ASSINAFY_CONFIGURADO,
   });
 }
