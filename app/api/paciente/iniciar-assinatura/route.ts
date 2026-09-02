@@ -84,8 +84,8 @@ export async function POST(req: Request) {
     const signerId = await criarSignatario({ nome: pac.nome, email: pac.email, whatsapp: pac.telefone_whatsapp });
     // verificação por WhatsApp quando houver número; senão por e-mail
     const temWhats = (pac.telefone_whatsapp ?? "").replace(/\D/g, "").length >= 10;
-    const verificacao = temWhats ? "whatsapp" : pac.email ? "email" : "whatsapp";
-    const canais = verificacao === "whatsapp" ? ["whatsapp"] : ["email"];
+    const verificacao = temWhats ? "Whatsapp" : pac.email ? "Email" : "Whatsapp";
+    const canais = verificacao === "Whatsapp" ? ["Whatsapp"] : ["Email"];
     const { signingUrl } = await criarAssignment(documentId, signerId, {
       mensagem: `Assinatura do ${doc.titulo} — ${HOSPITAL.nomeCurto}`,
       verificacao,
