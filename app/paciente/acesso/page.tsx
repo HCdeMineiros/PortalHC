@@ -101,14 +101,19 @@ export default function AcessoPaciente() {
     }
   }
 
-  async function iniciarAssinatura(doc: Doc) {
+  async function iniciarAssinatura(doc: Doc, email?: string) {
     try {
       const resp = await fetch("/api/paciente/iniciar-assinatura", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave }),
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave, email }),
       });
       const json = await resp.json();
+      if (json?.precisaEmail) {
+        const em = window.prompt("Para assinar, informe o seu e-mail (você receberá o código de verificação):", email || "");
+        if (em && em.includes("@")) return iniciarAssinatura(doc, em.trim());
+        return;
+      }
       if (!resp.ok) return alert(json?.erro || "Não foi possível iniciar a assinatura.");
       if (json.status === "assinado") {
         setFeitos((prev) => new Set(prev).add(doc.chave));
