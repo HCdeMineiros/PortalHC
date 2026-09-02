@@ -83,14 +83,17 @@ export async function criarSignatario(dados: { nome: string; email?: string | nu
 export async function criarAssignment(
   documentId: string,
   signerId: string,
-  opts?: { mensagem?: string },
+  opts?: { mensagem?: string; verificacao?: string; canais?: string[] },
 ): Promise<{ assignmentId: string | null; signingUrl: string | null }> {
+  const signer: Record<string, unknown> = { id: signerId };
+  if (opts?.verificacao) signer.verification_method = opts.verificacao;
+  if (opts?.canais?.length) signer.notification_methods = opts.canais;
   const resp = await fetch(`${ASSINAFY_BASE_URL}/documents/${documentId}/assignments`, {
     method: "POST",
     headers: { ...cab(), "Content-Type": "application/json" },
     body: JSON.stringify({
       method: "virtual",
-      signers: [{ id: signerId }],
+      signers: [signer],
       ...(opts?.mensagem ? { message: opts.mensagem } : {}),
     }),
   });

@@ -82,8 +82,14 @@ export async function POST(req: Request) {
     const documentId = await uploadDocumento(pdf, nomeArq);
     await aguardarPronto(documentId);
     const signerId = await criarSignatario({ nome: pac.nome, email: pac.email, whatsapp: pac.telefone_whatsapp });
+    // verificação por WhatsApp quando houver número; senão por e-mail
+    const temWhats = (pac.telefone_whatsapp ?? "").replace(/\D/g, "").length >= 10;
+    const verificacao = temWhats ? "whatsapp" : pac.email ? "email" : "whatsapp";
+    const canais = verificacao === "whatsapp" ? ["whatsapp"] : ["email"];
     const { signingUrl } = await criarAssignment(documentId, signerId, {
       mensagem: `Assinatura do ${doc.titulo} — ${HOSPITAL.nomeCurto}`,
+      verificacao,
+      canais,
     });
 
     await admin.from("assinafy_docs").upsert(
