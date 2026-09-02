@@ -101,17 +101,17 @@ export default function AcessoPaciente() {
     }
   }
 
-  async function iniciarAssinatura(doc: Doc, email?: string) {
+  async function iniciarAssinatura(doc: Doc, opts?: { canal?: string; email?: string }) {
     try {
       const resp = await fetch("/api/paciente/iniciar-assinatura", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave, email }),
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave, canal: opts?.canal, email: opts?.email }),
       });
       const json = await resp.json();
       if (json?.precisaEmail) {
-        const em = window.prompt("Para assinar, informe o seu e-mail (você receberá o código de verificação):", email || "");
-        if (em && em.includes("@")) return iniciarAssinatura(doc, em.trim());
+        const em = window.prompt("Para assinar por e-mail, informe o seu e-mail (você receberá o código):", opts?.email || "");
+        if (em && em.includes("@")) return iniciarAssinatura(doc, { canal: "email", email: em.trim() });
         return;
       }
       if (!resp.ok) return alert(json?.erro || "Não foi possível iniciar a assinatura.");
@@ -263,6 +263,12 @@ export default function AcessoPaciente() {
                         <div className="flex flex-col items-stretch gap-1 sm:items-end">
                           <button onClick={() => iniciarAssinatura(d)} className="hc-btn hc-btn-primary w-full sm:w-auto">
                             Assinar via Assinafy
+                          </button>
+                          <button
+                            onClick={() => iniciarAssinatura(d, { canal: "email" })}
+                            className="text-[11px] text-[var(--hc-ink-soft)] underline-offset-2 hover:text-[var(--hc-red-600)] hover:underline"
+                          >
+                            Prefiro receber por e-mail
                           </button>
                           {iniciados.has(d.chave) && (
                             <span className="text-[11px] text-[var(--hc-gold-deep)]">Assinatura aberta em nova aba — toque em “Atualizar” após assinar.</span>

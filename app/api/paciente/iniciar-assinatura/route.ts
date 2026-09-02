@@ -63,15 +63,26 @@ export async function POST(req: Request) {
   if (existente?.status === "assinado") return NextResponse.json({ ok: true, status: "assinado" });
   if (existente?.signing_url) return NextResponse.json({ ok: true, status: "enviado", signingUrl: existente.signing_url });
 
-  // verificação por e-mail (plano atual): precisa de um e-mail do paciente
+  // Canal de verificação: WhatsApp (padrão) ou E-mail (opção), conforme o preenchido/escolhido.
   const emailValido = (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+  const canalPedido = String(b?.canal ?? "").toLowerCase(); // "" | "whatsapp" | "email"
+  const whats = (pac.telefone_whatsapp ?? "").replace(/\D/g, "");
+  const temWhats = whats.length >= 10;
   const emailBody = String(b?.email ?? "").trim().toLowerCase();
-  const emailUsar = pac.email && emailValido(pac.email) ? pac.email : emailValido(emailBody) ? emailBody : "";
-  if (!emailUsar) {
-    return NextResponse.json({ erro: "Para assinar, informe o seu e-mail.", precisaEmail: true }, { status: 400 });
-  }
-  if (!pac.email && emailUsar === emailBody) {
-    await admin.from("pacientes").update({ email: emailUsar }).eq("id", pac.id);
+  const emailPac = pac.email && emailValido(pac.email) ? pac.email : "";
+
+  let metodo: "Whatsapp" | "Email";
+  let emailUsar = "";
+  if (canalPedido === "email" || (!canalPedido && !temWhats)) {
+    // e-mail
+    emailUsar = emailPac || (emailValido(emailBody) ? emailBody : "");
+    if (!emailUsar) return NextResponse.json({ erro: "Para assinar por e-mail, informe o seu e-mail.", precisaEmail: true }, { status: 400 });
+    if (!pac.email && emailUsar === emailBody) await admin.from("pacientes").update({ email: emailUsar }).eq("id", pac.id);
+    metodo = "Email";
+  } else {
+    // WhatsApp (padrão)
+    if (!temWhats) return NextResponse.json({ erro: "Sem WhatsApp cadastrado. Informe um e-mail para assinar.", precisaEmail: true }, { status: 400 });
+    metodo = "Whatsapp";
   }
 
   // gera o PDF do termo
@@ -92,11 +103,15 @@ export async function POST(req: Request) {
     const nomeArq = `${sol.numero || "termo"}-${chave}`.replace(/[^\w-]/g, "");
     const documentId = await uploadDocumento(pdf, nomeArq);
     await aguardarPronto(documentId);
-    const signerId = await criarSignatario({ nome: pac.nome, email: emailUsar, whatsapp: pac.telefone_whatsapp });
+    const signerId = await criarSignatario({
+      nome: pac.nome,
+      email: emailUsar || emailPac || null,
+      whatsapp: pac.telefone_whatsapp,
+    });
     const { signingUrl } = await criarAssignment(documentId, signerId, {
       mensagem: `Assinatura do ${doc.titulo} — ${HOSPITAL.nomeCurto}`,
-      verificacao: "Email",
-      canais: ["Email"],
+      verificacao: metodo,
+      canais: [metodo],
     });
 
     await admin.from("assinafy_docs").upsert(

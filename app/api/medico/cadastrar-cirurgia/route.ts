@@ -53,6 +53,7 @@ export async function POST(req: Request) {
   const ficha = String(b?.pacienteFicha ?? "").trim();
   const nascimento = String(b?.pacienteNascimento ?? "").trim();
   const whatsapp = String(b?.pacienteWhatsapp ?? "").trim();
+  const email = String(b?.pacienteEmail ?? "").trim().toLowerCase();
   const dataPrevista = String(b?.dataPrevista ?? "").trim() || null;
 
   if (!nome) return NextResponse.json({ erro: "Informe o nome da cirurgia." }, { status: 400 });
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
     pacienteId = pac.id;
     await admin
       .from("pacientes")
-      .update({ nome: pacienteNome, ref_externa_promedico: ficha, data_nascimento: nascimento, telefone_whatsapp: whatsapp })
+      .update({ nome: pacienteNome, ref_externa_promedico: ficha, data_nascimento: nascimento, telefone_whatsapp: whatsapp, ...(email ? { email } : {}) })
       .eq("id", pacienteId);
   } else {
     const { data: novoPac, error: pacErr } = await admin
@@ -110,6 +111,7 @@ export async function POST(req: Request) {
         ref_externa_promedico: ficha,
         data_nascimento: nascimento,
         telefone_whatsapp: whatsapp,
+        ...(email ? { email } : {}),
         criado_por: auth.user.id,
       })
       .select("id")

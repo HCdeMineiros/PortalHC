@@ -59,6 +59,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
   const [pacienteNascimento, setPacienteNascimento] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
+  const [pacienteEmail, setPacienteEmail] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [cadastradas, setCadastradas] = useState<CirurgiaCadastrada[]>([]);
@@ -114,6 +115,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
+          pacienteEmail: pacienteEmail.trim(),
         }),
       });
       const json = await resp.json();
@@ -143,6 +145,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
       setPacienteNascimento("");
       setPacienteFicha("");
       setPacienteWhats("");
+      setPacienteEmail("");
       onCadastrar?.();
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -208,6 +211,9 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
               </Campo>
               <Campo label="WhatsApp">
                 <input value={pacienteWhats} onChange={(e) => setPacienteWhats(e.target.value)} placeholder="(64) 9xxxx-xxxx" className={inputCls} />
+              </Campo>
+              <Campo label="E-mail (opcional)">
+                <input type="email" value={pacienteEmail} onChange={(e) => setPacienteEmail(e.target.value)} placeholder="para assinar por e-mail" className={inputCls} />
               </Campo>
             </div>
           </div>
