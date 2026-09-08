@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     const { signingUrl } = await criarAssignment(documentId, signerId, {
       mensagem: `Assinatura do ${doc.titulo} — ${HOSPITAL.nomeCurto}`,
       verificacao: metodo,
-      canais: [metodo],
+      canais: [], // Assinafy NÃO notifica — nós entregamos o link (sem custo de envio)
     });
 
     await admin.from("assinafy_docs").upsert(

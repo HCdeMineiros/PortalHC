@@ -87,7 +87,8 @@ export async function criarAssignment(
 ): Promise<{ assignmentId: string | null; signingUrl: string | null }> {
   const signer: Record<string, unknown> = { id: signerId };
   if (opts?.verificacao) signer.verification_method = opts.verificacao;
-  if (opts?.canais?.length) signer.notification_methods = opts.canais;
+  // sempre explícito: [] = Assinafy NÃO envia notificação (nós entregamos o link)
+  signer.notification_methods = opts?.canais ?? [];
   const resp = await fetch(`${ASSINAFY_BASE_URL}/documents/${documentId}/assignments`, {
     method: "POST",
     headers: { ...cab(), "Content-Type": "application/json" },
