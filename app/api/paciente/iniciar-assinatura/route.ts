@@ -6,6 +6,7 @@ import { selecionarDocumentos } from "@/lib/data/documentos-solicitacao";
 import { gerarTermoPdf } from "@/lib/pdf/termo";
 import { ASSINAFY_CONFIGURADO } from "@/lib/assinafy/env";
 import { uploadDocumento, aguardarPronto, criarSignatario, criarAssignment } from "@/lib/assinafy/client";
+import { enviarLinkAssinaturaWhatsapp } from "@/lib/notifications/whatsapp";
 import { HOSPITAL } from "@/lib/brand";
 
 const soDigitos = (s: string) => String(s ?? "").replace(/\D/g, "");
@@ -126,7 +127,13 @@ export async function POST(req: Request) {
     );
 
     if (!signingUrl) return NextResponse.json({ erro: "Não foi possível obter o link de assinatura." }, { status: 502 });
-    return NextResponse.json({ ok: true, status: "enviado", signingUrl });
+
+    // entrega o link pelo NOSSO WhatsApp (via n8n). No-op se n8n não configurado.
+    const zap = temWhats
+      ? await enviarLinkAssinaturaWhatsapp({ whatsapp: whats, pacienteNome: pac.nome, documentoTitulo: doc.titulo, signingUrl })
+      : { enviado: false };
+
+    return NextResponse.json({ ok: true, status: "enviado", signingUrl, whatsappEnviado: zap.enviado });
   } catch (e) {
     return NextResponse.json({ erro: e instanceof Error ? e.message : "Falha na Assinafy." }, { status: 502 });
   }
