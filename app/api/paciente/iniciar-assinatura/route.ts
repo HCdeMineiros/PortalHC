@@ -73,16 +73,15 @@ export async function POST(req: Request) {
 
   let metodo: "Whatsapp" | "Email";
   let emailUsar = "";
-  if (canalPedido === "email" || (!canalPedido && !temWhats)) {
-    // e-mail
+  if (canalPedido === "whatsapp" && temWhats) {
+    // WhatsApp da Assinafy (consome crédito) — só quando pedido explicitamente
+    metodo = "Whatsapp";
+  } else {
+    // padrão: verificação por e-mail (grátis)
     emailUsar = emailPac || (emailValido(emailBody) ? emailBody : "");
-    if (!emailUsar) return NextResponse.json({ erro: "Para assinar por e-mail, informe o seu e-mail.", precisaEmail: true }, { status: 400 });
+    if (!emailUsar) return NextResponse.json({ erro: "Para assinar, informe o seu e-mail.", precisaEmail: true }, { status: 400 });
     if (!pac.email && emailUsar === emailBody) await admin.from("pacientes").update({ email: emailUsar }).eq("id", pac.id);
     metodo = "Email";
-  } else {
-    // WhatsApp (padrão)
-    if (!temWhats) return NextResponse.json({ erro: "Sem WhatsApp cadastrado. Informe um e-mail para assinar.", precisaEmail: true }, { status: 400 });
-    metodo = "Whatsapp";
   }
 
   // gera o PDF do termo

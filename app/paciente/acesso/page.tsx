@@ -261,14 +261,14 @@ export default function AcessoPaciente() {
                         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ {d.exigeAssinatura ? "Assinado" : "Ciente"}</span>
                       ) : d.exigeAssinatura && assinafyAtivo ? (
                         <div className="flex flex-col items-stretch gap-1 sm:items-end">
-                          <button onClick={() => iniciarAssinatura(d)} className="hc-btn hc-btn-primary w-full sm:w-auto">
-                            Assinar via Assinafy
+                          <button onClick={() => iniciarAssinatura(d, { canal: "email" })} className="hc-btn hc-btn-primary w-full sm:w-auto">
+                            Assinar (link por e-mail)
                           </button>
                           <button
-                            onClick={() => iniciarAssinatura(d, { canal: "email" })}
+                            onClick={() => iniciarAssinatura(d, { canal: "whatsapp" })}
                             className="text-[11px] text-[var(--hc-ink-soft)] underline-offset-2 hover:text-[var(--hc-red-600)] hover:underline"
                           >
-                            Prefiro receber por e-mail
+                            Prefiro receber por WhatsApp
                           </button>
                           {iniciados.has(d.chave) && (
                             <span className="text-[11px] text-[var(--hc-gold-deep)]">Assinatura aberta em nova aba — toque em “Atualizar” após assinar.</span>
