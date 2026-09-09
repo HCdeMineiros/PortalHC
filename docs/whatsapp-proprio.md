@@ -1,109 +1,67 @@
-# Nosso WhatsApp (número do hospital) — guia de configuração
+# Nosso WhatsApp (número do hospital) — estado e guia
 
-Sistema de envio de WhatsApp pelo número **(64) 99928-2850**, dedicado ao Portal HC,
-usando a **WhatsApp Cloud API oficial (Meta)** com o **n8n** como ponte.
+Envio de WhatsApp pelo número dedicado do hospital **(64) 99928-2850**, via
+**WhatsApp Cloud API oficial (Meta)**, chamada **direto** pelo backend do Portal HC
+(decidimos **não usar n8n**).
 
-O código do Portal HC já está pronto: ele só chama o webhook do n8n com o que enviar.
-Falta configurar (1) a Meta e (2) o fluxo no n8n, e (3) as variáveis no Vercel.
-
-## Como funciona (visão geral)
+## Como vai funcionar
 
 ```
-Portal HC  --(webhook)-->  n8n  --(Cloud API)-->  WhatsApp do paciente
+Portal HC (backend)  --HTTPS-->  graph.facebook.com (Cloud API)  -->  WhatsApp do paciente
 ```
 
-O Portal manda ao n8n um JSON simples, por exemplo:
+O Portal HC faz um POST para `https://graph.facebook.com/<versao>/<PHONE_NUMBER_ID>/messages`
+com `Authorization: Bearer <TOKEN_PERMANENTE>`, enviando um **modelo (template) aprovado**.
 
-```json
-{ "tipo": "codigo_acesso_paciente", "whatsapp": "5564999999999",
-  "paciente_nome": "Maria", "codigo": "123456", "numero": "2026-001",
-  "procedimento": "Colecistectomia", "link": "https://www.portalhc.com.br/paciente/acesso" }
-```
+## Dados já configurados na Meta (2026-09-09)
 
-e
+- Conta dona: Facebook do hospital **hcdemineiros@gmail.com**
+- Portfólio empresarial: **Hospital das Clínicas de Mineiros** — id `1348549214028511`
+- App (developers.facebook.com): **Portal HC Mensagens** (tipo Business, caso de uso "Conectar-se com clientes pelo WhatsApp")
+- **WABA real** id: `1054409917211110`
+- **Número real** (64) 99928-2850 → **Phone Number ID: `1262219976983322`** (status: *Não registrado*)
+- Número de **teste** grátis: +1 555 677-8907 (Phone Number ID `1230477020157354`) — já testado, entrega OK
+- Razão social: **Hospital das Clínicas de Mineiros Ltda** — CNPJ **37.412.400/0001-14**
 
-```json
-{ "tipo": "link_assinatura", "whatsapp": "5564999999999",
-  "paciente_nome": "Maria", "documento_titulo": "Termo de Consentimento",
-  "signing_url": "https://..." }
-```
+## Status atual
 
-O n8n monta a mensagem e envia pela Cloud API.
-
-## Passo 1 — Meta (WhatsApp Cloud API)
-
-> Feito uma vez. Depois é só usar.
-
-1. Acesse **business.facebook.com** e crie/entre no **Meta Business** do hospital.
-2. Verifique a empresa (CNPJ) em *Configurações do negócio → Central de Segurança*.
-   (Pode levar alguns dias; é normal.)
-3. Em **developers.facebook.com** → *Criar aplicativo* → tipo **Business** → adicione o
-   produto **WhatsApp**.
-4. Em *WhatsApp → Configuração da API*:
-   - **Adicionar número de telefone** → cadastre **(64) 99928-2850**.
-     ⚠️ Esse número **deixa de funcionar no app normal** do WhatsApp — ele passa a ser
-     da plataforma. (Já combinado: é dedicado só ao sistema.)
-   - Confirme o código por SMS/ligação.
-5. Crie um **modelo de mensagem** (Message Template) para cada tipo. Ex.:
-   - Nome: `codigo_acesso` — categoria **Utility** — corpo:
-     `Olá {{1}}! Seus documentos do procedimento {{2}} no HC de Mineiros estão prontos. Acesse {{3}} e use o código {{4}}.`
-   - Nome: `link_assinatura` — categoria **Utility** — corpo:
-     `Olá {{1}}! Para assinar o {{2}}, acesse: {{3}}`
-   - Aprovação costuma sair em minutos/horas.
-6. Anote (para colocar no n8n, **não no chat**):
-   - **Phone Number ID** e **WhatsApp Business Account ID**
-   - **Token permanente** (gere um *System User token* com permissão `whatsapp_business_messaging`)
-
-## Passo 2 — n8n (a ponte)
-
-1. Crie um workflow novo com um nó **Webhook** (método POST). Copie a **URL de produção**.
-2. Proteja com um segredo: no nó Webhook, exija o header `x-webhook-secret`
-   (ou compare `{{$json.headers['x-webhook-secret']}}` num nó IF).
-3. Um nó **Switch** pelo campo `{{$json.body.tipo}}`:
-   - `codigo_acesso_paciente` → usa o template `codigo_acesso`
-   - `link_assinatura` → usa o template `link_assinatura`
-4. Nó **HTTP Request** (POST) para a Cloud API:
-   - URL: `https://graph.facebook.com/v21.0/<PHONE_NUMBER_ID>/messages`
-   - Header: `Authorization: Bearer <TOKEN_PERMANENTE>`
-   - Body (JSON), exemplo para o código de acesso:
-     ```json
-     {
-       "messaging_product": "whatsapp",
-       "to": "={{$json.body.whatsapp}}",
-       "type": "template",
-       "template": {
-         "name": "codigo_acesso",
-         "language": { "code": "pt_BR" },
-         "components": [{ "type": "body", "parameters": [
-           { "type": "text", "text": "={{$json.body.paciente_nome}}" },
-           { "type": "text", "text": "={{$json.body.procedimento}}" },
-           { "type": "text", "text": "={{$json.body.link}}" },
-           { "type": "text", "text": "={{$json.body.codigo}}" }
-         ]}]
-       }
-     }
-     ```
-5. Ative o workflow.
-
-## Passo 3 — Vercel (variáveis)
-
-No projeto `portal-hc` → *Settings → Environment Variables*, adicione:
-
-| Variável | Valor |
+| Item | Situação |
 |---|---|
-| `N8N_WEBHOOK_URL` | a URL de produção do webhook do n8n |
-| `N8N_WEBHOOK_SECRET` | o mesmo segredo do passo 2.2 |
-| `NEXT_PUBLIC_APP_URL` | `https://www.portalhc.com.br` |
+| Pagamento (cartão) | ✅ adicionado |
+| Verificação do CNPJ | ⏳ **Em processamento** (aguardando Meta) |
+| Template `codigo_acesso` (Utilidade) | ⏳ **Em análise** — aviso + link (sem código) |
+| Registrar número real | 🔒 bloqueado até a verificação aprovar |
+| Template do código (Autenticação) | 🔒 bloqueado até a verificação aprovar |
 
-Depois faça um **Redeploy** para as variáveis valerem.
+> A Meta força mensagens que contêm um código para a categoria **Autenticação**
+> (formato rígido, sem link). Por isso o `codigo_acesso` (Utilidade) leva só o aviso +
+> link, e o **código** irá num segundo template de **Autenticação** (`codigo_acesso_hc`,
+> opção "Copiar código", sem expiração), a ser criado quando a conta liberar.
 
-## Teste
+## Templates
 
-1. Cadastre uma cirurgia de teste com um WhatsApp seu.
-2. Você deve receber a mensagem com código + link.
-3. Acesse o portal, inicie a assinatura → deve chegar o link de assinatura.
+**1) `codigo_acesso`** — Utilidade, pt_BR (Em análise)
+Corpo (variáveis: {{1}}=nome, {{2}}=procedimento):
+> Olá {{1}}! Seus documentos do procedimento {{2}} no Hospital das Clínicas de Mineiros já estão disponíveis para leitura e assinatura. Acesse o portal do paciente em www.portalhc.com.br/paciente/acesso. Em caso de dúvidas, procure a recepção do hospital.
 
-## Custo
+**2) `codigo_acesso_hc`** — Autenticação, "Copiar código", sem expiração (a criar)
+Entrega o código de acesso ({{1}} = código). Texto é padrão da Meta.
 
-Cloud API oficial: **1.000 conversas de serviço/mês grátis**. Acima disso, centavos por
-conversa. Para o volume de termos do hospital, tende a ficar dentro do grátis.
+## Retomar quando a Meta aprovar o CNPJ
+
+1. **Registrar o número real**: no app → Etapa 2 → "Registrar" (criar PIN de 6 dígitos — guardar — + código SMS no (64) 99928-2850). Status vira registrado/ativo.
+2. **Criar o template de Autenticação** `codigo_acesso_hc` (Copiar código, sem expiração).
+3. **Gerar um token permanente**: Business Settings → Usuários → **Usuário do sistema** → criar, dar acesso ao App "Portal HC Mensagens" e ao WABA, gerar token com permissões **whatsapp_business_messaging** + **whatsapp_business_management**. (Guardar com segurança — nunca no chat.)
+4. **Reescrever** `lib/notifications/whatsapp.ts` para POST direto em graph.facebook.com (remover a dependência de n8n).
+5. **Vercel → Environment Variables** e depois Redeploy:
+   - `WHATSAPP_TOKEN` = token permanente
+   - `WHATSAPP_PHONE_NUMBER_ID` = `1262219976983322`
+   - `WHATSAPP_API_VERSION` = `v21.0`
+   - `NEXT_PUBLIC_APP_URL` = `https://www.portalhc.com.br`
+6. **Testar** ponta a ponta: cadastrar cirurgia de teste com WhatsApp → paciente recebe aviso+link (e código, quando o 2º template estiver aprovado).
+
+## Observações
+
+- Restrição de **anúncios** no portfólio = irrelevante (não vamos anunciar).
+- Custo: **1.000 conversas de serviço/mês grátis**; cobre o volume do hospital.
+- `lib/notifications/whatsapp.ts` **ainda aponta para o n8n** — será reescrito no passo 4.
