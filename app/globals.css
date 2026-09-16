@@ -271,6 +271,45 @@ body {
 }
 .hcx-btn-ghost-d:hover { border-color: var(--hc-cyan); }
 
+/* ============================================================
+   .hc-dark — reaproveita os componentes hc-* no tema escuro.
+   Redefine os tokens: creme→azul, tinta→claro, linhas→escuras,
+   dourado→ciano. Assim cards/botões/selos/inputs já existentes
+   viram escuros sem reescrever cada componente.
+   ============================================================ */
+.hc-dark {
+  --hc-cream:     var(--hc-navy-1);
+  --hc-cream-2:   var(--hc-navy-2);
+  --hc-white:     var(--hc-surface);
+  --hc-ink:       var(--hc-navy-ink);
+  --hc-ink-soft:  var(--hc-navy-soft);
+  --hc-line:      var(--hc-navy-line);
+  --hc-gold:      var(--hc-cyan);
+  --hc-gold-soft: var(--hc-cyan-soft);
+  --hc-gold-deep: var(--hc-cyan-soft);
+  --hc-red-050:   rgba(225,29,42,.16);
+  color: var(--hc-navy-ink);
+}
+/* campos de formulário legíveis no escuro */
+.hc-dark input,
+.hc-dark textarea,
+.hc-dark select { color: var(--hc-navy-ink); }
+.hc-dark input::placeholder,
+.hc-dark textarea::placeholder { color: var(--hc-navy-dim); }
+.hc-dark input[type="date"],
+.hc-dark input[type="time"],
+.hc-dark input[type="datetime-local"] { color-scheme: dark; }
+.hc-dark option { color: #0b1320; }
+/* fundos brancos fixos → superfície escura */
+.hc-dark .bg-white { background-color: var(--hc-surface) !important; }
+.hc-dark .bg-emerald-50 { background-color: rgba(52,211,153,.15) !important; }
+/* selo hc-badge no escuro (evita fundo pálido) */
+.hc-dark .hc-badge {
+  color: var(--hc-cyan);
+  background: rgba(56,224,198,.12);
+  border-color: rgba(56,224,198,.30);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hcx-fade { animation: none; opacity: 1; transform: none; }
 }
