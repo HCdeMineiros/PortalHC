@@ -182,6 +182,14 @@ export default function LoginMedico() {
                   {carregando ? "Entrando…" : "Entrar"}
                 </button>
               </form>
+              <div className="mt-4 text-center">
+                <Link
+                  href="/recuperar-senha"
+                  className="text-sm text-[var(--hc-ink-soft)] underline-offset-2 hover:text-[var(--hc-red-600)] hover:underline"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
             </>
           ) : (
             <>
