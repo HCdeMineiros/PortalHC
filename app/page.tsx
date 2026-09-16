@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/home/Header";
 import { HeroSection } from "@/components/home/HeroSection";
-import { TrustBar } from "@/components/home/TrustBar";
-import { InfoCarousel } from "@/components/home/InfoCarousel";
+import { CardsRecursos } from "@/components/home/CardsRecursos";
+import { FaixaRecursos } from "@/components/home/FaixaRecursos";
+import { ComoFunciona } from "@/components/home/ComoFunciona";
 import { FooterHome } from "@/components/home/FooterHome";
 
 export const metadata: Metadata = {
@@ -13,10 +14,11 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-hc-navy-1">
         <HeroSection />
-        <TrustBar />
-        <InfoCarousel />
+        <CardsRecursos />
+        <FaixaRecursos />
+        <ComoFunciona />
       </main>
       <FooterHome />
     </>

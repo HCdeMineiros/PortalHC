@@ -9,6 +9,7 @@ export const HOSPITAL = {
   cidade: "Mineiros-GO",
   endereco: "Rua Elias Carrijo Machado, Qd 02, Lt 01 — Bairro Machado",
   cep: "75830-144",
+  cnpj: "37.412.400/0001-14",
   telefones: ["(64) 3672-7282", "(64) 99959-1986"],
   dominio: "www.portalhc.com.br",
   logo: "/brand/logo-hc.png",

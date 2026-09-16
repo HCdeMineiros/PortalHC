@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Inter, Cormorant_Garamond, Sora } from "next/font/google";
 import "./globals.css";
 import { HOSPITAL } from "@/lib/brand";
 
@@ -12,6 +12,13 @@ const sans = Inter({
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
   weight: ["500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const display = Sora({
+  variable: "--font-display",
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -41,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${sans.variable} ${serif.variable} h-full antialiased`}
+      className={`${sans.variable} ${serif.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

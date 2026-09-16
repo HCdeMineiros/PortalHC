@@ -31,6 +31,19 @@
   --radius: 16px;
   --shadow-luxe: 0 1px 2px rgba(26,22,22,.04), 0 12px 30px -12px rgba(26,22,22,.18);
   --shadow-card: 0 1px 2px rgba(26,22,22,.05), 0 20px 40px -24px rgba(160,12,34,.22);
+
+  /* Home moderna — azul petróleo + ciano (só a landing pública usa) */
+  --hc-navy-0:  #07131F;   /* rodapé / mais escuro */
+  --hc-navy-1:  #0A1A29;   /* base do hero */
+  --hc-navy-2:  #0C1F30;   /* faixas/seções */
+  --hc-surface: #122A3E;   /* cartões */
+  --hc-cyan:      #38E0C6; /* acento ciano luminoso */
+  --hc-cyan-soft: #7CEBD8;
+  --hc-cyan-ink:  #052620; /* texto sobre o ciano */
+  --hc-navy-ink:  #EAF3F6; /* texto claro no escuro */
+  --hc-navy-soft: #9BB2C2; /* texto secundário no escuro */
+  --hc-navy-dim:  #6E869A;
+  --hc-navy-line: rgba(255,255,255,.09);
 }
 
 @theme inline {
@@ -46,8 +59,17 @@
   --color-hc-ink-soft: var(--hc-ink-soft);
   --color-hc-cream: var(--hc-cream);
   --color-hc-line: var(--hc-line);
+  --color-hc-navy-0: var(--hc-navy-0);
+  --color-hc-navy-1: var(--hc-navy-1);
+  --color-hc-navy-2: var(--hc-navy-2);
+  --color-hc-surface: var(--hc-surface);
+  --color-hc-cyan: var(--hc-cyan);
+  --color-hc-cyan-soft: var(--hc-cyan-soft);
+  --color-hc-navy-ink: var(--hc-navy-ink);
+  --color-hc-navy-soft: var(--hc-navy-soft);
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 * { border-color: var(--hc-line); }
@@ -182,3 +204,31 @@ body {
 
 @keyframes hc-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .hc-fade-up { animation: hc-fade-up .5s ease both; }
+
+/* ============================================================
+   Home moderna (landing pública) — utilitários
+   ============================================================ */
+.font-display { font-family: var(--font-display), var(--font-sans), system-ui, sans-serif; }
+
+/* Degradê do hero: escurece à esquerda p/ leitura, revela a foto à direita */
+.hcx-hero-grad {
+  background:
+    linear-gradient(90deg, var(--hc-navy-1) 30%, rgba(10,26,41,.86) 46%, rgba(10,26,41,.30) 66%, rgba(10,26,41,.55) 100%),
+    linear-gradient(0deg, rgba(7,19,31,.85) 0%, rgba(7,19,31,0) 32%);
+}
+@media (max-width: 820px) {
+  .hcx-hero-grad {
+    background:
+      linear-gradient(180deg, rgba(10,26,41,.72) 0%, rgba(10,26,41,.88) 58%, var(--hc-navy-1) 100%),
+      linear-gradient(90deg, rgba(7,19,31,.5), rgba(7,19,31,.2));
+  }
+}
+
+.hcx-fade { opacity: 0; transform: translateY(12px); animation: hc-fade-up .6s ease forwards; }
+.hcx-fade.d1 { animation-delay: .06s; }
+.hcx-fade.d2 { animation-delay: .12s; }
+.hcx-fade.d3 { animation-delay: .18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hcx-fade { animation: none; opacity: 1; transform: none; }
+}
