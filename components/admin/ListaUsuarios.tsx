@@ -31,6 +31,7 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [excluindo, setExcluindo] = useState<string | null>(null);
+  const [resetando, setResetando] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
 
   const carregar = useCallback(async () => {
@@ -73,6 +74,34 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
       setErro("Erro de conexão.");
     } finally {
       setExcluindo(null);
+    }
+  }
+
+  async function redefinirSenha(u: Usuario) {
+    const nova = window.prompt(`Nova senha para ${u.nome} (mínimo 6 caracteres):`, "");
+    if (nova === null) return; // cancelou
+    if (nova.trim().length < 6) {
+      alert("A senha deve ter ao menos 6 caracteres.");
+      return;
+    }
+    setResetando(u.id);
+    setErro("");
+    try {
+      const { criarClienteBrowser } = await import("@/lib/supabase/client");
+      const { data } = await criarClienteBrowser().auth.getSession();
+      const token = data.session?.access_token;
+      const resp = await fetch("/api/admin/redefinir-senha-usuario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: u.id, novaSenha: nova.trim() }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) setErro(json?.erro || "Falha ao redefinir a senha.");
+      else alert(`Senha redefinida! Entregue a ${u.nome}:\n\nE-mail: ${u.email}\nSenha: ${nova.trim()}\n\nEla será trocada no próximo acesso.`);
+    } catch {
+      setErro("Erro de conexão.");
+    } finally {
+      setResetando(null);
     }
   }
 
@@ -124,11 +153,18 @@ export function ListaUsuarios({ refreshKey }: { refreshKey: number }) {
                 <p className="font-medium text-[var(--hc-ink)]">{u.nome}</p>
                 <p className="text-sm text-[var(--hc-ink-soft)]">{u.email}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <span className="hc-badge">{rotuloPapel(u)}</span>
+                <button
+                  onClick={() => redefinirSenha(u)}
+                  disabled={resetando === u.id}
+                  className="rounded-full border border-[var(--hc-line)] px-3 py-1.5 text-sm text-[var(--hc-ink)] transition-colors hover:border-[var(--hc-gold)] hover:bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] disabled:opacity-50"
+                >
+                  {resetando === u.id ? "Redefinindo…" : "Redefinir senha"}
+                </button>
                 {u.protegido ? (
                   <span className="inline-flex items-center gap-1 rounded-full border border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] px-3 py-1.5 text-sm text-[var(--hc-gold-deep)]">
-                    🔒 DPO protegido
+                    🔒 DPO
                   </span>
                 ) : (
                   <button
