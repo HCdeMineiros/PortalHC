@@ -313,7 +313,3 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .hcx-fade { animation: none; opacity: 1; transform: none; }
 }
-
-/* "Como funciona": oculto por padrão; aparece ao clicar em "Conheça o portal" (#como-funciona) */
-#como-funciona { display: none; }
-#como-funciona:target { display: block; animation: hc-fade-up .5s ease both; }

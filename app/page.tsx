@@ -3,7 +3,6 @@ import { Header } from "@/components/home/Header";
 import { HeroSection } from "@/components/home/HeroSection";
 import { CardsRecursos } from "@/components/home/CardsRecursos";
 import { FaixaRecursos } from "@/components/home/FaixaRecursos";
-import { ComoFunciona } from "@/components/home/ComoFunciona";
 import { FooterHome } from "@/components/home/FooterHome";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default function Home() {
         <HeroSection />
         <CardsRecursos />
         <FaixaRecursos />
-        <ComoFunciona />
       </main>
       <FooterHome />
     </>

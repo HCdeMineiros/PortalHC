@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-/** Proporção da arte composta "PORTAL HC" dourada (1473 × 410). */
-const RATIO = 1473 / 410;
+/** Proporção da arte "portalhc" (2058 × 764). */
+const RATIO = 2058 / 764;
 
 export function Logo({
   height = 50,
@@ -9,20 +9,29 @@ export function Logo({
 }: {
   /** altura em px; a largura é calculada pela proporção da arte */
   height?: number;
-  /** "dark" = texto escuro (fundo claro) · "light" = texto creme (fundo escuro) */
+  /** "dark" = logo sobre fundo claro · "light" = logo sobre fundo escuro (em plaqueta branca) */
   variant?: "dark" | "light";
 }) {
-  const src =
-    variant === "light" ? "/brand/logo-portal-hc-light.png" : "/brand/logo-portal-hc.png";
-  return (
+  // No fundo escuro o logo (texto escuro) vai numa plaqueta branca para legibilidade.
+  const h = variant === "light" ? Math.min(height, 44) : height;
+  const img = (
     <Image
-      src={src}
+      src="/brand/portalhc-logo.png"
       alt="Portal HC — Hospital das Clínicas de Mineiros"
-      width={Math.round(height * RATIO)}
-      height={height}
+      width={Math.round(h * RATIO)}
+      height={h}
       priority
-      className={`select-none ${variant === "light" ? "drop-shadow-[0_2px_10px_rgba(0,0,0,.35)]" : ""}`}
-      style={{ height, width: "auto" }}
+      className="select-none"
+      style={{ height: h, width: "auto" }}
     />
   );
+
+  if (variant === "light") {
+    return (
+      <span className="inline-flex items-center rounded-xl bg-white px-3 py-1.5 shadow-[0_4px_16px_-6px_rgba(0,0,0,.4)]">
+        {img}
+      </span>
+    );
+  }
+  return img;
 }

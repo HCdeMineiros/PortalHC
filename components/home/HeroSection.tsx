@@ -45,12 +45,12 @@ export function HeroSection() {
           >
             Acessar como paciente <span aria-hidden>↗</span>
           </Link>
-          <a
-            href="#como-funciona"
+          <Link
+            href="/portal"
             className="inline-flex items-center gap-1 text-[.98rem] font-semibold text-hc-navy-ink/90 transition-colors hover:text-hc-cyan"
           >
-            Conheça o portal <span aria-hidden>↓</span>
-          </a>
+            Conheça o portal <span aria-hidden>→</span>
+          </Link>
         </div>
       </div>
 

@@ -7,21 +7,21 @@ const CARDS = [
     titulo: "Seus documentos",
     texto: "Acesse os documentos do seu atendimento em um só lugar.",
     rotulo: "Organização e praticidade",
-    href: "/paciente/acesso",
+    href: "/portal/documentos",
   },
   {
     icon: PenLine,
     titulo: "Assinatura eletrônica",
     texto: "Leia com calma e assine seus documentos pelo portal.",
     rotulo: "Tudo no seu tempo",
-    href: "/paciente/acesso",
+    href: "/portal/assinatura",
   },
   {
     icon: Workflow,
     titulo: "Cada etapa, mais clara",
     texto: "Acompanhe as etapas do seu atendimento de forma simples.",
     rotulo: "Do início à conclusão",
-    href: "/paciente/acesso",
+    href: "/portal/etapas",
   },
 ];
 
@@ -29,7 +29,7 @@ const CARDS = [
 export function CardsRecursos() {
   return (
     <section className="bg-hc-navy-1">
-      <div className="mx-auto -mt-6 grid w-full max-w-6xl gap-4 px-6 pb-14 sm:grid-cols-2 md:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-6xl gap-4 px-6 pb-16 pt-10 sm:grid-cols-2 md:grid-cols-3">
         {CARDS.map((c) => {
           const Icon = c.icon;
           return (
