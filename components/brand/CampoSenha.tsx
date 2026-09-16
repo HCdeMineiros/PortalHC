@@ -10,9 +10,14 @@ import { Eye, EyeOff } from "lucide-react";
 export function CampoSenha({
   className = "",
   defaultVisivel = false,
+  tone = "claro",
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { defaultVisivel?: boolean }) {
+}: React.InputHTMLAttributes<HTMLInputElement> & { defaultVisivel?: boolean; tone?: "claro" | "escuro" }) {
   const [ver, setVer] = useState(defaultVisivel);
+  const olhoCls =
+    tone === "escuro"
+      ? "text-[var(--hc-navy-soft)] hover:text-[var(--hc-navy-ink)]"
+      : "text-[var(--hc-ink-soft)] hover:text-[var(--hc-ink)]";
   return (
     <div className="relative">
       <input {...props} type={ver ? "text" : "password"} className={`${className} pr-11`} />
@@ -21,7 +26,7 @@ export function CampoSenha({
         onClick={() => setVer((v) => !v)}
         aria-label={ver ? "Ocultar senha" : "Mostrar senha"}
         tabIndex={-1}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--hc-ink-soft)] transition-colors hover:text-[var(--hc-ink)]"
+        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${olhoCls}`}
       >
         {ver ? <EyeOff className="h-5 w-5" aria-hidden /> : <Eye className="h-5 w-5" aria-hidden />}
       </button>

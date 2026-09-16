@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
-import { Rodape } from "@/components/brand/Rodape";
-import { FundoSuave } from "@/components/brand/FundoSuave";
+import { RodapeEscuro } from "@/components/brand/RodapeEscuro";
+import { FundoEscuro } from "@/components/brand/FundoEscuro";
 import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, ArrowRight } from "lucide-react";
 
 const SETORES = [
@@ -16,46 +16,45 @@ const SETORES = [
 export default function AcessoEquipe() {
   return (
     <>
-      <FundoSuave />
-      <div className="hc-gold-rule" />
+      <FundoEscuro />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={70} /></Link>
+        <Link href="/"><Logo height={64} variant="light" /></Link>
       </header>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
-        <section className="hc-fade-up text-center">
-          <span className="hc-badge">Acesso da Equipe</span>
-          <h1 className="mt-5 font-serif text-4xl font-semibold text-[var(--hc-ink)] sm:text-5xl">Escolha o seu setor</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-[var(--hc-ink-soft)]">
+        <section className="hcx-fade text-center">
+          <span className="hcx-badge-d">Acesso da Equipe</span>
+          <h1 className="font-display mt-5 text-4xl font-bold text-hc-navy-ink sm:text-5xl">Escolha o seu setor</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-hc-navy-soft">
             Cada setor entra com seu próprio login. Selecione o seu para continuar.
           </p>
         </section>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {SETORES.map(({ chave, nome, desc, icon: Icon, redir }) => (
             <Link
               key={chave}
               href={`/medico/login?setor=${chave}&redir=${encodeURIComponent(redir)}`}
-              className="hc-card hc-gold-frame group flex items-center gap-4 p-6 transition-all hover:-translate-y-1"
+              className="hcx-card-d group flex items-center gap-4 p-6 transition-all hover:-translate-y-1 hover:border-hc-cyan/50"
             >
-              <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-gradient-to-b from-[var(--hc-red)] to-[var(--hc-red-700)] text-white">
-                <Icon className="h-7 w-7" aria-hidden />
+              <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-hc-cyan/12 text-hc-cyan">
+                <Icon className="h-7 w-7" strokeWidth={1.7} aria-hidden />
               </span>
               <span className="flex-1">
-                <span className="block font-serif text-xl font-semibold text-[var(--hc-ink)]">{nome}</span>
-                <span className="block text-sm text-[var(--hc-ink-soft)]">{desc}</span>
+                <span className="font-display block text-xl font-bold text-hc-navy-ink">{nome}</span>
+                <span className="block text-sm text-hc-navy-soft">{desc}</span>
               </span>
-              <ArrowRight className="h-5 w-5 flex-none text-[var(--hc-red-600)] transition-transform group-hover:translate-x-1" aria-hidden />
+              <ArrowRight className="h-5 w-5 flex-none text-hc-cyan transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
           ))}
         </div>
 
-        <p className="mx-auto mt-8 max-w-2xl text-center text-xs text-[var(--hc-ink-soft)]">
+        <p className="mx-auto mt-8 max-w-2xl text-center text-xs text-hc-navy-soft">
           🔒 O acesso de cada setor é restrito: apenas quem tem a senha daquele setor consegue entrar.
         </p>
       </main>
 
-      <Rodape />
+      <RodapeEscuro />
     </>
   );
 }

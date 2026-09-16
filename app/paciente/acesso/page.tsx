@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { Rodape } from "@/components/brand/Rodape";
+import { RodapeEscuro } from "@/components/brand/RodapeEscuro";
 import { FundoSuave } from "@/components/brand/FundoSuave";
+import { FundoEscuro } from "@/components/brand/FundoEscuro";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 
 const brl = (c: number) => ((c ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -153,45 +155,42 @@ export default function AcessoPaciente() {
   const total = documentos.length;
   const concluidos = documentos.filter((d) => feitos.has(d.chave)).length;
   const tudo = total > 0 && concluidos === total;
-  const inputCls =
-    "w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]";
-
   return (
     <>
-      <FundoSuave />
-      <div className="hc-gold-rule" />
+      {fase === "identificacao" ? <FundoEscuro /> : <FundoSuave />}
+      {fase === "painel" && <div className="hc-gold-rule" />}
       <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={62} /></Link>
+        <Link href="/"><Logo height={62} variant={fase === "identificacao" ? "light" : "dark"} /></Link>
       </header>
 
       {fase === "identificacao" ? (
         <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
-          <div className="hc-card hc-gold-frame hc-fade-up p-8">
-            <span className="hc-badge">Acesso do paciente</span>
-            <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Meus documentos</h1>
-            <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+          <div className="hcx-card-d hcx-fade p-8">
+            <span className="hcx-badge-d">Acesso do paciente</span>
+            <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Meus documentos</h1>
+            <p className="mt-2 text-sm text-hc-navy-soft">
               Informe seu CPF, sua data de nascimento e o código que você recebeu.
             </p>
             <form onSubmit={acessar} className="mt-6 space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">CPF</label>
-                <input inputMode="numeric" value={cpf} onChange={(e) => setCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
+                <label className="mb-1 block text-sm font-medium text-hc-navy-ink">CPF</label>
+                <input inputMode="numeric" value={cpf} onChange={(e) => setCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className="hcx-field" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Data de nascimento</label>
-                <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)} className={inputCls} />
+                <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Data de nascimento</label>
+                <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)} className="hcx-field [color-scheme:dark]" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Código de acesso</label>
-                <input inputMode="numeric" value={codigo} onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="••••••" className={`${inputCls} text-center text-2xl tracking-[0.4em]`} />
+                <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Código de acesso</label>
+                <input inputMode="numeric" value={codigo} onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="••••••" className="hcx-field text-center text-2xl tracking-[0.4em]" />
               </div>
-              {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-              <button type="submit" disabled={entrando} className="hc-btn hc-btn-primary w-full">
+              {erro && <p className="text-sm text-[#FF9BA3]">{erro}</p>}
+              <button type="submit" disabled={entrando} className="hcx-btn-cy w-full">
                 {entrando ? "Entrando…" : "Acessar meus documentos"}
               </button>
             </form>
           </div>
-          <p className="mt-5 text-center text-xs text-[var(--hc-ink-soft)]">🔒 Seus dados trafegam com segurança e você vê apenas o seu procedimento.</p>
+          <p className="mt-5 text-center text-xs text-hc-navy-soft">🔒 Seus dados trafegam com segurança e você vê apenas o seu procedimento.</p>
         </main>
       ) : (
         <main className="mx-auto w-full max-w-3xl flex-1 px-6 pb-16">
@@ -290,7 +289,7 @@ export default function AcessoPaciente() {
 
       {aberto && <Leitor doc={aberto} nomePaciente={pacienteNome} onFechar={() => setAberto(null)} onConfirmar={confirmarDoc} />}
 
-      <Rodape />
+      {fase === "identificacao" ? <RodapeEscuro /> : <Rodape />}
     </>
   );
 }
