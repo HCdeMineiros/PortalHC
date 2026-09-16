@@ -36,7 +36,7 @@ export function CardsRecursos() {
             <Link
               key={c.titulo}
               href={c.href}
-              className="group flex min-h-[210px] flex-col rounded-[18px] border border-hc-navy-line bg-hc-surface p-6 transition-all hover:-translate-y-1 hover:border-hc-cyan/50 hover:shadow-[0_26px_50px_-30px_rgba(0,0,0,.7)]"
+              className="group flex min-h-[210px] flex-col rounded-[18px] border border-white/15 bg-hc-surface p-6 shadow-[0_20px_45px_-32px_rgba(0,0,0,.85)] transition-all hover:-translate-y-1 hover:border-hc-cyan/60 hover:shadow-[0_26px_50px_-30px_rgba(0,0,0,.7)]"
             >
               <Icon className="h-10 w-10 text-hc-cyan" strokeWidth={1.6} aria-hidden />
               <h3 className="font-display mt-4 text-[1.18rem] font-bold text-hc-navy-ink">{c.titulo}</h3>
