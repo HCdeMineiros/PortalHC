@@ -28,7 +28,7 @@ interface Cirurgia {
   status: string;
   procedimento_nome: string | null;
   componentes_centavos:
-    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; hospital?: number; plano?: string; medicoNome?: string; tratamento?: string }
+    | { cirurgiao?: number; medico?: number; anestesista?: number; auxiliar?: number; auxiliarMedico?: number; instrumentador?: number; hospital?: number; plano?: string; medicoNome?: string; tratamento?: string }
     | null;
   valor_total_centavos: number | null;
   codigo_acesso: string | null;
@@ -128,6 +128,100 @@ function imprimirDiferenca(c: Cirurgia) {
   </div>
 
   <div class="rodape">Documento para lançamento — anexar ao prontuário. ${esc(HOSPITAL.nomeCurto)} · ${esc(HOSPITAL.dominio)}</div>
+</body></html>`;
+
+  const w = window.open("", "_blank", "width=820,height=920");
+  if (!w) {
+    alert("Não foi possível abrir a janela de impressão. Habilite os pop-ups para este site.");
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 300);
+}
+
+/** Abre uma janela com o ORÇAMENTO da cirurgia/internação e chama a impressão. */
+function imprimirOrcamento(c: Cirurgia) {
+  const comp = c.componentes_centavos ?? {};
+  const agora = new Date().toLocaleString("pt-BR");
+  const acomTotal = c.acomodacao_total_centavos ?? 0;
+  const totalGeral = (c.valor_total_centavos ?? 0) + acomTotal;
+  const dataPrev = c.data_prevista
+    ? new Date(c.data_prevista + "T00:00:00").toLocaleDateString("pt-BR")
+    : "";
+
+  const linhaItem = (rot: string, val: number) => `<tr><td>${rot}</td><td class="v">${brl(val)}</td></tr>`;
+  const linhaOpc = (rot: string, val: number) => (val > 0 ? linhaItem(rot, val) : "");
+
+  const acomNome = nomeAcom(c.acomodacao);
+  const linhaAcom =
+    c.acomodacao && acomTotal > 0
+      ? linhaItem(`Acomodação — ${esc(acomNome)} (${c.acomodacao_dias ?? 1}× diária)`, acomTotal)
+      : "";
+
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<title>Orçamento — ${esc(c.numero)}</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Times New Roman", serif; color: #1A1616; margin: 32px; }
+  .top { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C9A227; padding-bottom:12px; }
+  .hosp { font-size: 18px; font-weight: bold; }
+  .sub { font-size: 12px; color:#4B4444; }
+  h1 { font-size: 22px; margin: 20px 0 4px; }
+  .meta { font-size: 12px; color:#4B4444; margin-bottom: 16px; }
+  .box { border:1px solid #E7DFD5; border-radius:8px; padding:12px 16px; margin-bottom:14px; }
+  .box h2 { font-size: 12px; text-transform:uppercase; letter-spacing:.06em; color:#9A7B12; margin:0 0 8px; }
+  .row { font-size: 14px; margin: 3px 0; }
+  table { width:100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 6px 0; border-bottom: 1px dashed #E7DFD5; }
+  td.v { text-align: right; font-variant-numeric: tabular-nums; }
+  .total { display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:16px; font-weight:bold; }
+  .total .g { color:#C8102E; font-size:22px; }
+  .nota { font-size:12px; color:#4B4444; margin-top:6px; }
+  .assin { margin-top:48px; display:flex; gap:48px; }
+  .assin div { flex:1; border-top:1px solid #1A1616; padding-top:6px; font-size:12px; text-align:center; color:#4B4444; }
+  .rodape { margin-top:28px; font-size:11px; color:#4B4444; text-align:center; }
+  @media print { body { margin: 16mm; } }
+</style></head><body>
+  <div class="top">
+    <div>
+      <div class="hosp">${esc(HOSPITAL.nome)}</div>
+      <div class="sub">${esc(HOSPITAL.endereco)} · ${esc(HOSPITAL.cidade)} · ${esc(HOSPITAL.telefones.join(" · "))}</div>
+    </div>
+  </div>
+
+  <h1>Orçamento</h1>
+  <div class="meta">Nº da solicitação: <b>${esc(c.numero)}</b> · Emitido em ${esc(agora)}${dataPrev ? ` · Data prevista: ${esc(dataPrev)}` : ""}</div>
+
+  <div class="box">
+    <h2>Paciente</h2>
+    <div class="row"><b>${esc(c.pacientes?.nome ?? "—")}</b></div>
+    <div class="row">CPF: ${maskCpf(c.pacientes?.cpf ?? "")} · Ficha (PROMÉDICO): ${esc(c.pacientes?.ref_externa_promedico ?? "—")}</div>
+    <div class="row">Procedimento: <b>${esc(c.procedimento_nome ?? "—")}</b></div>
+    <div class="row">Médico: <b>${esc(c.medicos?.nome ?? comp.medicoNome ?? "—")}</b></div>
+  </div>
+
+  <div class="box">
+    <h2>Composição do orçamento</h2>
+    <table>
+      ${linhaOpc("Honorário do cirurgião", comp.cirurgiao ?? comp.medico ?? 0)}
+      ${linhaOpc("Honorário do anestesista", comp.anestesista ?? 0)}
+      ${linhaOpc("Honorário do médico auxiliar", comp.auxiliarMedico ?? comp.auxiliar ?? 0)}
+      ${linhaOpc("Instrumentador", comp.instrumentador ?? 0)}
+      ${linhaOpc("Taxa hospitalar", comp.hospital ?? 0)}
+      ${linhaAcom}
+    </table>
+    <div class="total"><span>Total geral estimado</span><span class="g">${brl(totalGeral)}</span></div>
+    <p class="nota">Este documento é um orçamento estimativo. Valores sujeitos a confirmação e a eventuais alterações do procedimento. Não constitui garantia de execução nem cobrança definitiva.</p>
+  </div>
+
+  <div class="assin">
+    <div>Responsável pelo orçamento</div>
+    <div>Paciente / responsável</div>
+  </div>
+
+  <div class="rodape">${esc(HOSPITAL.nomeCurto)} · ${esc(HOSPITAL.dominio)}</div>
 </body></html>`;
 
   const w = window.open("", "_blank", "width=820,height=920");
@@ -538,6 +632,12 @@ function CardCirurgia({
           <span className="font-serif text-xl font-semibold text-[var(--hc-red-600)]">{brl(totalGeral)}</span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => imprimirOrcamento(c)}
+            className="rounded-full border border-[var(--hc-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hc-ink)] transition-colors hover:border-[var(--hc-gold)]"
+          >
+            🖨 Imprimir orçamento
+          </button>
           {editavel && (
             <button
               onClick={() => setEditando((v) => !v)}
