@@ -31,6 +31,19 @@
   --radius: 16px;
   --shadow-luxe: 0 1px 2px rgba(26,22,22,.04), 0 12px 30px -12px rgba(26,22,22,.18);
   --shadow-card: 0 1px 2px rgba(26,22,22,.05), 0 20px 40px -24px rgba(160,12,34,.22);
+
+  /* Home moderna — azul petróleo + ciano (só a landing pública usa) */
+  --hc-navy-0:  #07131F;   /* rodapé / mais escuro */
+  --hc-navy-1:  #0A1A29;   /* base do hero */
+  --hc-navy-2:  #0C1F30;   /* faixas/seções */
+  --hc-surface: #122A3E;   /* cartões */
+  --hc-cyan:      #38E0C6; /* acento ciano luminoso */
+  --hc-cyan-soft: #7CEBD8;
+  --hc-cyan-ink:  #052620; /* texto sobre o ciano */
+  --hc-navy-ink:  #EAF3F6; /* texto claro no escuro */
+  --hc-navy-soft: #9BB2C2; /* texto secundário no escuro */
+  --hc-navy-dim:  #6E869A;
+  --hc-navy-line: rgba(255,255,255,.09);
 }
 
 @theme inline {
@@ -46,8 +59,17 @@
   --color-hc-ink-soft: var(--hc-ink-soft);
   --color-hc-cream: var(--hc-cream);
   --color-hc-line: var(--hc-line);
+  --color-hc-navy-0: var(--hc-navy-0);
+  --color-hc-navy-1: var(--hc-navy-1);
+  --color-hc-navy-2: var(--hc-navy-2);
+  --color-hc-surface: var(--hc-surface);
+  --color-hc-cyan: var(--hc-cyan);
+  --color-hc-cyan-soft: var(--hc-cyan-soft);
+  --color-hc-navy-ink: var(--hc-navy-ink);
+  --color-hc-navy-soft: var(--hc-navy-soft);
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 * { border-color: var(--hc-line); }
@@ -182,3 +204,112 @@ body {
 
 @keyframes hc-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .hc-fade-up { animation: hc-fade-up .5s ease both; }
+
+/* ============================================================
+   Home moderna (landing pública) — utilitários
+   ============================================================ */
+.font-display { font-family: var(--font-display), var(--font-sans), system-ui, sans-serif; }
+
+/* Degradê do hero: escurece à esquerda p/ leitura, revela a foto à direita */
+.hcx-hero-grad {
+  background:
+    linear-gradient(90deg, var(--hc-navy-1) 30%, rgba(10,26,41,.86) 46%, rgba(10,26,41,.30) 66%, rgba(10,26,41,.55) 100%),
+    linear-gradient(0deg, rgba(7,19,31,.85) 0%, rgba(7,19,31,0) 32%);
+}
+@media (max-width: 820px) {
+  .hcx-hero-grad {
+    background:
+      linear-gradient(180deg, rgba(10,26,41,.72) 0%, rgba(10,26,41,.88) 58%, var(--hc-navy-1) 100%),
+      linear-gradient(90deg, rgba(7,19,31,.5), rgba(7,19,31,.2));
+  }
+}
+
+.hcx-fade { opacity: 0; transform: translateY(12px); animation: hc-fade-up .6s ease forwards; }
+.hcx-fade.d1 { animation-delay: .06s; }
+.hcx-fade.d2 { animation-delay: .12s; }
+.hcx-fade.d3 { animation-delay: .18s; }
+
+/* Telas de acesso (tema escuro) — cartões, campos, botões e selos */
+.hcx-card-d {
+  background: var(--hc-surface);
+  border: 1px solid var(--hc-navy-line);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -34px rgba(0,0,0,.6);
+}
+.hcx-badge-d {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: .3rem .7rem; border-radius: 999px;
+  color: var(--hc-cyan); background: rgba(56,224,198,.10);
+  border: 1px solid rgba(56,224,198,.30);
+}
+.hcx-field {
+  width: 100%; border-radius: 12px;
+  border: 1px solid var(--hc-navy-line);
+  background: rgba(255,255,255,.05); color: var(--hc-navy-ink);
+  padding: .85rem 1rem; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.hcx-field::placeholder { color: var(--hc-navy-dim); }
+.hcx-field:focus { border-color: var(--hc-cyan); box-shadow: 0 0 0 3px rgba(56,224,198,.16); }
+.hcx-btn-cy {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--hc-cyan); color: var(--hc-cyan-ink);
+  font-weight: 700; letter-spacing: .01em;
+  padding: .9rem 1.4rem; border-radius: 12px; cursor: pointer; border: 1px solid transparent;
+  box-shadow: 0 16px 34px -14px rgba(56,224,198,.5);
+  transition: transform .15s ease, background .18s ease, filter .2s ease;
+}
+.hcx-btn-cy:hover:not(:disabled) { background: var(--hc-cyan-soft); transform: translateY(-1px); }
+.hcx-btn-cy:active { transform: translateY(1px); }
+.hcx-btn-cy:disabled { opacity: .55; cursor: not-allowed; }
+.hcx-btn-ghost-d {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  background: rgba(255,255,255,.06); color: var(--hc-navy-ink);
+  border: 1px solid var(--hc-navy-line); border-radius: 12px; padding: .9rem 1.4rem;
+  font-weight: 600; cursor: pointer; transition: .16s;
+}
+.hcx-btn-ghost-d:hover { border-color: var(--hc-cyan); }
+
+/* ============================================================
+   .hc-dark — reaproveita os componentes hc-* no tema escuro.
+   Redefine os tokens: creme→azul, tinta→claro, linhas→escuras,
+   dourado→ciano. Assim cards/botões/selos/inputs já existentes
+   viram escuros sem reescrever cada componente.
+   ============================================================ */
+.hc-dark {
+  --hc-cream:     var(--hc-navy-1);
+  --hc-cream-2:   var(--hc-navy-2);
+  --hc-white:     var(--hc-surface);
+  --hc-ink:       var(--hc-navy-ink);
+  --hc-ink-soft:  var(--hc-navy-soft);
+  --hc-line:      var(--hc-navy-line);
+  --hc-gold:      var(--hc-cyan);
+  --hc-gold-soft: var(--hc-cyan-soft);
+  --hc-gold-deep: var(--hc-cyan-soft);
+  --hc-red-050:   rgba(225,29,42,.16);
+  color: var(--hc-navy-ink);
+}
+/* campos de formulário legíveis no escuro */
+.hc-dark input,
+.hc-dark textarea,
+.hc-dark select { color: var(--hc-navy-ink); }
+.hc-dark input::placeholder,
+.hc-dark textarea::placeholder { color: var(--hc-navy-dim); }
+.hc-dark input[type="date"],
+.hc-dark input[type="time"],
+.hc-dark input[type="datetime-local"] { color-scheme: dark; }
+.hc-dark option { color: #0b1320; }
+/* fundos brancos fixos → superfície escura */
+.hc-dark .bg-white { background-color: var(--hc-surface) !important; }
+.hc-dark .bg-emerald-50 { background-color: rgba(52,211,153,.15) !important; }
+/* selo hc-badge no escuro (evita fundo pálido) */
+.hc-dark .hc-badge {
+  color: var(--hc-cyan);
+  background: rgba(56,224,198,.12);
+  border-color: rgba(56,224,198,.30);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hcx-fade { animation: none; opacity: 1; transform: none; }
+}

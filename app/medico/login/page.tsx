@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
-import { Rodape } from "@/components/brand/Rodape";
-import { FundoSuave } from "@/components/brand/FundoSuave";
+import { RodapeEscuro } from "@/components/brand/RodapeEscuro";
+import { FundoEscuro } from "@/components/brand/FundoEscuro";
 import { CampoSenha } from "@/components/brand/CampoSenha";
 import { SUPABASE_CONFIGURADO } from "@/lib/supabase/env";
 
@@ -125,32 +125,33 @@ export default function LoginMedico() {
     }
   }
 
+  const campoCls = "hcx-field";
+
   return (
     <>
-      <FundoSuave />
-      <div className="hc-gold-rule" />
+      <FundoEscuro />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={70} /></Link>
+        <Link href="/"><Logo height={64} variant="light" /></Link>
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
-        <div className="hc-card hc-gold-frame hc-fade-up p-8">
-          <span className="hc-badge">{badge}</span>
+        <div className="hcx-card-d hcx-fade p-8">
+          <span className="hcx-badge-d">{badge}</span>
           {fase === "login" ? (
             <>
-              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Entrar</h1>
-              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+              <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Entrar</h1>
+              <p className="mt-2 text-sm text-hc-navy-soft">
                 Médicos e colaboradores. Use seu e-mail e senha; você vai direto para a sua área.
               </p>
 
               {inatividade && (
-                <div className="mt-5 rounded-xl border border-[var(--hc-gold)]/50 bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
+                <div className="mt-5 rounded-xl border border-hc-cyan/40 bg-hc-cyan/10 p-3 text-center text-sm text-hc-cyan">
                   Sua sessão foi encerrada por inatividade (30 minutos). Entre novamente.
                 </div>
               )}
 
               {!SUPABASE_CONFIGURADO && (
-                <div className="mt-5 rounded-xl border border-dashed border-[var(--hc-gold)] bg-[color-mix(in_srgb,var(--hc-gold)_10%,white)] p-3 text-center text-sm text-[var(--hc-gold-deep)]">
+                <div className="mt-5 rounded-xl border border-dashed border-hc-cyan/50 bg-hc-cyan/10 p-3 text-center text-sm text-hc-cyan">
                   Ambiente de demonstração — o login real é ativado quando o banco de dados
                   (Supabase) for conectado.
                 </div>
@@ -158,34 +159,35 @@ export default function LoginMedico() {
 
               <form onSubmit={entrar} className="mt-6 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">E-mail</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">E-mail</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={ehMedico ? "medico@portalhc.com.br" : "equipe@portalhc.com.br"}
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    className={campoCls}
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Senha</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Senha</label>
                   <CampoSenha
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                     placeholder="••••••••"
                     autoComplete="current-password"
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    tone="escuro"
+                    className={campoCls}
                   />
                 </div>
-                {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-                <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
+                {erro && <p className="text-sm text-[#FF9BA3]">{erro}</p>}
+                <button type="submit" disabled={carregando} className="hcx-btn-cy w-full">
                   {carregando ? "Entrando…" : "Entrar"}
                 </button>
               </form>
               <div className="mt-4 text-center">
                 <Link
                   href="/recuperar-senha"
-                  className="text-sm text-[var(--hc-ink-soft)] underline-offset-2 hover:text-[var(--hc-red-600)] hover:underline"
+                  className="text-sm text-hc-navy-soft underline-offset-2 transition-colors hover:text-hc-cyan hover:underline"
                 >
                   Esqueci minha senha
                 </Link>
@@ -193,46 +195,48 @@ export default function LoginMedico() {
             </>
           ) : (
             <>
-              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Defina sua senha</h1>
-              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+              <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Defina sua senha</h1>
+              <p className="mt-2 text-sm text-hc-navy-soft">
                 Primeiro acesso: crie uma nova senha (mín. 6 caracteres) para continuar.
               </p>
               <form onSubmit={salvarNovaSenha} className="mt-6 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Nova senha</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Nova senha</label>
                   <CampoSenha
                     value={novaSenha}
                     onChange={(e) => setNovaSenha(e.target.value)}
                     placeholder="Nova senha"
                     autoComplete="new-password"
                     autoFocus
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    tone="escuro"
+                    className={campoCls}
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Confirmar nova senha</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Confirmar nova senha</label>
                   <CampoSenha
                     value={confSenha}
                     onChange={(e) => setConfSenha(e.target.value)}
                     placeholder="Repita a nova senha"
                     autoComplete="new-password"
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    tone="escuro"
+                    className={campoCls}
                   />
                 </div>
-                {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-                <button type="submit" disabled={carregando} className="hc-btn hc-btn-primary w-full">
+                {erro && <p className="text-sm text-[#FF9BA3]">{erro}</p>}
+                <button type="submit" disabled={carregando} className="hcx-btn-cy w-full">
                   {carregando ? "Salvando…" : "Salvar e entrar"}
                 </button>
               </form>
             </>
           )}
         </div>
-        <p className="mt-5 text-center text-xs text-[var(--hc-ink-soft)]">
+        <p className="mt-5 text-center text-xs text-hc-navy-soft">
           🔒 Autenticação com dois fatores (MFA) será habilitada para colaboradores.
         </p>
       </main>
 
-      <Rodape />
+      <RodapeEscuro />
     </>
   );
 }

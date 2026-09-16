@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { Logo } from "@/components/brand/Logo";
-import { Rodape } from "@/components/brand/Rodape";
-import { FundoSuave } from "@/components/brand/FundoSuave";
+import { RodapeEscuro } from "@/components/brand/RodapeEscuro";
+import { FundoEscuro } from "@/components/brand/FundoEscuro";
 import { CampoSenha } from "@/components/brand/CampoSenha";
 import { SUPABASE_ANON_KEY, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/env";
 
@@ -78,33 +78,32 @@ export default function RedefinirSenha() {
 
   return (
     <>
-      <FundoSuave />
-      <div className="hc-gold-rule" />
+      <FundoEscuro />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/"><Logo height={70} /></Link>
+        <Link href="/"><Logo height={64} variant="light" /></Link>
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-8">
-        <div className="hc-card hc-gold-frame hc-fade-up p-8">
-          <span className="hc-badge">Acesso · Redefinir senha</span>
+        <div className="hcx-card-d hcx-fade p-8">
+          <span className="hcx-badge-d">Acesso · Redefinir senha</span>
 
           {estado === "carregando" && (
-            <p className="mt-6 text-sm text-[var(--hc-ink-soft)]">Verificando o link…</p>
+            <p className="mt-6 text-sm text-hc-navy-soft">Verificando o link…</p>
           )}
 
           {estado === "semconfig" && (
-            <p className="mt-6 text-sm text-[var(--hc-red-600)]">
+            <p className="mt-6 text-sm text-[#FF9BA3]">
               Login em preparação — o banco de dados ainda está sendo configurado.
             </p>
           )}
 
           {estado === "invalido" && (
             <>
-              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Link inválido ou expirado</h1>
-              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+              <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Link inválido ou expirado</h1>
+              <p className="mt-2 text-sm text-hc-navy-soft">
                 Este link de redefinição não é mais válido. Solicite um novo.
               </p>
-              <Link href="/recuperar-senha" className="hc-btn hc-btn-primary mt-6 inline-block w-full text-center">
+              <Link href="/recuperar-senha" className="hcx-btn-cy mt-6 inline-block w-full text-center">
                 Solicitar novo link
               </Link>
             </>
@@ -112,11 +111,11 @@ export default function RedefinirSenha() {
 
           {estado === "sucesso" && (
             <>
-              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Senha redefinida! ✅</h1>
-              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+              <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Senha redefinida! ✅</h1>
+              <p className="mt-2 text-sm text-hc-navy-soft">
                 Sua nova senha foi salva. Redirecionando para o login…
               </p>
-              <Link href="/medico/login" className="hc-btn hc-btn-primary mt-6 inline-block w-full text-center">
+              <Link href="/medico/login" className="hcx-btn-cy mt-6 inline-block w-full text-center">
                 Ir para o login
               </Link>
             </>
@@ -124,34 +123,36 @@ export default function RedefinirSenha() {
 
           {estado === "pronto" && (
             <>
-              <h1 className="mt-4 font-serif text-3xl font-semibold text-[var(--hc-ink)]">Criar nova senha</h1>
-              <p className="mt-2 text-sm text-[var(--hc-ink-soft)]">
+              <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Criar nova senha</h1>
+              <p className="mt-2 text-sm text-hc-navy-soft">
                 Defina sua nova senha (mínimo 6 caracteres).
               </p>
               <form onSubmit={salvar} className="mt-6 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Nova senha</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Nova senha</label>
                   <CampoSenha
                     value={novaSenha}
                     onChange={(e) => setNovaSenha(e.target.value)}
                     placeholder="Nova senha"
                     autoComplete="new-password"
                     autoFocus
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    tone="escuro"
+                    className="hcx-field"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-[var(--hc-ink)]">Confirmar nova senha</label>
+                  <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Confirmar nova senha</label>
                   <CampoSenha
                     value={confSenha}
                     onChange={(e) => setConfSenha(e.target.value)}
                     placeholder="Repita a nova senha"
                     autoComplete="new-password"
-                    className="w-full rounded-xl border border-[var(--hc-line)] bg-white px-4 py-3 outline-none focus:border-[var(--hc-gold)] focus:ring-2 focus:ring-[var(--hc-gold-soft)]"
+                    tone="escuro"
+                    className="hcx-field"
                   />
                 </div>
-                {erro && <p className="text-sm text-[var(--hc-red-600)]">{erro}</p>}
-                <button type="submit" disabled={salvando} className="hc-btn hc-btn-primary w-full">
+                {erro && <p className="text-sm text-[#FF9BA3]">{erro}</p>}
+                <button type="submit" disabled={salvando} className="hcx-btn-cy w-full">
                   {salvando ? "Salvando…" : "Salvar nova senha"}
                 </button>
               </form>
@@ -160,7 +161,7 @@ export default function RedefinirSenha() {
         </div>
       </main>
 
-      <Rodape />
+      <RodapeEscuro />
     </>
   );
 }
