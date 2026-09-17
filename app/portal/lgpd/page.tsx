@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ShieldCheck, Mail, Phone } from "lucide-react";
+import Image from "next/image";
+import { Mail, Phone } from "lucide-react";
 import { ShellPortal, ItemPortal } from "@/components/portal/ShellPortal";
 import { HOSPITAL } from "@/lib/brand";
 
@@ -37,8 +38,14 @@ export default function PrivacidadeLGPD() {
       <div className="mt-8 hcx-card-d p-6 sm:p-8">
         <span className="hcx-badge-d">Encarregado de Dados · DPO</span>
         <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
-          <div className="flex h-20 w-20 flex-none items-center justify-center rounded-2xl bg-hc-cyan/12 text-hc-cyan">
-            <ShieldCheck className="h-10 w-10" strokeWidth={1.6} aria-hidden />
+          <div className="relative h-24 w-24 flex-none overflow-hidden rounded-2xl border border-hc-navy-line sm:h-28 sm:w-28">
+            <Image
+              src="/brand/dpo-denis.png"
+              alt="Dr. Denis Carvalho — Encarregado de Dados (DPO)"
+              fill
+              sizes="112px"
+              className="object-cover object-[center_28%]"
+            />
           </div>
           <div>
             <h2 className="font-display text-xl font-bold text-hc-navy-ink">Dr. Denis Carvalho</h2>
