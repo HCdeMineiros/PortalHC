@@ -300,9 +300,9 @@ body {
 .hc-dark input[type="time"],
 .hc-dark input[type="datetime-local"] { color-scheme: dark; }
 .hc-dark option { color: #0b1320; }
-/* fundos brancos fixos → superfície escura */
-.hc-dark .bg-white { background-color: var(--hc-surface) !important; }
-.hc-dark .bg-emerald-50 { background-color: rgba(52,211,153,.15) !important; }
+/* fundos brancos fixos → superfície escura (exceto a plaqueta do logo) */
+.hc-dark .bg-white:not(.logo-plate) { background-color: var(--hc-surface); }
+.hc-dark .bg-emerald-50 { background-color: rgba(52,211,153,.15); }
 /* selo hc-badge no escuro (evita fundo pálido) */
 .hc-dark .hc-badge {
   color: var(--hc-cyan);
