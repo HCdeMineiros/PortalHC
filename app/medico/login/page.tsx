@@ -73,7 +73,8 @@ export default function LoginMedico() {
         if (uid) {
           const { data: perfil } = await supabase.from("usuarios").select("papel").eq("id", uid).single();
           const p = perfil?.papel;
-          if (p === "admin_dpo" || p === "internacao" || p === "faturamento") destino = "/colaborador";
+          if (p === "faturamento") destino = "/faturamento";
+          else if (p === "admin_dpo" || p === "internacao") destino = "/colaborador";
           else if (p === "administrativo") destino = "/administrativo";
           else if (p === "cobranca") destino = "/cobranca";
           else if (p === "limpeza") destino = "/limpeza";

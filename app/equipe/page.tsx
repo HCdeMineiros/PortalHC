@@ -6,7 +6,7 @@ import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, Ar
 
 const SETORES = [
   { chave: "internacao", nome: "Internação", desc: "Cadastros, acomodação e finalização dos atendimentos.", icon: BedDouble, redir: "/colaborador" },
-  { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/colaborador" },
+  { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/faturamento" },
   { chave: "cobranca", nome: "Cobrança", desc: "Setor de cobrança e recebimentos.", icon: CircleDollarSign, redir: "/cobranca" },
   { chave: "administrativo", nome: "Administrativo", desc: "Área administrativa do hospital.", icon: Briefcase, redir: "/administrativo" },
   { chave: "limpeza", nome: "Manutenção de limpeza", desc: "Setor de manutenção e limpeza.", icon: SprayCan, redir: "/limpeza" },
