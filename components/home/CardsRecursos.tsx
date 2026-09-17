@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, PenLine, Workflow, ArrowUpRight } from "lucide-react";
+import { FileText, PenLine, Workflow, ShieldCheck, ArrowUpRight } from "lucide-react";
 
 const CARDS = [
   {
@@ -23,13 +23,20 @@ const CARDS = [
     rotulo: "Do início à conclusão",
     href: "/portal/etapas",
   },
+  {
+    icon: ShieldCheck,
+    titulo: "Privacidade e LGPD",
+    texto: "Como protegemos seus dados e quem é o nosso Encarregado (DPO).",
+    rotulo: "Seus dados protegidos",
+    href: "/portal/lgpd",
+  },
 ];
 
 /** Três cartões de funcionalidades, sobrepostos ao rodapé do hero. */
 export function CardsRecursos() {
   return (
     <section className="bg-hc-navy-1">
-      <div className="mx-auto grid w-full max-w-6xl gap-4 px-6 pb-16 pt-10 sm:grid-cols-2 md:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-4xl gap-4 px-6 pb-16 pt-10 sm:grid-cols-2">
         {CARDS.map((c) => {
           const Icon = c.icon;
           return (
