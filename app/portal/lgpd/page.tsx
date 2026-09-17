@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Globe } from "lucide-react";
 import { ShellPortal, ItemPortal } from "@/components/portal/ShellPortal";
 import { HOSPITAL } from "@/lib/brand";
 
@@ -48,7 +48,7 @@ export default function PrivacidadeLGPD() {
             />
           </div>
           <div>
-            <h2 className="font-display text-xl font-bold text-hc-navy-ink">Dr. Denis Carvalho</h2>
+            <h2 className="font-display text-xl font-bold text-hc-navy-ink">Denis Carvalho</h2>
             <p className="text-sm text-hc-navy-soft">
               Advogado · Encarregado pelo Tratamento de Dados Pessoais (DPO) do Hospital das Clínicas de Mineiros.
             </p>
@@ -60,9 +60,12 @@ export default function PrivacidadeLGPD() {
               <span className="inline-flex items-center gap-2">
                 <Phone className="h-4 w-4 flex-none text-hc-cyan" aria-hidden /> {HOSPITAL.telefones.join(" · ")}
               </span>
-              <span className="inline-flex items-center gap-2">
-                <Mail className="h-4 w-4 flex-none text-hc-cyan" aria-hidden /> {HOSPITAL.dominio}
-              </span>
+              <a href="mailto:contato@deniscarvalhoadvocacia.com.br" className="inline-flex items-center gap-2 transition-colors hover:text-hc-cyan">
+                <Mail className="h-4 w-4 flex-none text-hc-cyan" aria-hidden /> contato@deniscarvalhoadvocacia.com.br
+              </a>
+              <a href="https://www.deniscarvalhoadvocacia.com.br" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-hc-cyan">
+                <Globe className="h-4 w-4 flex-none text-hc-cyan" aria-hidden /> www.deniscarvalhoadvocacia.com.br
+              </a>
             </div>
           </div>
         </div>

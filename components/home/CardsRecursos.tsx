@@ -1,20 +1,13 @@
 import Link from "next/link";
-import { FileText, PenLine, Workflow, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { FileText, Workflow, ShieldCheck, ArrowUpRight } from "lucide-react";
 
 const CARDS = [
   {
     icon: FileText,
-    titulo: "Seus documentos",
-    texto: "Acesse os documentos do seu atendimento em um só lugar.",
+    titulo: "Documentos e assinatura",
+    texto: "Acesse e assine os documentos do seu atendimento em um só lugar, no seu tempo.",
     rotulo: "Organização e praticidade",
     href: "/portal/documentos",
-  },
-  {
-    icon: PenLine,
-    titulo: "Assinatura eletrônica",
-    texto: "Leia com calma e assine seus documentos pelo portal.",
-    rotulo: "Tudo no seu tempo",
-    href: "/portal/assinatura",
   },
   {
     icon: Workflow,
@@ -36,7 +29,7 @@ const CARDS = [
 export function CardsRecursos() {
   return (
     <section className="bg-hc-navy-1">
-      <div className="mx-auto grid w-full max-w-4xl gap-4 px-6 pb-16 pt-10 sm:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-6xl gap-4 px-6 pb-16 pt-10 sm:grid-cols-2 md:grid-cols-3">
         {CARDS.map((c) => {
           const Icon = c.icon;
           return (
