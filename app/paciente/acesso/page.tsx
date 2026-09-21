@@ -253,16 +253,19 @@ export default function AcessoPaciente() {
                       {feito ? (
                         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">✓ {d.exigeAssinatura ? "Assinado" : "Ciente"}</span>
                       ) : d.exigeAssinatura && assinafyAtivo ? (
-                        <div className="flex flex-col items-stretch gap-1 sm:items-end">
-                          <button onClick={() => iniciarAssinatura(d, { canal: "email" })} className="hc-btn hc-btn-primary w-full sm:w-auto">
-                            Assinar (link por e-mail)
-                          </button>
-                          <button
-                            onClick={() => iniciarAssinatura(d, { canal: "whatsapp" })}
-                            className="text-[11px] text-[var(--hc-ink-soft)] underline-offset-2 hover:text-[var(--hc-red-600)] hover:underline"
-                          >
-                            Prefiro receber por WhatsApp
-                          </button>
+                        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                          <span className="text-[11px] font-medium text-[var(--hc-ink-soft)]">Como você quer receber o código para assinar?</span>
+                          <div className="flex flex-col gap-2 sm:flex-row">
+                            <button
+                              onClick={() => iniciarAssinatura(d, { canal: "whatsapp" })}
+                              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(37,211,102,.6)] transition hover:brightness-105"
+                            >
+                              <span aria-hidden>💬</span> Por WhatsApp
+                            </button>
+                            <button onClick={() => iniciarAssinatura(d, { canal: "email" })} className="hc-btn hc-btn-ghost w-full sm:w-auto">
+                              ✉️ Por e-mail
+                            </button>
+                          </div>
                           {iniciados.has(d.chave) && (
                             <span className="text-[11px] text-[var(--hc-gold-deep)]">Assinatura aberta em nova aba — toque em “Atualizar” após assinar.</span>
                           )}

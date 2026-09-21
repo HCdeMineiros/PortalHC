@@ -102,11 +102,22 @@ export async function POST(req: Request) {
     const nomeArq = `${sol.numero || "termo"}-${chave}`.replace(/[^\w-]/g, "");
     const documentId = await uploadDocumento(pdf, nomeArq);
     await aguardarPronto(documentId);
-    const signerId = await criarSignatario({
-      nome: pac.nome,
-      email: emailUsar || emailPac || null,
-      whatsapp: pac.telefone_whatsapp,
-    });
+
+    // Reutiliza o signatário já criado para este paciente (evita erro de e-mail duplicado no 2º documento).
+    const { data: signerRow } = await admin
+      .from("assinafy_docs")
+      .select("signer_id")
+      .eq("solicitacao_id", sol.id)
+      .not("signer_id", "is", null)
+      .limit(1)
+      .maybeSingle();
+    const signerId = signerRow?.signer_id
+      ? String(signerRow.signer_id)
+      : await criarSignatario({
+          nome: pac.nome,
+          email: emailUsar || emailPac || null,
+          whatsapp: pac.telefone_whatsapp,
+        });
     const { signingUrl } = await criarAssignment(documentId, signerId, {
       mensagem: `Assinatura do ${doc.titulo} — ${HOSPITAL.nomeCurto}`,
       verificacao: metodo,
