@@ -35,8 +35,10 @@ export default function LoginMedico() {
   const SETOR_LABEL: Record<string, string> = {
     internacao: "Internação",
     faturamento: "Faturamento",
-    cobranca: "Cobrança",
+    cobranca: "Liberação de Crédito e Cobrança",
     administrativo: "Administrativo",
+    pessoas: "Gestão de Pessoas",
+    contratos: "Gestão de Contratos",
     limpeza: "Manutenção de limpeza",
     gestao: "Gestão do Sistema",
   };

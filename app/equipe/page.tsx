@@ -2,15 +2,17 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { RodapeEscuro } from "@/components/brand/RodapeEscuro";
 import { FundoEscuro } from "@/components/brand/FundoEscuro";
-import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, ArrowRight } from "lucide-react";
+import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, Users, ScrollText, ArrowRight } from "lucide-react";
 
 const SETORES = [
   { chave: "internacao", nome: "Internação", desc: "Cadastros, acomodação e finalização dos atendimentos.", icon: BedDouble, redir: "/colaborador" },
-  { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/faturamento" },
-  { chave: "cobranca", nome: "Cobrança", desc: "Setor de cobrança e recebimentos.", icon: CircleDollarSign, redir: "/cobranca" },
-  { chave: "administrativo", nome: "Administrativo", desc: "Área administrativa do hospital.", icon: Briefcase, redir: "/administrativo" },
-  { chave: "limpeza", nome: "Manutenção de limpeza", desc: "Setor de manutenção e limpeza.", icon: SprayCan, redir: "/limpeza" },
   { chave: "gestao", nome: "Gestão do Sistema", desc: "Usuários, LGPD/DPO e configurações (acesso do gestor).", icon: Settings, redir: "/admin" },
+  { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/faturamento" },
+  { chave: "cobranca", nome: "Liberação de Crédito e Cobrança", desc: "Liberação de crédito, cobrança e recebimentos.", icon: CircleDollarSign, redir: "/cobranca" },
+  { chave: "administrativo", nome: "Administrativo", desc: "Área administrativa do hospital.", icon: Briefcase, redir: "/administrativo" },
+  { chave: "pessoas", nome: "Gestão de Pessoas", desc: "Recursos humanos e equipe.", icon: Users, redir: "/pessoas" },
+  { chave: "contratos", nome: "Gestão de Contratos", desc: "Contratos e documentos do hospital.", icon: ScrollText, redir: "/contratos" },
+  { chave: "limpeza", nome: "Manutenção de limpeza", desc: "Setor de manutenção e limpeza.", icon: SprayCan, redir: "/limpeza" },
 ];
 
 export default function AcessoEquipe() {
