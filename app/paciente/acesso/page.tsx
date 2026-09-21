@@ -40,7 +40,6 @@ interface Solicitacao {
 export default function AcessoPaciente() {
   const [fase, setFase] = useState<"identificacao" | "painel">("identificacao");
   const [cpf, setCpf] = useState("");
-  const [nascimento, setNascimento] = useState("");
   const [codigo, setCodigo] = useState("");
   const [erro, setErro] = useState("");
   const [entrando, setEntrando] = useState(false);
@@ -58,14 +57,14 @@ export default function AcessoPaciente() {
     e.preventDefault();
     setErro("");
     const cpfD = cpf.replace(/\D/g, "");
-    if (cpfD.length !== 11 || !nascimento || !codigo.trim())
-      return setErro("Preencha CPF, data de nascimento e código.");
+    if (cpfD.length !== 11 || !codigo.trim())
+      return setErro("Preencha CPF e código.");
     setEntrando(true);
     try {
       const resp = await fetch("/api/paciente/acessar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpfD, nascimento, codigo: codigo.trim() }),
+        body: JSON.stringify({ cpf: cpfD, codigo: codigo.trim() }),
       });
       const json = await resp.json();
       if (!resp.ok) return setErro(json?.erro || "Falha ao acessar.");
@@ -88,7 +87,7 @@ export default function AcessoPaciente() {
       const resp = await fetch("/api/paciente/acessar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim() }),
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), codigo: codigo.trim() }),
       });
       const json = await resp.json();
       if (resp.ok) {
@@ -108,7 +107,7 @@ export default function AcessoPaciente() {
       const resp = await fetch("/api/paciente/iniciar-assinatura", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), nascimento, codigo: codigo.trim(), chave: doc.chave, canal: opts?.canal, email: opts?.email }),
+        body: JSON.stringify({ cpf: cpf.replace(/\D/g, ""), codigo: codigo.trim(), chave: doc.chave, canal: opts?.canal, email: opts?.email }),
       });
       const json = await resp.json();
       if (json?.precisaEmail) {
@@ -136,7 +135,6 @@ export default function AcessoPaciente() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         cpf: cpf.replace(/\D/g, ""),
-        nascimento,
         codigo: codigo.trim(),
         chave: doc.chave,
         tipo: doc.exigeAssinatura ? "assinatura" : "ok",
@@ -169,16 +167,12 @@ export default function AcessoPaciente() {
             <span className="hcx-badge-d">Acesso do paciente</span>
             <h1 className="font-display mt-4 text-3xl font-bold text-hc-navy-ink">Meus documentos</h1>
             <p className="mt-2 text-sm text-hc-navy-soft">
-              Informe seu CPF, sua data de nascimento e o código que você recebeu.
+              Informe seu CPF e o código que você recebeu.
             </p>
             <form onSubmit={acessar} className="mt-6 space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-hc-navy-ink">CPF</label>
                 <input inputMode="numeric" value={cpf} onChange={(e) => setCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className="hcx-field" />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Data de nascimento</label>
-                <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)} className="hcx-field [color-scheme:dark]" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-hc-navy-ink">Código de acesso</label>

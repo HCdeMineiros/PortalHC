@@ -26,10 +26,9 @@ export async function POST(req: Request) {
 
   const b = await req.json().catch(() => null);
   const cpf = soDigitos(b?.cpf);
-  const nascimento = String(b?.nascimento ?? "").trim();
   const codigo = String(b?.codigo ?? "").trim();
   const chave = String(b?.chave ?? "").trim();
-  if (cpf.length !== 11 || !nascimento || !codigo || !chave) {
+  if (cpf.length !== 11 || !codigo || !chave) {
     return NextResponse.json({ erro: "Dados incompletos." }, { status: 400 });
   }
 
@@ -38,10 +37,10 @@ export async function POST(req: Request) {
 
   const { data: pac } = await admin
     .from("pacientes")
-    .select("id, nome, cpf, data_nascimento, telefone_whatsapp, email")
+    .select("id, nome, cpf, telefone_whatsapp, email")
     .eq("cpf", cpf)
     .maybeSingle();
-  if (!pac || String(pac.data_nascimento ?? "") !== nascimento) return generico;
+  if (!pac) return generico;
 
   const { data: sol } = await admin
     .from("solicitacoes")

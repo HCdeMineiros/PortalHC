@@ -56,7 +56,6 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
   const [instrumentador, setInstrumentador] = useState(false); // 10% — pode marcar junto com o auxiliar
   const [pacienteNome, setPacienteNome] = useState("");
   const [pacienteCpf, setPacienteCpf] = useState("");
-  const [pacienteNascimento, setPacienteNascimento] = useState("");
   const [pacienteFicha, setPacienteFicha] = useState("");
   const [pacienteWhats, setPacienteWhats] = useState("");
   const [pacienteEmail, setPacienteEmail] = useState("");
@@ -89,7 +88,6 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
     if (cirurgiao <= 0) return setErro("Informe o valor do cirurgião.");
     if (!pacienteNome.trim()) return setErro("Informe o nome do paciente.");
     if (cpfDigitos.length !== 11) return setErro("Informe o CPF do paciente (11 dígitos).");
-    if (!pacienteNascimento) return setErro("Informe a data de nascimento do paciente.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha do paciente.");
 
     setEnviando(true);
@@ -112,7 +110,6 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
           instrumentador,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpfDigitos,
-          pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
           pacienteEmail: pacienteEmail.trim(),
@@ -142,7 +139,6 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
       setInstrumentador(false);
       setPacienteNome("");
       setPacienteCpf("");
-      setPacienteNascimento("");
       setPacienteFicha("");
       setPacienteWhats("");
       setPacienteEmail("");
@@ -203,9 +199,6 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
               <Campo label="CPF">
                 <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
               </Campo>
-              <Campo label="Data de nascimento">
-                <input type="date" value={pacienteNascimento} onChange={(e) => setPacienteNascimento(e.target.value)} className={inputCls} />
-              </Campo>
               <Campo label="Nº da ficha (PROMÉDICO)">
                 <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} placeholder="Ex.: 170245" className={inputCls} />
               </Campo>
@@ -236,7 +229,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
             {enviando ? "Salvando…" : "Cadastrar e gerar acesso do paciente"}
           </button>
           <p className="mt-2 text-center text-[11px] text-[var(--hc-ink-soft)]">
-            O paciente entra com CPF + data de nascimento + o código gerado abaixo.
+            O paciente entra com CPF + o código gerado abaixo.
           </p>
         </div>
       </form>
@@ -275,7 +268,7 @@ export function CadastrarCirurgia({ pre, onCadastrar }: { pre?: PreCirurgia | nu
             ))}
           </ul>
           <p className="mt-3 text-xs text-[var(--hc-ink-soft)]">
-            🔒 O código é enviado ao WhatsApp do paciente (quando o n8n estiver configurado). Ele não é exibido novamente aqui.
+            🔒 Repasse o código ao paciente. O aviso com o link é enviado ao WhatsApp dele automaticamente. O código não é exibido novamente aqui.
           </p>
         </div>
       )}
