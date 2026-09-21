@@ -6,7 +6,6 @@ import { BedDouble, Receipt, CircleDollarSign, Briefcase, SprayCan, Settings, Us
 
 const SETORES = [
   { chave: "internacao", nome: "Internação", desc: "Cadastros, acomodação e finalização dos atendimentos.", icon: BedDouble, redir: "/colaborador" },
-  { chave: "gestao", nome: "Gestão do Sistema", desc: "Usuários, LGPD/DPO e configurações (acesso do gestor).", icon: Settings, redir: "/admin" },
   { chave: "faturamento", nome: "Faturamento", desc: "Finalizados e baixados, com impressão por período.", icon: Receipt, redir: "/faturamento" },
   { chave: "cobranca", nome: "Liberação de Crédito e Cobrança", desc: "Liberação de crédito, cobrança e recebimentos.", icon: CircleDollarSign, redir: "/cobranca" },
   { chave: "administrativo", nome: "Administrativo", desc: "Área administrativa do hospital.", icon: Briefcase, redir: "/administrativo" },
@@ -21,6 +20,14 @@ export default function AcessoEquipe() {
       <FundoEscuro />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link href="/"><Logo height={64} variant="light" /></Link>
+        <Link
+          href={`/medico/login?setor=gestao&redir=${encodeURIComponent("/admin")}`}
+          className="inline-flex items-center gap-2 rounded-full border border-hc-cyan/30 bg-hc-cyan/10 px-4 py-2 text-sm font-semibold text-hc-navy-ink transition-colors hover:border-hc-cyan/60 hover:bg-hc-cyan/20"
+          title="Área restrita do gestor"
+        >
+          <Settings className="h-4 w-4 text-hc-cyan" strokeWidth={1.8} aria-hidden />
+          <span className="hidden sm:inline">Gestão do Sistema</span>
+        </Link>
       </header>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
