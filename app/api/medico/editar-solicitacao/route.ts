@@ -67,12 +67,10 @@ export async function POST(req: Request) {
   // Dados do paciente (comuns aos dois tipos)
   const pacienteNome = String(b?.pacienteNome ?? "").trim();
   const cpf = soDigitos(b?.pacienteCpf);
-  const nascimento = String(b?.pacienteNascimento ?? "").trim();
   const ficha = String(b?.pacienteFicha ?? "").trim();
   const whatsapp = String(b?.pacienteWhatsapp ?? "").trim();
   if (!pacienteNome) return NextResponse.json({ erro: "Informe o nome do paciente." }, { status: 400 });
   if (cpf.length !== 11) return NextResponse.json({ erro: "CPF do paciente inválido." }, { status: 400 });
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimento)) return NextResponse.json({ erro: "Data de nascimento inválida." }, { status: 400 });
   if (!ficha) return NextResponse.json({ erro: "Informe o número da ficha." }, { status: 400 });
 
   // Campos específicos por tipo
@@ -105,7 +103,7 @@ export async function POST(req: Request) {
 
   const { error: e2 } = await admin
     .from("pacientes")
-    .update({ nome: pacienteNome, cpf, data_nascimento: nascimento, ref_externa_promedico: ficha, telefone_whatsapp: whatsapp })
+    .update({ nome: pacienteNome, cpf, ref_externa_promedico: ficha, telefone_whatsapp: whatsapp })
     .eq("id", sol.paciente_id);
   if (e2) {
     const msg = /duplicate|unique/i.test(e2.message)

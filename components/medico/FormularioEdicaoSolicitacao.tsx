@@ -91,7 +91,6 @@ export function FormularioEdicaoSolicitacao({
   const [acomodacao, setAcomodacao] = useState(c.acomodacao ?? "");
   const [pacienteNome, setPacienteNome] = useState(c.pacientes?.nome ?? "");
   const [pacienteCpf, setPacienteCpf] = useState(mascararCpf(c.pacientes?.cpf ?? ""));
-  const [pacienteNascimento, setPacienteNascimento] = useState(c.pacientes?.data_nascimento ?? "");
   const [pacienteFicha, setPacienteFicha] = useState(c.pacientes?.ref_externa_promedico ?? "");
   const [pacienteWhats, setPacienteWhats] = useState(c.pacientes?.telefone_whatsapp ?? "");
   const [erro, setErro] = useState("");
@@ -102,7 +101,6 @@ export function FormularioEdicaoSolicitacao({
     const cpf = pacienteCpf.replace(/\D/g, "");
     if (!pacienteNome.trim()) return setErro("Informe o nome do paciente.");
     if (cpf.length !== 11) return setErro("CPF do paciente inválido (11 dígitos).");
-    if (!pacienteNascimento) return setErro("Informe a data de nascimento.");
     if (!pacienteFicha.trim()) return setErro("Informe o número da ficha.");
     if (ehInternacao) {
       if (!acomodacao) return setErro("Selecione a acomodação.");
@@ -127,7 +125,6 @@ export function FormularioEdicaoSolicitacao({
           acomodacao,
           pacienteNome: pacienteNome.trim(),
           pacienteCpf: cpf,
-          pacienteNascimento,
           pacienteFicha: pacienteFicha.trim(),
           pacienteWhatsapp: pacienteWhats.trim(),
         }),
@@ -231,9 +228,6 @@ export function FormularioEdicaoSolicitacao({
           </Campo>
           <Campo label="CPF">
             <input inputMode="numeric" value={pacienteCpf} onChange={(e) => setPacienteCpf(mascararCpf(e.target.value))} placeholder="000.000.000-00" className={inputCls} />
-          </Campo>
-          <Campo label="Data de nascimento">
-            <input type="date" value={pacienteNascimento} onChange={(e) => setPacienteNascimento(e.target.value)} className={inputCls} />
           </Campo>
           <Campo label="Nº da ficha (PROMÉDICO)">
             <input value={pacienteFicha} onChange={(e) => setPacienteFicha(e.target.value)} className={inputCls} />
