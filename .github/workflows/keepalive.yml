@@ -1,0 +1,25 @@
+name: Despertador do banco (keep-alive)
+
+# Mantém o projeto Supabase (plano gratuito) ativo, evitando a hibernação
+# por inatividade. Roda de 6 em 6 horas e também pode ser disparado à mão.
+# Independente do cron do Vercel — redundância para um sistema em uso real.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # a cada 6 horas (00h, 06h, 12h, 18h UTC)
+  workflow_dispatch: {} # permite rodar manualmente pelo painel do GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acordar o banco
+        run: |
+          echo "Chamando o despertador..."
+          code=$(curl -s -o resposta.txt -w "%{http_code}" --max-time 60 \
+            https://www.portalhc.com.br/api/cron/keepalive)
+          echo "HTTP $code"
+          cat resposta.txt || true
+          echo ""
+          # Considera sucesso apenas se o banco respondeu ok (HTTP 200)
+          test "$code" = "200"
